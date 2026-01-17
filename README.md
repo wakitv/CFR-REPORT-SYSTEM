@@ -1,18 +1,15 @@
-# WackyBuds CFR System v3
+# WackyBuds CFR System v3.1
 
-## ✨ What's New in v3
+## ✨ What's New in v3.1
 
 | Feature | Description |
 |---------|-------------|
-| **Starting Chips Auto-Fill** | Automatically pulls from previous END CHIPS value |
-| **5 Decimal Precision** | All amounts show 5 decimal places (e.g., 10,000.12345) |
-| **Number Formatting** | Comma separator for thousands (e.g., 1,234,567.89012) |
-| **Weekly Filter** | Filter by date shows Week 1 (1-7), Week 2 (8-14), etc. |
-| **Persistent Filter** | Filter date is saved and restored after refresh |
-| **Export to Image** | Export report as PNG image instead of CSV |
-| **Edit/Delete Records** | Edit remarks or delete entries from the report |
-| **Shift Ordering** | Report sorts by date then shift (12PM→8PM→4AM) |
-| **Bank Fee = 0** | Bank fee is always 0 (read-only) |
+| **Editable Starting Chips** | Can now edit or remove Starting Chips entry |
+| **Bank Fee Enabled** | Bank fee field is now editable (not disabled) |
+| **Date Range Filter** | Two calendars: Start Date → End Date |
+| **Persistent Filter** | Filter dates saved and restored on refresh |
+| **Full Edit Modal** | Edit ALL fields: Date, Shift, Loader, Active, End, CFR, Remit, Fee, Unremit, Status |
+| **Auto-Recalculate on Edit** | CFR and Unremitted auto-calculate when editing |
 
 ---
 
@@ -24,14 +21,38 @@
 | **DAY** | Auto-filled | From selected date |
 | **SHIFT** | Dropdown | 12PM-8PM, 8PM-4AM, 4AM-12PM |
 | **DUTY NAME** | Text | Loader name |
-| **ACTIVE CHIPS** | Multi-entry | Starting Chips (auto) + additional entries |
+| **ACTIVE CHIPS** | Multi-entry | Starting Chips (editable/removable) + additional |
 | **Button** | + Add Chips / CO by Admin | |
 | **END CHIPS** | Multi-entry | Ending chips + deductions |
 | **Button** | + Add Deduct Chips / CI by Admin | |
 | **REMITTANCE** | Multi-entry | All remittance entries |
-| **BANK FEE** | Always 0 | Read-only |
+| **BANK FEE** | Number | Now editable! |
 | **SALARY** | Number | |
 | **REMARKS** | Text | Status/notes |
+
+---
+
+## 📊 Report Features
+
+### Date Range Filter
+1. Click **Start Date** calendar → select first date
+2. Click **End Date** calendar → select last date  
+3. Report shows all entries between those dates
+4. Filter dates are SAVED - will persist after refresh
+
+### Edit Entry (All Fields)
+Click ✏️ on any row to edit:
+- Date
+- Shift
+- Loader / Duty Name
+- Active Chips
+- End Chips
+- CFR (auto-calculates)
+- Remittance
+- Bank Fee
+- Salary
+- Unremitted (auto-calculates)
+- Status / Remarks
 
 ---
 
@@ -51,7 +72,7 @@ Unremitted = Total Remittances - CFR
 
 ```
 /
-├── index.html      ← Main app (copy this)
+├── index.html      ← Main app
 ├── Code.gs         ← Google Apps Script (paste in script editor)
 ├── manifest.json   ← PWA manifest
 ├── sw.js           ← Service worker
@@ -79,8 +100,8 @@ Unremitted = Total Remittances - CFR
 
 ### 2. Google Apps Script
 1. Go to script.google.com
-2. New project → paste Code.gs
-3. Replace YOUR_SPREADSHEET_ID_HERE with your Sheet ID
+2. New project → paste `Code.gs`
+3. Replace `YOUR_SPREADSHEET_ID_HERE` with your Sheet ID
 4. Deploy → Web app → Execute as Me → Anyone can access
 5. Copy the URL
 
@@ -88,19 +109,8 @@ Unremitted = Total Remittances - CFR
 1. Open your deployed app
 2. Settings tab → paste Apps Script URL
 3. Test Connection
-4. Done!
+4. Done! ✅
 
 ---
 
-## 📊 Report Features
-
-- **Filter by Date**: Select any date → shows that week's data
-- **Week Grouping**: Week 1 = 1-7, Week 2 = 8-14, etc.
-- **Sort Order**: Date ascending, then Shift (12PM→8PM→4AM)
-- **Edit**: Click pencil to change remarks
-- **Delete**: Click trash to remove entry
-- **Export Image**: Camera button downloads PNG screenshot
-
----
-
-**Version 3.0.0** | WackyBuds CFR System
+**Version 3.1.0** | WackyBuds CFR System
