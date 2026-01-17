@@ -66,7 +66,6 @@
                 var(--bg-primary);
         }
 
-        /* Header */
         .header {
             background: rgba(17, 24, 39, 0.85);
             backdrop-filter: blur(20px);
@@ -150,7 +149,6 @@
             padding: 1.5rem;
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 0.5rem;
@@ -185,7 +183,6 @@
             font-weight: 600;
         }
 
-        /* Cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -223,7 +220,6 @@
             font-size: 1.1rem;
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -278,7 +274,6 @@
             margin-top: 0.5rem;
         }
 
-        /* Form Elements */
         .form-section {
             margin-bottom: 1.5rem;
         }
@@ -341,11 +336,6 @@
 
         .form-input::placeholder { color: var(--text-muted); }
 
-        .form-input:read-only {
-            background: var(--bg-hover);
-            cursor: not-allowed;
-        }
-
         .form-select {
             cursor: pointer;
             appearance: none;
@@ -356,7 +346,6 @@
             padding-right: 2.5rem;
         }
 
-        /* Calendar Picker */
         .calendar-container {
             position: relative;
         }
@@ -475,7 +464,10 @@
             font-weight: 600;
         }
 
-        /* Multi Entry Section */
+        .calendar-day.in-range {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
         .multi-entry-section {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -566,19 +558,13 @@
             border-color: var(--accent-primary);
         }
 
-        .entry-row input[type="number"], .entry-row input[type="text"].amount-display {
+        .entry-row input[type="number"] {
             font-family: 'JetBrains Mono', monospace;
         }
 
         .entry-row input::placeholder {
             color: var(--text-muted);
             font-size: 0.8rem;
-        }
-
-        .entry-row input:read-only {
-            background: var(--bg-hover);
-            color: var(--accent-primary);
-            font-weight: 600;
         }
 
         .btn-remove {
@@ -622,7 +608,6 @@
             background: rgba(0, 212, 255, 0.05);
         }
 
-        /* Buttons */
         .btn {
             padding: 0.75rem 1.25rem;
             border-radius: 12px;
@@ -684,7 +669,6 @@
             margin-top: 1.5rem;
         }
 
-        /* Calculated Fields */
         .calculated-section {
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
             border: 1px solid var(--border-color);
@@ -725,7 +709,6 @@
         .calculated-value.unremitted { color: var(--accent-warning); }
         .calculated-value.negative { color: var(--accent-danger); }
 
-        /* Data Table */
         .table-container {
             overflow-x: auto;
             border-radius: 12px;
@@ -766,18 +749,6 @@
         .data-table .total-row {
             background: var(--bg-input);
             font-weight: 600;
-        }
-
-        .data-table .week-header {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-        }
-
-        .data-table .week-header td {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            color: var(--accent-primary);
-            font-size: 0.85rem;
-            padding: 0.5rem;
         }
 
         .badge {
@@ -831,11 +802,9 @@
             color: white;
         }
 
-        /* Tab Content */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
 
-        /* Toast */
         .toast-container {
             position: fixed;
             bottom: 2rem;
@@ -862,7 +831,6 @@
         .toast.success { border-left: 4px solid var(--accent-success); }
         .toast.error { border-left: 4px solid var(--accent-danger); }
 
-        /* Spinner */
         .spinner {
             width: 20px; height: 20px;
             border: 2px solid var(--border-color);
@@ -873,7 +841,6 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Loading Screen */
         .app-loading {
             display: flex;
             align-items: center;
@@ -900,7 +867,6 @@
             50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(0, 212, 255, 0.3); }
         }
 
-        /* Settings */
         .settings-group { margin-bottom: 1.5rem; }
         .settings-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; }
 
@@ -914,7 +880,6 @@
             margin-bottom: 0.75rem;
         }
 
-        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -937,7 +902,7 @@
             border: 1px solid var(--border-color);
             border-radius: 20px;
             padding: 1.5rem;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
@@ -975,7 +940,23 @@
             color: white;
         }
 
-        /* Filter Info */
+        .filter-section {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+
+        .filter-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+            padding-bottom: 0.8rem;
+        }
+
         .filter-info {
             display: flex;
             align-items: center;
@@ -998,7 +979,10 @@
             color: var(--accent-primary);
         }
 
-        /* Mobile */
+        .clear-filter-btn {
+            margin-left: auto;
+        }
+
         @media (max-width: 768px) {
             .header-content { flex-wrap: wrap; }
             .main-content { padding: 1rem; }
@@ -1011,9 +995,10 @@
             .toast { min-width: auto; }
             .calculated-grid { grid-template-columns: 1fr; }
             .card-header { flex-direction: column; align-items: stretch; }
+            .filter-section { grid-template-columns: 1fr; }
+            .filter-arrow { transform: rotate(90deg); padding: 0.5rem 0; }
         }
 
-        /* Install Prompt */
         .install-prompt {
             display: none;
             position: fixed;
@@ -1037,23 +1022,18 @@
             to { transform: translateY(0); }
         }
 
-        /* Canvas for export */
-        #exportCanvas {
-            display: none;
-        }
+        #exportCanvas { display: none; }
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
     <canvas id="exportCanvas"></canvas>
 
-    <!-- Loading Screen -->
     <div id="loadingScreen" class="app-loading">
         <div class="loading-logo">W</div>
         <div style="color: var(--text-secondary);">Loading CFR System...</div>
     </div>
 
-    <!-- Main App -->
     <div id="mainApp" style="display: none;">
         <header class="header">
             <div class="header-content">
@@ -1061,7 +1041,7 @@
                     <div class="logo-icon">W</div>
                     <div>
                         <div class="logo-text">WackyBuds</div>
-                        <div class="logo-subtitle">CFR System v3</div>
+                        <div class="logo-subtitle">CFR System v3.1</div>
                     </div>
                 </div>
                 <div class="connection-status">
@@ -1072,7 +1052,6 @@
         </header>
 
         <main class="main-content">
-            <!-- Tabs -->
             <div class="tabs">
                 <button class="tab active" data-tab="entry">📝 New Entry</button>
                 <button class="tab" data-tab="report">📊 Report</button>
@@ -1082,7 +1061,6 @@
 
             <!-- New Entry Tab -->
             <div id="entry" class="tab-content active">
-                <!-- Stats -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value" id="statCFR">₱0.00000</div>
@@ -1102,7 +1080,6 @@
                     </div>
                 </div>
 
-                <!-- Entry Form -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">
@@ -1113,7 +1090,6 @@
                     </div>
 
                     <form id="entryForm">
-                        <!-- Basic Info Section -->
                         <div class="form-section">
                             <div class="form-section-title">📅 Basic Information</div>
                             <div class="form-grid">
@@ -1169,7 +1145,6 @@
                             </div>
                         </div>
 
-                        <!-- Active Chips Section (Multiple Entry) -->
                         <div class="form-section">
                             <div class="form-section-title">📈 Chips & Transactions</div>
                             
@@ -1183,9 +1158,9 @@
                                 </div>
                                 <div class="entry-list" id="activeChipsList">
                                     <div class="entry-row starting-chips" data-type="active" data-starting="true">
-                                        <input type="text" class="amount-display" id="startingChipsDisplay" placeholder="0.00000" readonly>
-                                        <input type="text" class="entry-remarks" value="Starting Chips" readonly>
-                                        <button type="button" class="btn-remove" style="visibility: hidden;">×</button>
+                                        <input type="number" step="0.00001" placeholder="Amount" class="entry-amount" id="startingChipsInput" oninput="calculateAll()">
+                                        <input type="text" class="entry-remarks" value="Starting Chips">
+                                        <button type="button" class="btn-remove" onclick="removeStartingChips(this)">×</button>
                                     </div>
                                 </div>
                                 <button type="button" class="btn-add-entry" onclick="addEntry('active', 'Chips / CO by Admin')">
@@ -1204,7 +1179,7 @@
                                 <div class="entry-list" id="endChipsList">
                                     <div class="entry-row" data-type="end">
                                         <input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()">
-                                        <input type="text" placeholder="Remarks (e.g., Ending Chips)" class="entry-remarks" value="Ending Chips">
+                                        <input type="text" placeholder="Remarks" class="entry-remarks" value="Ending Chips">
                                         <button type="button" class="btn-remove" onclick="removeEntry(this)" style="visibility: hidden;">×</button>
                                     </div>
                                 </div>
@@ -1214,7 +1189,6 @@
                             </div>
                         </div>
 
-                        <!-- Remittance Section (Multiple Entry) -->
                         <div class="form-section">
                             <div class="form-section-title">💵 Remittance</div>
                             
@@ -1229,7 +1203,7 @@
                                 <div class="entry-list" id="remittanceList">
                                     <div class="entry-row" data-type="remit">
                                         <input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()">
-                                        <input type="text" placeholder="Remarks (e.g., GCash, Bank)" class="entry-remarks" value="Remittance">
+                                        <input type="text" placeholder="Remarks" class="entry-remarks" value="Remittance">
                                         <button type="button" class="btn-remove" onclick="removeEntry(this)" style="visibility: hidden;">×</button>
                                     </div>
                                 </div>
@@ -1239,13 +1213,12 @@
                             </div>
                         </div>
 
-                        <!-- Other Fields -->
                         <div class="form-section">
                             <div class="form-section-title">📋 Other Details</div>
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label class="form-label">Bank Fee</label>
-                                    <input type="number" step="0.00001" class="form-input" id="bankFee" placeholder="0.00000" value="0" readonly>
+                                    <input type="number" step="0.00001" class="form-input" id="bankFee" placeholder="0.00000" value="0" oninput="calculateAll()">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Salary</label>
@@ -1258,7 +1231,6 @@
                             </div>
                         </div>
 
-                        <!-- Calculated Section -->
                         <div class="calculated-section">
                             <div class="form-section-title" style="margin-bottom: 1rem;">🧮 Auto-Calculated Values</div>
                             <div class="calculated-grid">
@@ -1306,16 +1278,17 @@
                         </div>
                     </div>
 
-                    <div class="form-grid" style="margin-bottom: 1rem;">
+                    <!-- Date Range Filter -->
+                    <div class="filter-section">
                         <div class="form-group">
-                            <label class="form-label">Filter by Date (Starting Date)</label>
+                            <label class="form-label">📅 Start Date</label>
                             <div class="calendar-container">
-                                <input type="text" class="form-input calendar-input" id="filterDate" placeholder="Click to select" readonly>
-                                <div class="calendar-popup" id="filterCalendarPopup">
+                                <input type="text" class="form-input calendar-input" id="filterStartDate" placeholder="Select start date" readonly>
+                                <div class="calendar-popup" id="filterStartCalendarPopup">
                                     <div class="calendar-header">
-                                        <button type="button" class="calendar-nav" id="filterPrevMonth">‹</button>
-                                        <span class="calendar-month-year" id="filterCalendarMonthYear"></span>
-                                        <button type="button" class="calendar-nav" id="filterNextMonth">›</button>
+                                        <button type="button" class="calendar-nav" onclick="changeFilterMonth('start', -1)">‹</button>
+                                        <span class="calendar-month-year" id="filterStartMonthYear"></span>
+                                        <button type="button" class="calendar-nav" onclick="changeFilterMonth('start', 1)">›</button>
                                     </div>
                                     <div class="calendar-weekdays">
                                         <div class="calendar-weekday">Sun</div>
@@ -1326,10 +1299,39 @@
                                         <div class="calendar-weekday">Fri</div>
                                         <div class="calendar-weekday">Sat</div>
                                     </div>
-                                    <div class="calendar-days" id="filterCalendarDays"></div>
+                                    <div class="calendar-days" id="filterStartCalendarDays"></div>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="filter-arrow">→</div>
+
+                        <div class="form-group">
+                            <label class="form-label">📅 End Date</label>
+                            <div class="calendar-container">
+                                <input type="text" class="form-input calendar-input" id="filterEndDate" placeholder="Select end date" readonly>
+                                <div class="calendar-popup" id="filterEndCalendarPopup">
+                                    <div class="calendar-header">
+                                        <button type="button" class="calendar-nav" onclick="changeFilterMonth('end', -1)">‹</button>
+                                        <span class="calendar-month-year" id="filterEndMonthYear"></span>
+                                        <button type="button" class="calendar-nav" onclick="changeFilterMonth('end', 1)">›</button>
+                                    </div>
+                                    <div class="calendar-weekdays">
+                                        <div class="calendar-weekday">Sun</div>
+                                        <div class="calendar-weekday">Mon</div>
+                                        <div class="calendar-weekday">Tue</div>
+                                        <div class="calendar-weekday">Wed</div>
+                                        <div class="calendar-weekday">Thu</div>
+                                        <div class="calendar-weekday">Fri</div>
+                                        <div class="calendar-weekday">Sat</div>
+                                    </div>
+                                    <div class="calendar-days" id="filterEndCalendarDays"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 1rem;">
                         <div class="form-group">
                             <label class="form-label">Filter by Loader</label>
                             <select class="form-select" id="filterLoader" onchange="filterReport()">
@@ -1345,6 +1347,7 @@
                         <div class="filter-info-item">
                             📊 <span>Entries:</span> <strong id="filterCountDisplay">0</strong>
                         </div>
+                        <button class="btn btn-secondary btn-sm clear-filter-btn" onclick="clearDateFilter()">✕ Clear Filter</button>
                     </div>
 
                     <div class="table-container" id="reportTableContainer">
@@ -1424,9 +1427,6 @@
                         <div class="form-group">
                             <label class="form-label">Google Apps Script URL</label>
                             <input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/...">
-                            <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.5rem; display: block;">
-                                Enter your deployed Google Apps Script web app URL
-                            </small>
                         </div>
                         <div class="btn-group" style="margin-top: 1rem;">
                             <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
@@ -1439,7 +1439,7 @@
                         <div class="settings-item">
                             <div>
                                 <div style="font-weight: 500;">Version</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">3.0.0</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">3.1.0</div>
                             </div>
                         </div>
                         <div class="settings-item">
@@ -1454,7 +1454,6 @@
             </div>
         </main>
 
-        <!-- Install Prompt -->
         <div class="install-prompt" id="installPrompt">
             <div>
                 <strong>Install WackyBuds CFR</strong>
@@ -1466,11 +1465,10 @@
             </div>
         </div>
 
-        <!-- Toast Container -->
         <div class="toast-container" id="toastContainer"></div>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- Full Edit Modal -->
     <div class="modal-overlay" id="editModal">
         <div class="modal">
             <div class="modal-header">
@@ -1479,12 +1477,58 @@
             </div>
             <form id="editForm">
                 <input type="hidden" id="editRowIndex">
-                <div class="form-grid">
+                
+                <div class="form-grid" style="margin-bottom: 1rem;">
                     <div class="form-group">
-                        <label class="form-label">Remarks / Status</label>
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="editDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Shift</label>
+                        <select class="form-select" id="editShift">
+                            <option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option>
+                            <option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option>
+                            <option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Loader / Duty Name</label>
+                        <input type="text" class="form-input" id="editDutyName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Active Chips</label>
+                        <input type="number" step="0.00001" class="form-input" id="editActiveChips" oninput="recalculateEdit()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Chips</label>
+                        <input type="number" step="0.00001" class="form-input" id="editEndChips" oninput="recalculateEdit()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CFR (Auto)</label>
+                        <input type="number" step="0.00001" class="form-input" id="editCFR" style="color: var(--accent-primary);">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Remittance</label>
+                        <input type="number" step="0.00001" class="form-input" id="editRemittance" oninput="recalculateEdit()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bank Fee</label>
+                        <input type="number" step="0.00001" class="form-input" id="editBankFee">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Salary</label>
+                        <input type="number" step="0.00001" class="form-input" id="editSalary" oninput="recalculateEdit()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unremitted (Auto)</label>
+                        <input type="number" step="0.00001" class="form-input" id="editUnremitted" style="color: var(--accent-warning);">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">Status / Remarks</label>
                         <input type="text" class="form-input" id="editRemarks" placeholder="e.g., DONE, PENDING">
                     </div>
                 </div>
+                
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary">💾 Save Changes</button>
                     <button type="button" class="btn btn-danger" onclick="deleteEntry()">🗑️ Delete Entry</button>
@@ -1522,9 +1566,15 @@
         let deferredPrompt = null;
         let currentCalendarDate = new Date();
         let selectedDate = new Date();
-        let filterCalendarDate = new Date();
-        let selectedFilterDate = localStorage.getItem('cfr_filter_date') ? new Date(localStorage.getItem('cfr_filter_date')) : null;
+        
+        // Filter dates
+        let filterStartCalendarDate = new Date();
+        let filterEndCalendarDate = new Date();
+        let selectedFilterStartDate = localStorage.getItem('cfr_filter_start') ? new Date(localStorage.getItem('cfr_filter_start')) : null;
+        let selectedFilterEndDate = localStorage.getItem('cfr_filter_end') ? new Date(localStorage.getItem('cfr_filter_end')) : null;
+        
         let editingRowIndex = null;
+        let editingEntry = null;
 
         const SHIFT_ORDER = {
             '12:00PM - 8:00PM': 1,
@@ -1535,13 +1585,12 @@
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
             initCalendar();
-            initFilterCalendar();
+            initFilterCalendars();
             selectDate(new Date());
             setupTabs();
             setupFormSubmit();
             setupEditForm();
             
-            // Set starting chips from last end chips
             updateStartingChips();
             
             if (CONFIG.scriptUrl) {
@@ -1549,10 +1598,14 @@
                 refreshData();
             }
 
-            // Restore filter date
-            if (selectedFilterDate) {
-                filterCalendarDate = new Date(selectedFilterDate);
-                updateFilterDateDisplay();
+            // Restore filter dates
+            if (selectedFilterStartDate) {
+                filterStartCalendarDate = new Date(selectedFilterStartDate);
+                document.getElementById('filterStartDate').value = formatDateDisplay(selectedFilterStartDate);
+            }
+            if (selectedFilterEndDate) {
+                filterEndCalendarDate = new Date(selectedFilterEndDate);
+                document.getElementById('filterEndDate').value = formatDateDisplay(selectedFilterEndDate);
             }
 
             setTimeout(() => {
@@ -1577,21 +1630,27 @@
             return '₱' + formatNumber(value, decimals);
         }
 
-        function parseFormattedNumber(str) {
-            if (!str) return 0;
-            return parseFloat(String(str).replace(/,/g, '')) || 0;
-        }
-
         // ========== STARTING CHIPS ==========
         function updateStartingChips() {
-            const display = document.getElementById('startingChipsDisplay');
-            display.value = formatNumber(lastEndChips);
-            calculateAll();
+            const input = document.getElementById('startingChipsInput');
+            if (input) {
+                input.value = lastEndChips || '';
+                calculateAll();
+            }
         }
 
         function setLastEndChips(value) {
             lastEndChips = parseFloat(value) || 0;
             localStorage.setItem('cfr_last_end_chips', lastEndChips);
+        }
+
+        function removeStartingChips(btn) {
+            const row = btn.closest('.entry-row');
+            row.style.animation = 'slideIn 0.2s ease reverse';
+            setTimeout(() => {
+                row.remove();
+                calculateAll();
+            }, 200);
         }
 
         // ========== CALENDAR ==========
@@ -1605,10 +1664,8 @@
             });
 
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('.calendar-container') || e.target.closest('#filterCalendarPopup')) {
-                    if (!e.target.closest('#calendarPopup') && !e.target.closest('#entryDate')) {
-                        popup.classList.remove('show');
-                    }
+                if (!e.target.closest('#calendarPopup') && !e.target.closest('#entryDate')) {
+                    popup.classList.remove('show');
                 }
             });
 
@@ -1654,13 +1711,8 @@
                 const date = new Date(year, month, day);
                 const btn = createDayButton(day, false, date, 'entry');
                 
-                if (date.getTime() === today.getTime()) {
-                    btn.classList.add('today');
-                }
-                
-                if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
-                    btn.classList.add('selected');
-                }
+                if (date.getTime() === today.getTime()) btn.classList.add('today');
+                if (selectedDate && date.toDateString() === selectedDate.toDateString()) btn.classList.add('selected');
                 
                 daysContainer.appendChild(btn);
             }
@@ -1680,11 +1732,9 @@
             btn.textContent = day;
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (type === 'entry') {
-                    selectDate(date);
-                } else {
-                    selectFilterDate(date);
-                }
+                if (type === 'entry') selectDate(date);
+                else if (type === 'filterStart') selectFilterStartDate(date);
+                else if (type === 'filterEnd') selectFilterEndDate(date);
             });
             return btn;
         }
@@ -1706,70 +1756,82 @@
             renderCalendar();
         }
 
-        // ========== FILTER CALENDAR ==========
-        function initFilterCalendar() {
-            const dateInput = document.getElementById('filterDate');
-            const popup = document.getElementById('filterCalendarPopup');
+        // ========== FILTER CALENDARS ==========
+        function initFilterCalendars() {
+            // Start date calendar
+            document.getElementById('filterStartDate').addEventListener('click', () => {
+                document.getElementById('filterEndCalendarPopup').classList.remove('show');
+                document.getElementById('filterStartCalendarPopup').classList.toggle('show');
+                renderFilterCalendar('start');
+            });
 
-            dateInput.addEventListener('click', () => {
-                popup.classList.toggle('show');
-                renderFilterCalendar();
+            // End date calendar
+            document.getElementById('filterEndDate').addEventListener('click', () => {
+                document.getElementById('filterStartCalendarPopup').classList.remove('show');
+                document.getElementById('filterEndCalendarPopup').classList.toggle('show');
+                renderFilterCalendar('end');
             });
 
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('#filterCalendarPopup') && !e.target.closest('#filterDate')) {
-                    popup.classList.remove('show');
+                if (!e.target.closest('#filterStartCalendarPopup') && !e.target.closest('#filterStartDate')) {
+                    document.getElementById('filterStartCalendarPopup').classList.remove('show');
                 }
-            });
-
-            document.getElementById('filterPrevMonth').addEventListener('click', (e) => {
-                e.stopPropagation();
-                filterCalendarDate.setMonth(filterCalendarDate.getMonth() - 1);
-                renderFilterCalendar();
-            });
-
-            document.getElementById('filterNextMonth').addEventListener('click', (e) => {
-                e.stopPropagation();
-                filterCalendarDate.setMonth(filterCalendarDate.getMonth() + 1);
-                renderFilterCalendar();
+                if (!e.target.closest('#filterEndCalendarPopup') && !e.target.closest('#filterEndDate')) {
+                    document.getElementById('filterEndCalendarPopup').classList.remove('show');
+                }
             });
         }
 
-        function renderFilterCalendar() {
-            const year = filterCalendarDate.getFullYear();
-            const month = filterCalendarDate.getMonth();
+        function changeFilterMonth(type, delta) {
+            if (type === 'start') {
+                filterStartCalendarDate.setMonth(filterStartCalendarDate.getMonth() + delta);
+                renderFilterCalendar('start');
+            } else {
+                filterEndCalendarDate.setMonth(filterEndCalendarDate.getMonth() + delta);
+                renderFilterCalendar('end');
+            }
+        }
+
+        function renderFilterCalendar(type) {
+            const calendarDate = type === 'start' ? filterStartCalendarDate : filterEndCalendarDate;
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
             
             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                                'July', 'August', 'September', 'October', 'November', 'December'];
             
-            document.getElementById('filterCalendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+            document.getElementById(`filter${type === 'start' ? 'Start' : 'End'}MonthYear`).textContent = `${monthNames[month]} ${year}`;
             
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrevMonth = new Date(year, month, 0).getDate();
             
-            const daysContainer = document.getElementById('filterCalendarDays');
+            const daysContainer = document.getElementById(`filter${type === 'start' ? 'Start' : 'End'}CalendarDays`);
             daysContainer.innerHTML = '';
             
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
+            const selectedDate = type === 'start' ? selectedFilterStartDate : selectedFilterEndDate;
+            
             for (let i = firstDay - 1; i >= 0; i--) {
                 const day = daysInPrevMonth - i;
-                const btn = createDayButton(day, true, new Date(year, month - 1, day), 'filter');
+                const btn = createDayButton(day, true, new Date(year, month - 1, day), type === 'start' ? 'filterStart' : 'filterEnd');
                 daysContainer.appendChild(btn);
             }
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(year, month, day);
-                const btn = createDayButton(day, false, date, 'filter');
+                const btn = createDayButton(day, false, date, type === 'start' ? 'filterStart' : 'filterEnd');
                 
-                if (date.getTime() === today.getTime()) {
-                    btn.classList.add('today');
-                }
+                if (date.getTime() === today.getTime()) btn.classList.add('today');
+                if (selectedDate && date.toDateString() === selectedDate.toDateString()) btn.classList.add('selected');
                 
-                if (selectedFilterDate && date.toDateString() === selectedFilterDate.toDateString()) {
-                    btn.classList.add('selected');
+                // Highlight range
+                if (selectedFilterStartDate && selectedFilterEndDate) {
+                    if (date >= selectedFilterStartDate && date <= selectedFilterEndDate) {
+                        btn.classList.add('in-range');
+                    }
                 }
                 
                 daysContainer.appendChild(btn);
@@ -1778,43 +1840,44 @@
             const totalCells = 42;
             const remainingCells = totalCells - (firstDay + daysInMonth);
             for (let day = 1; day <= remainingCells; day++) {
-                const btn = createDayButton(day, true, new Date(year, month + 1, day), 'filter');
+                const btn = createDayButton(day, true, new Date(year, month + 1, day), type === 'start' ? 'filterStart' : 'filterEnd');
                 daysContainer.appendChild(btn);
             }
         }
 
-        function selectFilterDate(date) {
-            selectedFilterDate = date;
-            filterCalendarDate = new Date(date);
+        function selectFilterStartDate(date) {
+            selectedFilterStartDate = date;
+            filterStartCalendarDate = new Date(date);
+            localStorage.setItem('cfr_filter_start', date.toISOString());
             
-            // Save to localStorage
-            localStorage.setItem('cfr_filter_date', date.toISOString());
+            document.getElementById('filterStartDate').value = formatDateDisplay(date);
+            document.getElementById('filterStartCalendarPopup').classList.remove('show');
             
-            updateFilterDateDisplay();
-            document.getElementById('filterCalendarPopup').classList.remove('show');
-            renderFilterCalendar();
             filterReport();
         }
 
-        function updateFilterDateDisplay() {
-            if (selectedFilterDate) {
-                document.getElementById('filterDate').value = selectedFilterDate.toLocaleDateString('en-US', {
-                    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-                });
-            }
+        function selectFilterEndDate(date) {
+            selectedFilterEndDate = date;
+            filterEndCalendarDate = new Date(date);
+            localStorage.setItem('cfr_filter_end', date.toISOString());
+            
+            document.getElementById('filterEndDate').value = formatDateDisplay(date);
+            document.getElementById('filterEndCalendarPopup').classList.remove('show');
+            
+            filterReport();
         }
 
-        function getWeekRange(date) {
-            const d = new Date(date);
-            const day = d.getDate();
-            const weekNum = Math.ceil(day / 7);
-            const startDay = (weekNum - 1) * 7 + 1;
-            const endDay = Math.min(weekNum * 7, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
+        function clearDateFilter() {
+            selectedFilterStartDate = null;
+            selectedFilterEndDate = null;
+            localStorage.removeItem('cfr_filter_start');
+            localStorage.removeItem('cfr_filter_end');
             
-            const startDate = new Date(d.getFullYear(), d.getMonth(), startDay);
-            const endDate = new Date(d.getFullYear(), d.getMonth(), endDay);
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            document.getElementById('filterInfo').style.display = 'none';
             
-            return { startDate, endDate, weekNum };
+            filterReport();
         }
 
         // ========== MULTI-ENTRY ==========
@@ -1861,15 +1924,7 @@
             const entries = [];
             rows.forEach(row => {
                 const amountInput = row.querySelector('.entry-amount');
-                const displayInput = row.querySelector('.amount-display');
-                let amount = 0;
-                
-                if (amountInput) {
-                    amount = parseFloat(amountInput.value) || 0;
-                } else if (displayInput) {
-                    amount = parseFormattedNumber(displayInput.value);
-                }
-                
+                const amount = parseFloat(amountInput?.value) || 0;
                 const remarks = row.querySelector('.entry-remarks').value || '';
                 if (amount > 0 || remarks) {
                     entries.push({ amount, remarks });
@@ -1880,35 +1935,20 @@
 
         // ========== CALCULATIONS ==========
         function calculateAll() {
-            // Get starting chips (from previous end chips)
-            const startingChips = lastEndChips;
-            
-            // Get additional active chips entries
-            const additionalActive = getEntrySum('activeChipsList');
-            
-            // Total active = starting + additional
-            const activeTotal = startingChips + additionalActive;
-            
+            const activeTotal = getEntrySum('activeChipsList');
             const endTotal = getEntrySum('endChipsList');
             const remitTotal = getEntrySum('remittanceList');
             const salary = parseFloat(document.getElementById('salary').value) || 0;
-            const bankFee = 0; // Always 0
+            const bankFee = parseFloat(document.getElementById('bankFee').value) || 0;
 
-            // CFR = Active Chips - End Chips
             const cfr = activeTotal - endTotal;
-            
-            // Total Remittances = Remittance + Salary
             const totalRemit = remitTotal + salary;
-            
-            // Unremitted = Total Remittances - CFR
             const unremitted = totalRemit - cfr;
 
-            // Update totals in sections
             document.getElementById('activeChipsTotal').textContent = formatCurrency(activeTotal);
             document.getElementById('endChipsTotal').textContent = formatCurrency(endTotal);
             document.getElementById('remittanceTotal').textContent = formatCurrency(remitTotal);
 
-            // Update calculated fields
             document.getElementById('calcCFR').textContent = formatCurrency(cfr);
             document.getElementById('calcTotalRemit').textContent = formatCurrency(totalRemit);
             
@@ -1916,7 +1956,6 @@
             unremitEl.textContent = formatCurrency(unremitted);
             unremitEl.classList.toggle('negative', unremitted < 0);
 
-            // Update stats
             document.getElementById('statCFR').textContent = formatCurrency(cfr);
             document.getElementById('statRemit').textContent = formatCurrency(totalRemit);
             document.getElementById('statUnremit').textContent = formatCurrency(unremitted);
@@ -1939,9 +1978,7 @@
             btn.innerHTML = '<div class="spinner"></div> Saving...';
             btn.disabled = true;
 
-            const startingChips = lastEndChips;
-            const additionalActive = getEntrySum('activeChipsList');
-            const activeTotal = startingChips + additionalActive;
+            const activeTotal = getEntrySum('activeChipsList');
             const endTotal = getEntrySum('endChipsList');
 
             const data = {
@@ -1950,32 +1987,29 @@
                 day: document.getElementById('entryDay').value,
                 shift: document.getElementById('entryShift').value,
                 dutyName: document.getElementById('dutyName').value,
-                startingChips: startingChips,
                 activeChips: getEntryDetails('activeChipsList'),
                 activeChipsTotal: activeTotal,
                 endChips: getEntryDetails('endChipsList'),
                 endChipsTotal: endTotal,
                 remittances: getEntryDetails('remittanceList'),
                 remittanceTotal: getEntrySum('remittanceList'),
-                bankFee: 0,
+                bankFee: parseFloat(document.getElementById('bankFee').value) || 0,
                 salary: parseFloat(document.getElementById('salary').value) || 0,
                 remarks: document.getElementById('remarks').value
             };
 
-            // Calculate CFR and totals
             data.cfr = data.activeChipsTotal - data.endChipsTotal;
             data.totalRemittances = data.remittanceTotal + data.salary;
             data.unremitted = data.totalRemittances - data.cfr;
 
             try {
-                const response = await fetch(CONFIG.scriptUrl, {
+                await fetch(CONFIG.scriptUrl, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
-                // Update last end chips for next entry
                 setLastEndChips(endTotal);
                 updateStartingChips();
 
@@ -2004,7 +2038,6 @@
             document.getElementById('salary').value = '0';
             document.getElementById('remarks').value = '';
 
-            // Reset multi-entry sections (keep starting chips)
             ['endChipsList', 'remittanceList'].forEach(listId => {
                 const list = document.getElementById(listId);
                 const rows = list.querySelectorAll('.entry-row');
@@ -2018,7 +2051,7 @@
                 });
             });
 
-            // Reset active chips additional entries only
+            // Reset active chips additional entries only (keep starting chips if exists)
             const activeList = document.getElementById('activeChipsList');
             const activeRows = activeList.querySelectorAll('.entry-row:not(.starting-chips)');
             activeRows.forEach(row => row.remove());
@@ -2056,7 +2089,6 @@
                 if (data.success) {
                     reportData = data.entries || [];
                     
-                    // Update last end chips from most recent entry
                     if (reportData.length > 0) {
                         const sortedData = [...reportData].sort((a, b) => {
                             const dateA = new Date(a.date);
@@ -2094,24 +2126,37 @@
         function filterReport() {
             const loaderFilter = document.getElementById('filterLoader').value;
             
-            // Filter by loader
             let data = reportData;
             if (loaderFilter) {
                 data = data.filter(e => e.dutyName === loaderFilter);
             }
 
-            // Filter and group by week if date is selected
-            if (selectedFilterDate) {
-                const { startDate, endDate, weekNum } = getWeekRange(selectedFilterDate);
+            // Filter by date range
+            if (selectedFilterStartDate && selectedFilterEndDate) {
+                const start = new Date(selectedFilterStartDate);
+                start.setHours(0, 0, 0, 0);
+                const end = new Date(selectedFilterEndDate);
+                end.setHours(23, 59, 59, 999);
                 
                 data = data.filter(e => {
                     const entryDate = new Date(e.date);
-                    return entryDate >= startDate && entryDate <= endDate;
+                    return entryDate >= start && entryDate <= end;
                 });
 
                 document.getElementById('filterInfo').style.display = 'flex';
                 document.getElementById('filterRangeDisplay').textContent = 
-                    `Week ${weekNum}: ${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                    `${formatDateDisplay(selectedFilterStartDate)} → ${formatDateDisplay(selectedFilterEndDate)}`;
+                document.getElementById('filterCountDisplay').textContent = data.length;
+            } else if (selectedFilterStartDate || selectedFilterEndDate) {
+                // Single date filter
+                const filterDate = selectedFilterStartDate || selectedFilterEndDate;
+                data = data.filter(e => {
+                    const entryDate = new Date(e.date).toDateString();
+                    return entryDate === filterDate.toDateString();
+                });
+                
+                document.getElementById('filterInfo').style.display = 'flex';
+                document.getElementById('filterRangeDisplay').textContent = formatDateDisplay(filterDate);
                 document.getElementById('filterCountDisplay').textContent = data.length;
             } else {
                 document.getElementById('filterInfo').style.display = 'none';
@@ -2140,11 +2185,8 @@
 
             let html = '';
             let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 };
-            let currentDate = null;
 
             filteredData.forEach(entry => {
-                const entryDate = new Date(entry.date).toDateString();
-                
                 totals.active += entry.activeChipsTotal || 0;
                 totals.end += entry.endChipsTotal || 0;
                 totals.cfr += entry.cfr || 0;
@@ -2164,7 +2206,7 @@
                     <td><span class="badge ${entry.remarks === 'DONE' ? 'badge-success' : 'badge-warning'}">${entry.remarks || '-'}</span></td>
                     <td>
                         <div class="action-btns">
-                            <button class="action-btn edit" onclick="openEditModal(${entry.rowIndex}, '${(entry.remarks || '').replace(/'/g, "\\'")}')">✏️</button>
+                            <button class="action-btn edit" onclick="openEditModal(${entry.rowIndex})">✏️</button>
                             <button class="action-btn delete" onclick="openDeleteModal(${entry.rowIndex})">🗑️</button>
                         </div>
                     </td>
@@ -2185,9 +2227,10 @@
             tbody.innerHTML = html;
         }
 
-        function formatDateDisplay(dateStr) {
-            if (!dateStr) return '-';
-            return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        function formatDateDisplay(dateInput) {
+            if (!dateInput) return '-';
+            const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
         // ========== EDIT / DELETE ==========
@@ -2200,6 +2243,17 @@
                 const data = {
                     action: 'updateEntry',
                     rowIndex: editingRowIndex,
+                    date: document.getElementById('editDate').value,
+                    shift: document.getElementById('editShift').value,
+                    dutyName: document.getElementById('editDutyName').value,
+                    activeChipsTotal: parseFloat(document.getElementById('editActiveChips').value) || 0,
+                    endChipsTotal: parseFloat(document.getElementById('editEndChips').value) || 0,
+                    cfr: parseFloat(document.getElementById('editCFR').value) || 0,
+                    remittanceTotal: parseFloat(document.getElementById('editRemittance').value) || 0,
+                    bankFee: parseFloat(document.getElementById('editBankFee').value) || 0,
+                    salary: parseFloat(document.getElementById('editSalary').value) || 0,
+                    totalRemittances: parseFloat(document.getElementById('editRemittance').value) + parseFloat(document.getElementById('editSalary').value) || 0,
+                    unremitted: parseFloat(document.getElementById('editUnremitted').value) || 0,
                     remarks: document.getElementById('editRemarks').value
                 };
 
@@ -2220,15 +2274,48 @@
             });
         }
 
-        function openEditModal(rowIndex, remarks) {
+        function openEditModal(rowIndex) {
             editingRowIndex = rowIndex;
+            editingEntry = reportData.find(e => e.rowIndex === rowIndex);
+            
+            if (!editingEntry) {
+                showToast('Entry not found', 'error');
+                return;
+            }
+
             document.getElementById('editRowIndex').value = rowIndex;
-            document.getElementById('editRemarks').value = remarks;
+            document.getElementById('editDate').value = editingEntry.date;
+            document.getElementById('editShift').value = editingEntry.shift || '';
+            document.getElementById('editDutyName').value = editingEntry.dutyName || '';
+            document.getElementById('editActiveChips').value = editingEntry.activeChipsTotal || 0;
+            document.getElementById('editEndChips').value = editingEntry.endChipsTotal || 0;
+            document.getElementById('editCFR').value = editingEntry.cfr || 0;
+            document.getElementById('editRemittance').value = editingEntry.remittanceTotal || 0;
+            document.getElementById('editBankFee').value = editingEntry.bankFee || 0;
+            document.getElementById('editSalary').value = editingEntry.salary || 0;
+            document.getElementById('editUnremitted').value = editingEntry.unremitted || 0;
+            document.getElementById('editRemarks').value = editingEntry.remarks || '';
+
             document.getElementById('editModal').classList.add('show');
+        }
+
+        function recalculateEdit() {
+            const active = parseFloat(document.getElementById('editActiveChips').value) || 0;
+            const end = parseFloat(document.getElementById('editEndChips').value) || 0;
+            const remit = parseFloat(document.getElementById('editRemittance').value) || 0;
+            const salary = parseFloat(document.getElementById('editSalary').value) || 0;
+
+            const cfr = active - end;
+            const totalRemit = remit + salary;
+            const unremitted = totalRemit - cfr;
+
+            document.getElementById('editCFR').value = cfr.toFixed(5);
+            document.getElementById('editUnremitted').value = unremitted.toFixed(5);
         }
 
         function closeEditModal() {
             editingRowIndex = null;
+            editingEntry = null;
             document.getElementById('editModal').classList.remove('show');
         }
 
@@ -2241,7 +2328,7 @@
             document.getElementById('deleteModal').classList.remove('show');
         }
 
-        async function deleteEntry() {
+        function deleteEntry() {
             closeEditModal();
             openDeleteModal(editingRowIndex);
         }
@@ -2283,7 +2370,6 @@
             const canvas = document.getElementById('exportCanvas');
             const ctx = canvas.getContext('2d');
 
-            // Calculate dimensions
             const padding = 40;
             const rowHeight = 35;
             const headerHeight = 50;
@@ -2295,27 +2381,23 @@
             canvas.width = totalWidth;
             canvas.height = totalHeight;
 
-            // Background
             ctx.fillStyle = '#0a0f1a';
             ctx.fillRect(0, 0, totalWidth, totalHeight);
 
-            // Title
             ctx.fillStyle = '#00d4ff';
             ctx.font = 'bold 20px Outfit, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('WackyBuds CFR Report', totalWidth / 2, padding + 25);
 
-            if (selectedFilterDate) {
-                const { startDate, endDate, weekNum } = getWeekRange(selectedFilterDate);
+            if (selectedFilterStartDate && selectedFilterEndDate) {
                 ctx.fillStyle = '#94a3b8';
                 ctx.font = '12px Outfit, sans-serif';
                 ctx.fillText(
-                    `Week ${weekNum}: ${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+                    `${formatDateDisplay(selectedFilterStartDate)} → ${formatDateDisplay(selectedFilterEndDate)}`,
                     totalWidth / 2, padding + 45
                 );
             }
 
-            // Headers
             const headers = ['Date', 'Shift', 'Loader', 'Active', 'End', 'CFR', 'Remit', 'Fee', 'Unremit', 'Status'];
             ctx.fillStyle = '#1e293b';
             ctx.fillRect(padding, padding + titleHeight, totalWidth - padding * 2, headerHeight);
@@ -2330,12 +2412,10 @@
                 x += cols[i];
             });
 
-            // Data rows
             let y = padding + titleHeight + headerHeight;
             let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 };
 
             filteredData.forEach((entry, idx) => {
-                // Alternate row background
                 if (idx % 2 === 0) {
                     ctx.fillStyle = '#111827';
                     ctx.fillRect(padding, y, totalWidth - padding * 2, rowHeight);
@@ -2377,7 +2457,6 @@
                 y += rowHeight;
             });
 
-            // Total row
             ctx.fillStyle = '#1e293b';
             ctx.fillRect(padding, y, totalWidth - padding * 2, rowHeight);
 
@@ -2406,7 +2485,6 @@
                 x += cols[i];
             });
 
-            // Download
             const link = document.createElement('a');
             link.download = `CFR_Report_${new Date().toISOString().split('T')[0]}.png`;
             link.href = canvas.toDataURL('image/png');
@@ -2487,7 +2565,6 @@
             text.textContent = connected ? 'Connected' : (CONFIG.scriptUrl ? 'Disconnected' : 'Not configured');
         }
 
-        // ========== UTILITIES ==========
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -2530,3 +2607,5 @@
     </script>
 </body>
 </html>
+
+
