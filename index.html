@@ -31,8 +31,6 @@
             --accent-success: #10b981;
             --accent-warning: #f59e0b;
             --accent-danger: #ef4444;
-            --accent-pink: #ec4899;
-            --accent-orange: #f97316;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
@@ -42,1015 +40,163 @@
             --gradient-primary: linear-gradient(135deg, #00d4ff 0%, #a855f7 100%);
             --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
             --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .bg-animation {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(ellipse at 10% 10%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 90% 90%, rgba(168, 85, 247, 0.03) 0%, transparent 50%),
-                var(--bg-primary);
-        }
-
-        .header {
-            background: rgba(17, 24, 39, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 1.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo-icon {
-            width: 44px; height: 44px;
-            background: var(--gradient-primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            font-weight: 800;
-            box-shadow: var(--shadow-glow);
-        }
-
-        .logo-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .logo-subtitle {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg-input);
-            border-radius: 100px;
-            font-size: 0.8rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .status-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--accent-warning);
-            animation: pulse 2s infinite;
-        }
-
+        body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(ellipse at 10% 10%, rgba(0, 212, 255, 0.03) 0%, transparent 50%), radial-gradient(ellipse at 90% 90%, rgba(168, 85, 247, 0.03) 0%, transparent 50%), var(--bg-primary); }
+        .offline-banner { display: none; background: var(--gradient-danger); color: white; text-align: center; padding: 0.5rem; font-size: 0.85rem; font-weight: 500; }
+        .offline-banner.show { display: block; }
+        .header { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color); padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-icon { width: 44px; height: 44px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800; box-shadow: var(--shadow-glow); }
+        .logo-text { font-size: 1.3rem; font-weight: 700; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .logo-subtitle { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
+        .live-clock { display: flex; flex-direction: column; align-items: center; padding: 0.5rem 1rem; background: var(--bg-input); border-radius: 12px; border: 1px solid var(--border-color); min-width: 180px; }
+        .clock-time { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 600; color: var(--accent-primary); letter-spacing: 1px; }
+        .clock-date { font-size: 0.75rem; color: var(--text-secondary); }
+        .clock-timezone { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+        .header-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+        .timezone-select { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.5rem; color: var(--text-primary); font-size: 0.8rem; cursor: pointer; }
+        .timezone-select:focus { outline: none; border-color: var(--accent-primary); }
+        .connection-status { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-input); border-radius: 100px; font-size: 0.8rem; border: 1px solid var(--border-color); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-warning); animation: pulse 2s infinite; }
         .status-dot.connected { background: var(--accent-success); }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.9); }
-        }
-
-        .main-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-        }
-
-        .tab {
-            padding: 0.75rem 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            font-size: 0.9rem;
-        }
-
-        .tab:hover {
-            border-color: var(--accent-primary);
-            color: var(--text-primary);
-            transform: translateY(-2px);
-        }
-
-        .tab.active {
-            background: var(--gradient-primary);
-            border-color: transparent;
-            color: var(--bg-primary);
-            font-weight: 600;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .card-icon {
-            width: 36px; height: 36px;
-            background: var(--bg-input);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.25rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 3px;
-            background: var(--gradient-primary);
-        }
-
-        .stat-card.success::before { background: var(--gradient-success); }
-        .stat-card.danger::before { background: var(--gradient-danger); }
-        .stat-card.warning::before { background: var(--gradient-warning); }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .stat-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-        }
-
-        .stat-card.success .stat-value { color: var(--accent-success); }
-        .stat-card.danger .stat-value { color: var(--accent-danger); }
-        .stat-card.warning .stat-value { color: var(--accent-warning); }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 0.5rem;
-        }
-
-        .form-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-section-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--accent-primary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .form-section-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-color);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-
-        .form-label {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-input, .form-select {
-            padding: 0.8rem 1rem;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
-        }
-
-        .form-input::placeholder { color: var(--text-muted); }
-
-        .form-select {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 1rem;
-            padding-right: 2.5rem;
-        }
-
-        .calendar-container {
-            position: relative;
-        }
-
-        .calendar-input {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2300d4ff' stroke-width='2'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            padding-right: 2.5rem;
-        }
-
-        .calendar-popup {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            margin-top: 0.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1rem;
-            z-index: 1000;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            display: none;
-            min-width: 280px;
-        }
-
-        .calendar-popup.show { display: block; animation: fadeIn 0.2s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .calendar-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .calendar-nav {
-            width: 32px; height: 32px;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .calendar-nav:hover {
-            background: var(--accent-primary);
-            color: var(--bg-primary);
-        }
-
-        .calendar-month-year {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .calendar-weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.25rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .calendar-weekday {
-            text-align: center;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            padding: 0.5rem;
-        }
-
-        .calendar-days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.25rem;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-        }
-
-        .calendar-day:hover:not(.other-month):not(.selected) {
-            background: var(--bg-hover);
-        }
-
-        .calendar-day.other-month {
-            color: var(--text-muted);
-            opacity: 0.4;
-        }
-
-        .calendar-day.today {
-            border: 1px solid var(--accent-primary);
-        }
-
-        .calendar-day.selected {
-            background: var(--gradient-primary);
-            color: var(--bg-primary);
-            font-weight: 600;
-        }
-
-        .calendar-day.in-range {
-            background: rgba(0, 212, 255, 0.2);
-        }
-
-        .multi-entry-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .multi-entry-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .multi-entry-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .multi-entry-title .icon {
-            width: 28px; height: 28px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-        }
-
-        .multi-entry-title.active .icon { background: rgba(0, 212, 255, 0.15); }
-        .multi-entry-title.end .icon { background: rgba(239, 68, 68, 0.15); }
-        .multi-entry-title.remit .icon { background: rgba(16, 185, 129, 0.15); }
-
-        .multi-entry-total {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
-            font-weight: 600;
-            padding: 0.4rem 0.8rem;
-            background: var(--bg-input);
-            border-radius: 8px;
-        }
-
-        .multi-entry-total.active { color: var(--accent-primary); }
-        .multi-entry-total.end { color: var(--accent-danger); }
-        .multi-entry-total.remit { color: var(--accent-success); }
-
-        .entry-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .entry-row {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr auto;
-            gap: 0.5rem;
-            align-items: center;
-            padding: 0.75rem;
-            background: var(--bg-input);
-            border-radius: 10px;
-            animation: slideIn 0.2s ease;
-        }
-
-        .entry-row.starting-chips {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .entry-row input {
-            padding: 0.6rem 0.8rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 0.85rem;
-        }
-
-        .entry-row input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        .entry-row input[type="number"] {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .entry-row input::placeholder {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .btn-remove {
-            width: 32px; height: 32px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 8px;
-            color: var(--accent-danger);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            font-size: 1.2rem;
-        }
-
-        .btn-remove:hover {
-            background: var(--accent-danger);
-            color: white;
-        }
-
-        .btn-add-entry {
-            width: 100%;
-            padding: 0.75rem;
-            background: transparent;
-            border: 2px dashed var(--border-light);
-            border-radius: 10px;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-add-entry:hover {
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-            background: rgba(0, 212, 255, 0.05);
-        }
-
-        .btn {
-            padding: 0.75rem 1.25rem;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: var(--bg-primary);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--bg-input);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent-primary);
-        }
-
-        .btn-success {
-            background: var(--gradient-success);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--gradient-danger);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--gradient-warning);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.75rem;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            margin-top: 1.5rem;
-        }
-
-        .calculated-section {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.25rem;
-            margin-top: 1.5rem;
-        }
-
-        .calculated-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-
-        .calculated-item {
-            text-align: center;
-            padding: 1rem;
-            background: var(--bg-input);
-            border-radius: 12px;
-        }
-
-        .calculated-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-        }
-
-        .calculated-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .calculated-value.cfr { color: var(--accent-primary); }
-        .calculated-value.total-remit { color: var(--accent-success); }
-        .calculated-value.unremitted { color: var(--accent-warning); }
-        .calculated-value.negative { color: var(--accent-danger); }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-
-        .data-table th {
-            background: var(--bg-input);
-            padding: 0.75rem 0.5rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-size: 0.65rem;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .data-table td {
-            padding: 0.75rem 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-        }
-
-        .data-table tr:last-child td { border-bottom: none; }
-        .data-table tr:hover td { background: rgba(0, 212, 255, 0.03); }
-        .data-table .positive { color: var(--accent-success); }
-        .data-table .negative { color: var(--accent-danger); }
-
-        .data-table .total-row {
-            background: var(--bg-input);
-            font-weight: 600;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.2rem 0.5rem;
-            border-radius: 100px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
-        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-warning); }
-        .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--accent-danger); }
-
-        .action-btns {
-            display: flex;
-            gap: 0.25rem;
-        }
-
-        .action-btn {
-            width: 28px; height: 28px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn.edit {
-            background: rgba(0, 212, 255, 0.1);
-            color: var(--accent-primary);
-        }
-
-        .action-btn.edit:hover {
-            background: var(--accent-primary);
-            color: var(--bg-primary);
-        }
-
-        .action-btn.delete {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--accent-danger);
-        }
-
-        .action-btn.delete:hover {
-            background: var(--accent-danger);
-            color: white;
-        }
-
+        .status-dot.offline { background: var(--accent-danger); }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } }
+        .saved-badge { display: none; align-items: center; gap: 0.25rem; background: var(--accent-success); color: white; padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.75rem; font-weight: 600; }
+        .main-content { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+        .tab { padding: 0.75rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-secondary); font-weight: 500; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-size: 0.9rem; }
+        .tab:hover { border-color: var(--accent-primary); color: var(--text-primary); transform: translateY(-2px); }
+        .tab.active { background: var(--gradient-primary); border-color: transparent; color: var(--bg-primary); font-weight: 600; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem; }
+        .card-title { font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .card-icon { width: 36px; height: 36px; background: var(--bg-input); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 1rem; text-align: center; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; color: var(--accent-primary); }
+        .stat-value.success { color: var(--accent-success); }
+        .stat-value.warning { color: var(--accent-warning); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+        .form-label.required::after { content: ' *'; color: var(--accent-danger); }
+        .form-input, .form-select { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.875rem 1rem; color: var(--text-primary); font-family: inherit; font-size: 0.95rem; transition: all 0.3s ease; width: 100%; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1); }
+        .form-input.error { border-color: var(--accent-danger); }
+        .form-error { font-size: 0.75rem; color: var(--accent-danger); display: none; }
+        .form-error.show { display: block; }
+        .btn { padding: 0.875rem 1.5rem; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; font-family: inherit; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--gradient-primary); color: var(--bg-primary); }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3); }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); }
+        .btn-secondary:hover:not(:disabled) { border-color: var(--accent-primary); }
+        .btn-danger { background: var(--gradient-danger); color: white; }
+        .btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .entry-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .entry-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; align-items: center; animation: slideIn 0.2s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .entry-amount, .entry-remarks { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem; color: var(--text-primary); font-size: 0.9rem; width: 100%; }
+        .entry-amount:focus, .entry-remarks:focus { outline: none; border-color: var(--accent-primary); }
+        .btn-add { background: var(--bg-input); border: 1px dashed var(--border-light); border-radius: 10px; padding: 0.75rem; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; width: 100%; text-align: center; }
+        .btn-add:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+        .btn-remove { background: rgba(239, 68, 68, 0.1); border: none; border-radius: 8px; width: 36px; height: 36px; color: var(--accent-danger); cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; }
+        .btn-remove:hover { background: var(--accent-danger); color: white; }
+        .calculation-card { background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem; }
+        .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color); }
+        .calc-row:last-child { border-bottom: none; }
+        .calc-label { color: var(--text-secondary); font-size: 0.9rem; }
+        .calc-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; color: var(--accent-primary); }
+        .calc-value.highlight { font-size: 1.3rem; color: var(--accent-success); }
+        .calc-value.negative { color: var(--accent-danger); }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-
-        .toast-container {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .toast {
-            padding: 1rem 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            animation: slideIn 0.3s ease;
-            min-width: 280px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .toast.success { border-left: 4px solid var(--accent-success); }
-        .toast.error { border-left: 4px solid var(--accent-danger); }
-
-        .spinner {
-            width: 20px; height: 20px;
-            border: 2px solid var(--border-color);
-            border-top-color: var(--accent-primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
+        .tab-content.active { display: block; }
+        .calendar-wrapper { position: relative; }
+        .calendar-popup { position: absolute; top: calc(100% + 8px); left: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 1rem; z-index: 1000; display: none; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); max-width: 320px; min-width: 280px; }
+        .calendar-popup.show { display: block; }
+        @media (max-width: 480px) { .calendar-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 320px; } }
+        .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .calendar-nav { background: var(--bg-input); border: none; border-radius: 8px; width: 32px; height: 32px; color: var(--text-primary); cursor: pointer; font-size: 1rem; }
+        .calendar-nav:hover { background: var(--bg-hover); }
+        .calendar-month-year { font-weight: 600; color: var(--text-primary); }
+        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 0.5rem; }
+        .calendar-weekday { text-align: center; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; padding: 0.25rem; }
+        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: var(--bg-input); border: none; border-radius: 8px; color: var(--text-primary); font-size: 0.85rem; cursor: pointer; transition: all 0.2s ease; }
+        .calendar-day:hover { background: var(--accent-primary); color: var(--bg-primary); }
+        .calendar-day.other-month { color: var(--text-muted); opacity: 0.5; }
+        .calendar-day.today { border: 2px solid var(--accent-primary); }
+        .calendar-day.selected { background: var(--gradient-primary); color: var(--bg-primary); font-weight: 600; }
+        .calendar-day.in-range { background: rgba(0, 212, 255, 0.2); }
+        .table-wrapper { overflow-x: auto; margin: -0.5rem; padding: 0.5rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th, td { padding: 0.875rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; position: sticky; top: 0; }
+        td { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+        tr:hover { background: var(--bg-hover); }
+        .table-footer td { background: var(--bg-secondary); font-weight: 600; color: var(--accent-primary); }
+        .filter-section { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .filter-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .filter-info { display: none; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1rem; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .modal-title { font-size: 1.2rem; font-weight: 600; }
+        .modal-close { background: var(--bg-input); border: none; border-radius: 8px; width: 32px; height: 32px; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; }
+        .modal-close:hover { background: var(--accent-danger); color: white; }
+        .settings-group { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.25rem; }
+        .settings-title { font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); }
+        .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
+        .settings-item:last-child { border-bottom: none; }
+        .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.5rem; }
+        .toast { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: toastIn 0.3s ease; }
+        .toast.success { border-color: var(--accent-success); }
+        .toast.error { border-color: var(--accent-danger); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+        .loading-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 3000; }
+        .loading-logo { width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; animation: loadingPulse 1.5s ease infinite; }
+        @keyframes loadingPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .loading-text { color: var(--text-secondary); font-size: 1rem; }
+        .spinner { width: 20px; height: 20px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        .app-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .loading-logo {
-            width: 80px; height: 80px;
-            background: var(--gradient-primary);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: 800;
-            animation: loadPulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes loadPulse {
-            0%, 100% { transform: scale(1); box-shadow: var(--shadow-glow); }
-            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(0, 212, 255, 0.3); }
-        }
-
-        .settings-group { margin-bottom: 1.5rem; }
-        .settings-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; }
-
-        .settings-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            background: var(--bg-input);
-            border-radius: 10px;
-            margin-bottom: 0.75rem;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .modal {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 1.5rem;
-            max-width: 600px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .modal-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            width: 32px; height: 32px;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .modal-close:hover {
-            background: var(--accent-danger);
-            color: white;
-        }
-
-        .filter-section {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 1rem;
-            align-items: end;
-            margin-bottom: 1rem;
-        }
-
-        .filter-arrow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--accent-primary);
-            padding-bottom: 0.8rem;
-        }
-
-        .filter-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem 1rem;
-            background: var(--bg-input);
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-        }
-
-        .filter-info-item strong {
-            color: var(--accent-primary);
-        }
-
-        .clear-filter-btn {
-            margin-left: auto;
-        }
-
-        @media (max-width: 768px) {
-            .header-content { flex-wrap: wrap; }
-            .main-content { padding: 1rem; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .form-grid { grid-template-columns: 1fr; }
-            .btn-group { flex-direction: column; }
-            .btn { width: 100%; }
-            .entry-row { grid-template-columns: 1fr 1fr auto; }
-            .toast-container { left: 1rem; right: 1rem; bottom: 1rem; }
-            .toast { min-width: auto; }
-            .calculated-grid { grid-template-columns: 1fr; }
-            .card-header { flex-direction: column; align-items: stretch; }
-            .filter-section { grid-template-columns: 1fr; }
-            .filter-arrow { transform: rotate(90deg); padding: 0.5rem 0; }
-        }
-
-        .install-prompt {
-            display: none;
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: var(--bg-card);
-            border-top: 1px solid var(--border-color);
-            padding: 1rem 1.5rem;
-            z-index: 999;
-            animation: slideUp 0.3s ease;
-        }
-
-        .install-prompt.show {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
+        .install-prompt { position: fixed; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; background: var(--bg-card); border: 1px solid var(--accent-primary); border-radius: 16px; padding: 1rem 1.5rem; display: none; align-items: center; justify-content: space-between; gap: 1rem; z-index: 1000; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .install-prompt.show { display: flex; }
         #exportCanvas { display: none; }
+        @media (max-width: 768px) { .header-content { flex-direction: column; align-items: flex-start; } .header-right { width: 100%; justify-content: space-between; } .form-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .toast-container { left: 1rem; right: 1rem; bottom: 1rem; } .toast { width: 100%; } }
+        @media (max-width: 480px) { .header { padding: 0.75rem 1rem; } .main-content { padding: 1rem; } .card { padding: 1rem; border-radius: 16px; } .tabs { gap: 0.25rem; } .tab { padding: 0.6rem 1rem; font-size: 0.85rem; } .live-clock { min-width: 140px; padding: 0.4rem 0.75rem; } .clock-time { font-size: 1.1rem; } }
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
-    <canvas id="exportCanvas"></canvas>
-
-    <div id="loadingScreen" class="app-loading">
-        <div class="loading-logo">W</div>
-        <div style="color: var(--text-secondary);">Loading CFR System...</div>
-    </div>
-
+    <div class="offline-banner" id="offlineBanner">⚠️ You're offline. Some features may not work.</div>
+    <div class="loading-screen" id="loadingScreen"><div class="loading-logo">WB</div><div class="loading-text">Loading CFR System...</div></div>
     <div id="mainApp" style="display: none;">
         <header class="header">
             <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon">W</div>
-                    <div>
-                        <div class="logo-text">WackyBuds</div>
-                        <div class="logo-subtitle">CFR System v3.1</div>
-                    </div>
-                </div>
-                <div class="connection-status">
-                    <div class="status-dot" id="statusDot"></div>
-                    <span id="statusText">Connecting...</span>
+                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">Cash For Remittance</div></div></div>
+                <div class="live-clock"><div class="clock-time" id="liveClock">--:--:-- --</div><div class="clock-date" id="liveDate">Loading...</div><div class="clock-timezone" id="clockTimezone">--</div></div>
+                <div class="header-right">
+                    <select class="timezone-select" id="timezoneSelect" onchange="changeTimezone()">
+                        <option value="America/New_York">🇺🇸 Eastern (ET)</option>
+                        <option value="America/Chicago">🇺🇸 Central (CT)</option>
+                        <option value="America/Denver">🇺🇸 Mountain (MT)</option>
+                        <option value="America/Los_Angeles">🇺🇸 Pacific (PT)</option>
+                        <option value="America/Anchorage">🇺🇸 Alaska (AKT)</option>
+                        <option value="Pacific/Honolulu">🇺🇸 Hawaii (HST)</option>
+                        <option value="Asia/Manila">🇵🇭 Philippines (PHT)</option>
+                        <option value="UTC">🌐 UTC</option>
+                    </select>
+                    <div class="connection-status"><span class="status-dot" id="statusDot"></span><span id="statusText">Not configured</span></div>
+                    <span class="saved-badge" id="savedBadge">✓ Saved</span>
                 </div>
             </div>
         </header>
-
         <main class="main-content">
             <div class="tabs">
                 <button class="tab active" data-tab="entry">📝 New Entry</button>
@@ -1058,1554 +204,255 @@
                 <button class="tab" data-tab="history">📜 History</button>
                 <button class="tab" data-tab="settings">⚙️ Settings</button>
             </div>
-
-            <!-- New Entry Tab -->
             <div id="entry" class="tab-content active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="statCFR">₱0.00000</div>
-                        <div class="stat-label">Total CFR</div>
+                <form id="entryForm">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><div class="card-icon">📅</div>Basic Information</div></div>
+                        <div class="form-grid">
+                            <div class="form-group calendar-wrapper">
+                                <label class="form-label required">Date</label>
+                                <input type="text" class="form-input" id="entryDate" readonly placeholder="Select date">
+                                <span class="form-error" id="dateError">Please select a date</span>
+                                <div class="calendar-popup" id="calendarPopup">
+                                    <div class="calendar-header"><button type="button" class="calendar-nav" id="prevMonth">‹</button><span class="calendar-month-year" id="calendarMonthYear"></span><button type="button" class="calendar-nav" id="nextMonth">›</button></div>
+                                    <div class="calendar-weekdays"><div class="calendar-weekday">Sun</div><div class="calendar-weekday">Mon</div><div class="calendar-weekday">Tue</div><div class="calendar-weekday">Wed</div><div class="calendar-weekday">Thu</div><div class="calendar-weekday">Fri</div><div class="calendar-weekday">Sat</div></div>
+                                    <div class="calendar-days" id="calendarDays"></div>
+                                </div>
+                            </div>
+                            <div class="form-group"><label class="form-label">Day</label><input type="text" class="form-input" id="entryDay" readonly style="background: var(--bg-secondary);"></div>
+                            <div class="form-group"><label class="form-label required">Shift</label><select class="form-select" id="entryShift"><option value="">Select shift</option><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select><span class="form-error" id="shiftError">Please select a shift</span></div>
+                            <div class="form-group"><label class="form-label required">Loader / Duty Name</label><input type="text" class="form-input" id="dutyName" placeholder="Enter name"><span class="form-error" id="nameError">Please enter a name</span></div>
+                        </div>
                     </div>
-                    <div class="stat-card success">
-                        <div class="stat-value" id="statRemit">₱0.00000</div>
-                        <div class="stat-label">Remittance</div>
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-label">CFR</div><div class="stat-value" id="statCFR">₱0.00000</div></div>
+                        <div class="stat-card"><div class="stat-label">Total Remit</div><div class="stat-value success" id="statRemit">₱0.00000</div></div>
+                        <div class="stat-card"><div class="stat-label">Unremitted</div><div class="stat-value warning" id="statUnremit">₱0.00000</div></div>
                     </div>
-                    <div class="stat-card warning">
-                        <div class="stat-value" id="statUnremit">₱0.00000</div>
-                        <div class="stat-label">Unremitted</div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><div class="card-icon">💰</div>Active Chips</div><div id="activeChipsTotal" style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-primary); font-weight: 600;">₱0.00000</div></div>
+                        <div class="entry-list" id="activeChipsList"></div>
+                        <button type="button" class="btn-add" onclick="addEntry('active')">+ Add Active Chips</button>
                     </div>
-                    <div class="stat-card danger">
-                        <div class="stat-value" id="statEntries">0</div>
-                        <div class="stat-label">Today</div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><div class="card-icon">🎰</div>End Chips</div><div id="endChipsTotal" style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-primary); font-weight: 600;">₱0.00000</div></div>
+                        <div class="entry-list" id="endChipsList"><div class="entry-row"><input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button></div></div>
+                        <button type="button" class="btn-add" onclick="addEntry('end')">+ Add End Chips</button>
                     </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <div class="card-icon">💰</div>
-                            New Entry
-                        </div>
-                        <span class="badge badge-success" id="savedBadge" style="display: none;">✓ Saved</span>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><div class="card-icon">💸</div>Remittances</div><div id="remittanceTotal" style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-primary); font-weight: 600;">₱0.00000</div></div>
+                        <div class="entry-list" id="remittanceList"><div class="entry-row"><input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button></div></div>
+                        <button type="button" class="btn-add" onclick="addEntry('remit')">+ Add Remittance</button>
                     </div>
-
-                    <form id="entryForm">
-                        <div class="form-section">
-                            <div class="form-section-title">📅 Basic Information</div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label">Date</label>
-                                    <div class="calendar-container">
-                                        <input type="text" class="form-input calendar-input" id="entryDate" placeholder="Click to select" readonly required>
-                                        <div class="calendar-popup" id="calendarPopup">
-                                            <div class="calendar-header">
-                                                <button type="button" class="calendar-nav" id="prevMonth">‹</button>
-                                                <span class="calendar-month-year" id="calendarMonthYear"></span>
-                                                <button type="button" class="calendar-nav" id="nextMonth">›</button>
-                                            </div>
-                                            <div class="calendar-weekdays">
-                                                <div class="calendar-weekday">Sun</div>
-                                                <div class="calendar-weekday">Mon</div>
-                                                <div class="calendar-weekday">Tue</div>
-                                                <div class="calendar-weekday">Wed</div>
-                                                <div class="calendar-weekday">Thu</div>
-                                                <div class="calendar-weekday">Fri</div>
-                                                <div class="calendar-weekday">Sat</div>
-                                            </div>
-                                            <div class="calendar-days" id="calendarDays"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Day</label>
-                                    <select class="form-select" id="entryDay" required>
-                                        <option value="">Select Day</option>
-                                        <option value="MONDAY">Monday</option>
-                                        <option value="TUESDAY">Tuesday</option>
-                                        <option value="WEDNESDAY">Wednesday</option>
-                                        <option value="THURSDAY">Thursday</option>
-                                        <option value="FRIDAY">Friday</option>
-                                        <option value="SATURDAY">Saturday</option>
-                                        <option value="SUNDAY">Sunday</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Shift</label>
-                                    <select class="form-select" id="entryShift" required>
-                                        <option value="">Select Shift</option>
-                                        <option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option>
-                                        <option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option>
-                                        <option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Duty Name</label>
-                                    <input type="text" class="form-input" id="dutyName" placeholder="e.g., MRN, BOK" required>
-                                </div>
-                            </div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><div class="card-icon">📋</div>Additional Details</div></div>
+                        <div class="form-grid">
+                            <div class="form-group"><label class="form-label">Bank Fee</label><input type="number" step="0.00001" class="form-input" id="bankFee" value="0" oninput="calculateAll()"></div>
+                            <div class="form-group"><label class="form-label">Salary</label><input type="number" step="0.00001" class="form-input" id="salary" value="0" oninput="calculateAll()"></div>
+                            <div class="form-group" style="grid-column: span 2;"><label class="form-label">Status / Remarks</label><input type="text" class="form-input" id="remarks" placeholder="e.g., DONE, PENDING, With Issues"></div>
                         </div>
-
-                        <div class="form-section">
-                            <div class="form-section-title">📈 Chips & Transactions</div>
-                            
-                            <div class="multi-entry-section">
-                                <div class="multi-entry-header">
-                                    <div class="multi-entry-title active">
-                                        <div class="icon">➕</div>
-                                        ACTIVE CHIPS
-                                    </div>
-                                    <div class="multi-entry-total active" id="activeChipsTotal">₱0.00000</div>
-                                </div>
-                                <div class="entry-list" id="activeChipsList">
-                                    <div class="entry-row starting-chips" data-type="active" data-starting="true">
-                                        <input type="number" step="0.00001" placeholder="Amount" class="entry-amount" id="startingChipsInput" oninput="calculateAll()">
-                                        <input type="text" class="entry-remarks" value="Starting Chips">
-                                        <button type="button" class="btn-remove" onclick="removeStartingChips(this)">×</button>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn-add-entry" onclick="addEntry('active', 'Chips / CO by Admin')">
-                                    <span>+</span> Add Chips / CO by Admin
-                                </button>
-                            </div>
-
-                            <div class="multi-entry-section">
-                                <div class="multi-entry-header">
-                                    <div class="multi-entry-title end">
-                                        <div class="icon">📉</div>
-                                        END CHIPS
-                                    </div>
-                                    <div class="multi-entry-total end" id="endChipsTotal">₱0.00000</div>
-                                </div>
-                                <div class="entry-list" id="endChipsList">
-                                    <div class="entry-row" data-type="end">
-                                        <input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()">
-                                        <input type="text" placeholder="Remarks" class="entry-remarks" value="Ending Chips">
-                                        <button type="button" class="btn-remove" onclick="removeEntry(this)" style="visibility: hidden;">×</button>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn-add-entry" onclick="addEntry('end', 'Deduct Chips / CI by Admin')">
-                                    <span>+</span> Add Deduct Chips / CI by Admin
-                                </button>
-                            </div>
+                        <div class="calculation-card">
+                            <div class="calc-row"><span class="calc-label">CFR (Active - End)</span><span class="calc-value" id="calcCFR">₱0.00000</span></div>
+                            <div class="calc-row"><span class="calc-label">Total Remittances + Salary</span><span class="calc-value" id="calcTotalRemit">₱0.00000</span></div>
+                            <div class="calc-row"><span class="calc-label">Unremitted (Remit - CFR)</span><span class="calc-value highlight" id="calcUnremitted">₱0.00000</span></div>
                         </div>
-
-                        <div class="form-section">
-                            <div class="form-section-title">💵 Remittance</div>
-                            
-                            <div class="multi-entry-section">
-                                <div class="multi-entry-header">
-                                    <div class="multi-entry-title remit">
-                                        <div class="icon">💸</div>
-                                        REMITTANCE ENTRIES
-                                    </div>
-                                    <div class="multi-entry-total remit" id="remittanceTotal">₱0.00000</div>
-                                </div>
-                                <div class="entry-list" id="remittanceList">
-                                    <div class="entry-row" data-type="remit">
-                                        <input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()">
-                                        <input type="text" placeholder="Remarks" class="entry-remarks" value="Remittance">
-                                        <button type="button" class="btn-remove" onclick="removeEntry(this)" style="visibility: hidden;">×</button>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn-add-entry" onclick="addEntry('remit', 'Additional Remit')">
-                                    <span>+</span> Add Remittance Entry
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <div class="form-section-title">📋 Other Details</div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label">Bank Fee</label>
-                                    <input type="number" step="0.00001" class="form-input" id="bankFee" placeholder="0.00000" value="0" oninput="calculateAll()">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Salary</label>
-                                    <input type="number" step="0.00001" class="form-input" id="salary" placeholder="0.00000" value="0" oninput="calculateAll()">
-                                </div>
-                                <div class="form-group" style="grid-column: span 2;">
-                                    <label class="form-label">Remarks / Reason</label>
-                                    <input type="text" class="form-input" id="remarks" placeholder="e.g., DONE, PENDING, etc.">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="calculated-section">
-                            <div class="form-section-title" style="margin-bottom: 1rem;">🧮 Auto-Calculated Values</div>
-                            <div class="calculated-grid">
-                                <div class="calculated-item">
-                                    <div class="calculated-label">CFR</div>
-                                    <div class="calculated-value cfr" id="calcCFR">₱0.00000</div>
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Active - End</div>
-                                </div>
-                                <div class="calculated-item">
-                                    <div class="calculated-label">Total Remittances</div>
-                                    <div class="calculated-value total-remit" id="calcTotalRemit">₱0.00000</div>
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Remit + Salary</div>
-                                </div>
-                                <div class="calculated-item">
-                                    <div class="calculated-label">Unremitted</div>
-                                    <div class="calculated-value unremitted" id="calcUnremitted">₱0.00000</div>
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Total Remit - CFR</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <span>💾</span> Save Entry
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="clearForm()">
-                                <span>🔄</span> Clear Form
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="btn-group" style="margin-top: 1.5rem;"><button type="submit" class="btn btn-primary" id="submitBtn"><span>💾</span> Save Entry</button><button type="button" class="btn btn-secondary" onclick="clearForm()"><span>🗑️</span> Clear</button></div>
+                </form>
             </div>
-
-            <!-- Report Tab -->
             <div id="report" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <div class="card-icon">📊</div>
-                            Unremitted Report
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button class="btn btn-secondary btn-sm" onclick="refreshData()">🔄 Refresh</button>
-                            <button class="btn btn-primary btn-sm" onclick="exportReportAsImage()">📸 Export Image</button>
-                        </div>
-                    </div>
-
-                    <!-- Date Range Filter -->
+                    <div class="card-header"><div class="card-title"><div class="card-icon">📊</div>CFR Report</div><div class="btn-group"><button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button><button class="btn btn-primary" onclick="exportReportAsImage()">📸 Export</button></div></div>
                     <div class="filter-section">
-                        <div class="form-group">
-                            <label class="form-label">📅 Start Date</label>
-                            <div class="calendar-container">
-                                <input type="text" class="form-input calendar-input" id="filterStartDate" placeholder="Select start date" readonly>
-                                <div class="calendar-popup" id="filterStartCalendarPopup">
-                                    <div class="calendar-header">
-                                        <button type="button" class="calendar-nav" onclick="changeFilterMonth('start', -1)">‹</button>
-                                        <span class="calendar-month-year" id="filterStartMonthYear"></span>
-                                        <button type="button" class="calendar-nav" onclick="changeFilterMonth('start', 1)">›</button>
-                                    </div>
-                                    <div class="calendar-weekdays">
-                                        <div class="calendar-weekday">Sun</div>
-                                        <div class="calendar-weekday">Mon</div>
-                                        <div class="calendar-weekday">Tue</div>
-                                        <div class="calendar-weekday">Wed</div>
-                                        <div class="calendar-weekday">Thu</div>
-                                        <div class="calendar-weekday">Fri</div>
-                                        <div class="calendar-weekday">Sat</div>
-                                    </div>
-                                    <div class="calendar-days" id="filterStartCalendarDays"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="filter-arrow">→</div>
-
-                        <div class="form-group">
-                            <label class="form-label">📅 End Date</label>
-                            <div class="calendar-container">
-                                <input type="text" class="form-input calendar-input" id="filterEndDate" placeholder="Select end date" readonly>
-                                <div class="calendar-popup" id="filterEndCalendarPopup">
-                                    <div class="calendar-header">
-                                        <button type="button" class="calendar-nav" onclick="changeFilterMonth('end', -1)">‹</button>
-                                        <span class="calendar-month-year" id="filterEndMonthYear"></span>
-                                        <button type="button" class="calendar-nav" onclick="changeFilterMonth('end', 1)">›</button>
-                                    </div>
-                                    <div class="calendar-weekdays">
-                                        <div class="calendar-weekday">Sun</div>
-                                        <div class="calendar-weekday">Mon</div>
-                                        <div class="calendar-weekday">Tue</div>
-                                        <div class="calendar-weekday">Wed</div>
-                                        <div class="calendar-weekday">Thu</div>
-                                        <div class="calendar-weekday">Fri</div>
-                                        <div class="calendar-weekday">Sat</div>
-                                    </div>
-                                    <div class="calendar-days" id="filterEndCalendarDays"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="filter-group"><label class="filter-label">Loader</label><select class="form-select" id="filterLoader" onchange="filterReport()" style="min-width: 150px;"><option value="">All Loaders</option></select></div>
+                        <div class="filter-group calendar-wrapper"><label class="filter-label">Start Date</label><input type="text" class="form-input" id="filterStartDate" readonly placeholder="Select start" style="min-width: 140px;"><div class="calendar-popup" id="filterStartCalendarPopup"><div class="calendar-header"><button type="button" class="calendar-nav" onclick="changeFilterMonth('start', -1)">‹</button><span class="calendar-month-year" id="filterStartMonthYear"></span><button type="button" class="calendar-nav" onclick="changeFilterMonth('start', 1)">›</button></div><div class="calendar-weekdays"><div class="calendar-weekday">Sun</div><div class="calendar-weekday">Mon</div><div class="calendar-weekday">Tue</div><div class="calendar-weekday">Wed</div><div class="calendar-weekday">Thu</div><div class="calendar-weekday">Fri</div><div class="calendar-weekday">Sat</div></div><div class="calendar-days" id="filterStartCalendarDays"></div></div></div>
+                        <div class="filter-group calendar-wrapper"><label class="filter-label">End Date</label><input type="text" class="form-input" id="filterEndDate" readonly placeholder="Select end" style="min-width: 140px;"><div class="calendar-popup" id="filterEndCalendarPopup"><div class="calendar-header"><button type="button" class="calendar-nav" onclick="changeFilterMonth('end', -1)">‹</button><span class="calendar-month-year" id="filterEndMonthYear"></span><button type="button" class="calendar-nav" onclick="changeFilterMonth('end', 1)">›</button></div><div class="calendar-weekdays"><div class="calendar-weekday">Sun</div><div class="calendar-weekday">Mon</div><div class="calendar-weekday">Tue</div><div class="calendar-weekday">Wed</div><div class="calendar-weekday">Thu</div><div class="calendar-weekday">Fri</div><div class="calendar-weekday">Sat</div></div><div class="calendar-days" id="filterEndCalendarDays"></div></div></div>
+                        <button class="btn btn-secondary" onclick="clearDateFilter()">✕ Clear</button>
                     </div>
-
-                    <div class="form-grid" style="margin-bottom: 1rem;">
-                        <div class="form-group">
-                            <label class="form-label">Filter by Loader</label>
-                            <select class="form-select" id="filterLoader" onchange="filterReport()">
-                                <option value="">All Loaders</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="filter-info" id="filterInfo" style="display: none;">
-                        <div class="filter-info-item">
-                            📅 <span>Showing:</span> <strong id="filterRangeDisplay">-</strong>
-                        </div>
-                        <div class="filter-info-item">
-                            📊 <span>Entries:</span> <strong id="filterCountDisplay">0</strong>
-                        </div>
-                        <button class="btn btn-secondary btn-sm clear-filter-btn" onclick="clearDateFilter()">✕ Clear Filter</button>
-                    </div>
-
-                    <div class="table-container" id="reportTableContainer">
-                        <table class="data-table" id="reportTable">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Shift</th>
-                                    <th>Loader</th>
-                                    <th>Active</th>
-                                    <th>End</th>
-                                    <th>CFR</th>
-                                    <th>Remit</th>
-                                    <th>Fee</th>
-                                    <th>Unremit</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reportBody">
-                                <tr>
-                                    <td colspan="11" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                                        Loading data...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <div class="filter-info" id="filterInfo"><span>📅 <strong id="filterRangeDisplay"></strong></span><span>📊 Entries: <strong id="filterCountDisplay">0</strong></span></div>
+                    <div class="table-wrapper"><table><thead><tr><th>Date</th><th>Shift</th><th>Loader</th><th>Active</th><th>End</th><th>CFR</th><th>Remit</th><th>Fee</th><th>Unremit</th><th>Status</th><th>Action</th></tr></thead><tbody id="reportBody"><tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 2rem;">No data yet. Add entries to see report.</td></tr></tbody></table></div>
                 </div>
             </div>
-
-            <!-- History Tab -->
             <div id="history" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <div class="card-icon">📜</div>
-                            Change History
-                        </div>
-                        <button class="btn btn-secondary" onclick="loadHistory()">🔄 Refresh</button>
-                    </div>
-
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Timestamp</th>
-                                    <th>User</th>
-                                    <th>Action</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody id="historyBody">
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                                        Loading history...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <div class="card-header"><div class="card-title"><div class="card-icon">📜</div>Activity History</div><button class="btn btn-secondary" onclick="loadHistory()">🔄 Refresh</button></div>
+                    <div class="table-wrapper"><table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Details</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading history...</td></tr></tbody></table></div>
                 </div>
             </div>
-
-            <!-- Settings Tab -->
             <div id="settings" class="tab-content">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <div class="card-icon">⚙️</div>
-                            Configuration
-                        </div>
-                    </div>
-
+                    <div class="card-header"><div class="card-title"><div class="card-icon">⚙️</div>Configuration</div></div>
                     <div class="settings-group">
                         <div class="settings-title">🔗 Google Sheets Connection</div>
-                        <div class="form-group">
-                            <label class="form-label">Google Apps Script URL</label>
-                            <input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/...">
-                        </div>
-                        <div class="btn-group" style="margin-top: 1rem;">
-                            <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
-                            <button class="btn btn-secondary" onclick="testConnection()">🔗 Test Connection</button>
-                        </div>
+                        <div class="form-group"><label class="form-label">Google Apps Script URL</label><input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/..."></div>
+                        <div class="btn-group" style="margin-top: 1rem;"><button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button><button class="btn btn-secondary" onclick="testConnection()">🔗 Test Connection</button></div>
                     </div>
-
-                    <div class="settings-group" style="margin-top: 2rem;">
+                    <div class="settings-group" style="margin-top: 1.5rem;">
+                        <div class="settings-title">🌍 Timezone Settings</div>
+                        <div class="form-group"><label class="form-label">Select Timezone</label><select class="form-select" id="settingsTimezone" onchange="changeTimezoneFromSettings()"><option value="America/New_York">🇺🇸 Eastern Time (ET) - New York</option><option value="America/Chicago">🇺🇸 Central Time (CT) - Chicago</option><option value="America/Denver">🇺🇸 Mountain Time (MT) - Denver</option><option value="America/Los_Angeles">🇺🇸 Pacific Time (PT) - Los Angeles</option><option value="America/Anchorage">🇺🇸 Alaska Time (AKT)</option><option value="Pacific/Honolulu">🇺🇸 Hawaii Time (HST)</option><option value="Asia/Manila">🇵🇭 Philippines Time (PHT)</option><option value="UTC">🌐 Coordinated Universal Time (UTC)</option></select></div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">All dates and times will be displayed in the selected timezone.</p>
+                    </div>
+                    <div class="settings-group" style="margin-top: 1.5rem;">
                         <div class="settings-title">📱 App</div>
-                        <div class="settings-item">
-                            <div>
-                                <div style="font-weight: 500;">Version</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">3.1.0</div>
-                            </div>
-                        </div>
-                        <div class="settings-item">
-                            <div>
-                                <div style="font-weight: 500;">Install App</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">Add to home screen</div>
-                            </div>
-                            <button class="btn btn-secondary" id="installBtn" onclick="installApp()">📲 Install</button>
-                        </div>
+                        <div class="settings-item"><div><div style="font-weight: 500;">Version</div><div style="font-size: 0.8rem; color: var(--text-muted);">3.2.0</div></div></div>
+                        <div class="settings-item"><div><div style="font-weight: 500;">Install App</div><div style="font-size: 0.8rem; color: var(--text-muted);">Add to home screen</div></div><button class="btn btn-secondary" onclick="installApp()">📲 Install</button></div>
+                        <div class="settings-item"><div><div style="font-weight: 500;">Clear Local Data</div><div style="font-size: 0.8rem; color: var(--text-muted);">Reset all local settings</div></div><button class="btn btn-danger" onclick="clearLocalData()">🗑️ Clear</button></div>
                     </div>
                 </div>
             </div>
         </main>
-
-        <div class="install-prompt" id="installPrompt">
-            <div>
-                <strong>Install WackyBuds CFR</strong>
-                <div style="font-size: 0.85rem; color: var(--text-secondary);">Quick access from home screen</div>
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-secondary" onclick="dismissInstall()">Later</button>
-                <button class="btn btn-primary" onclick="installApp()">Install</button>
-            </div>
-        </div>
-
+        <div class="install-prompt" id="installPrompt"><div><strong>Install WackyBuds CFR</strong><div style="font-size: 0.85rem; color: var(--text-secondary);">Quick access from home screen</div></div><div style="display: flex; gap: 0.5rem;"><button class="btn btn-secondary" onclick="dismissInstall()">Later</button><button class="btn btn-primary" onclick="installApp()">Install</button></div></div>
         <div class="toast-container" id="toastContainer"></div>
     </div>
-
-    <!-- Full Edit Modal -->
     <div class="modal-overlay" id="editModal">
         <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">✏️ Edit Entry</div>
-                <button class="modal-close" onclick="closeEditModal()">×</button>
-            </div>
-            <form id="editForm">
-                <input type="hidden" id="editRowIndex">
-                
+            <div class="modal-header"><div class="modal-title">✏️ Edit Entry</div><button class="modal-close" onclick="closeEditModal()">×</button></div>
+            <form id="editForm"><input type="hidden" id="editRowIndex">
                 <div class="form-grid" style="margin-bottom: 1rem;">
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-input" id="editDate">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Shift</label>
-                        <select class="form-select" id="editShift">
-                            <option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option>
-                            <option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option>
-                            <option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Loader / Duty Name</label>
-                        <input type="text" class="form-input" id="editDutyName">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Active Chips</label>
-                        <input type="number" step="0.00001" class="form-input" id="editActiveChips" oninput="recalculateEdit()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">End Chips</label>
-                        <input type="number" step="0.00001" class="form-input" id="editEndChips" oninput="recalculateEdit()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">CFR (Auto)</label>
-                        <input type="number" step="0.00001" class="form-input" id="editCFR" style="color: var(--accent-primary);">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Remittance</label>
-                        <input type="number" step="0.00001" class="form-input" id="editRemittance" oninput="recalculateEdit()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Bank Fee</label>
-                        <input type="number" step="0.00001" class="form-input" id="editBankFee">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Salary</label>
-                        <input type="number" step="0.00001" class="form-input" id="editSalary" oninput="recalculateEdit()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Unremitted (Auto)</label>
-                        <input type="number" step="0.00001" class="form-input" id="editUnremitted" style="color: var(--accent-warning);">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label class="form-label">Status / Remarks</label>
-                        <input type="text" class="form-input" id="editRemarks" placeholder="e.g., DONE, PENDING">
-                    </div>
+                    <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="editDate"></div>
+                    <div class="form-group"><label class="form-label">Shift</label><select class="form-select" id="editShift"><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select></div>
+                    <div class="form-group"><label class="form-label">Loader / Duty Name</label><input type="text" class="form-input" id="editDutyName"></div>
+                    <div class="form-group"><label class="form-label">Active Chips</label><input type="number" step="0.00001" class="form-input" id="editActiveChips" oninput="recalculateEdit()"></div>
+                    <div class="form-group"><label class="form-label">End Chips</label><input type="number" step="0.00001" class="form-input" id="editEndChips" oninput="recalculateEdit()"></div>
+                    <div class="form-group"><label class="form-label">CFR (Auto)</label><input type="number" step="0.00001" class="form-input" id="editCFR" style="color: var(--accent-primary);"></div>
+                    <div class="form-group"><label class="form-label">Remittance</label><input type="number" step="0.00001" class="form-input" id="editRemittance" oninput="recalculateEdit()"></div>
+                    <div class="form-group"><label class="form-label">Bank Fee</label><input type="number" step="0.00001" class="form-input" id="editBankFee"></div>
+                    <div class="form-group"><label class="form-label">Salary</label><input type="number" step="0.00001" class="form-input" id="editSalary" oninput="recalculateEdit()"></div>
+                    <div class="form-group"><label class="form-label">Unremitted (Auto)</label><input type="number" step="0.00001" class="form-input" id="editUnremitted" style="color: var(--accent-warning);"></div>
+                    <div class="form-group" style="grid-column: span 2;"><label class="form-label">Status / Remarks</label><input type="text" class="form-input" id="editRemarks" placeholder="e.g., DONE, PENDING"></div>
                 </div>
-                
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
-                    <button type="button" class="btn btn-danger" onclick="deleteEntry()">🗑️ Delete Entry</button>
-                </div>
+                <div class="btn-group"><button type="submit" class="btn btn-primary">💾 Save Changes</button><button type="button" class="btn btn-danger" onclick="deleteEntry()">🗑️ Delete Entry</button></div>
             </form>
         </div>
     </div>
-
-    <!-- Confirm Delete Modal -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">⚠️ Confirm Delete</div>
-                <button class="modal-close" onclick="closeDeleteModal()">×</button>
-            </div>
-            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
-                Are you sure you want to delete this entry? This action cannot be undone.
-            </p>
-            <div class="btn-group">
-                <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Yes, Delete</button>
-                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
-            </div>
+            <div class="modal-header"><div class="modal-title">⚠️ Confirm Delete</div><button class="modal-close" onclick="closeDeleteModal()">×</button></div>
+            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Are you sure you want to delete this entry? This action cannot be undone.</p>
+            <div class="btn-group"><button class="btn btn-danger" onclick="confirmDelete()">🗑️ Yes, Delete</button><button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button></div>
         </div>
     </div>
-
+    <canvas id="exportCanvas"></canvas>
     <script>
         // ========== CONFIG ==========
-        let CONFIG = {
-            scriptUrl: localStorage.getItem('cfr_script_url') || '',
-        };
-
-        let reportData = [];
-        let filteredData = [];
-        let lastEndChips = parseFloat(localStorage.getItem('cfr_last_end_chips')) || 0;
-        let deferredPrompt = null;
-        let currentCalendarDate = new Date();
-        let selectedDate = new Date();
-        
-        // Filter dates
-        let filterStartCalendarDate = new Date();
-        let filterEndCalendarDate = new Date();
+        let CONFIG = { scriptUrl: localStorage.getItem('cfr_script_url') || '', timezone: localStorage.getItem('cfr_timezone') || 'America/New_York' };
+        const TIMEZONE_INFO = { 'America/New_York': { abbr: 'ET', name: 'Eastern Time' }, 'America/Chicago': { abbr: 'CT', name: 'Central Time' }, 'America/Denver': { abbr: 'MT', name: 'Mountain Time' }, 'America/Los_Angeles': { abbr: 'PT', name: 'Pacific Time' }, 'America/Anchorage': { abbr: 'AKT', name: 'Alaska Time' }, 'Pacific/Honolulu': { abbr: 'HST', name: 'Hawaii Time' }, 'Asia/Manila': { abbr: 'PHT', name: 'Philippines Time' }, 'UTC': { abbr: 'UTC', name: 'Coordinated Universal Time' } };
+        let reportData = [], filteredData = [], lastEndChips = parseFloat(localStorage.getItem('cfr_last_end_chips')) || 0, deferredPrompt = null, currentCalendarDate = new Date(), selectedDate = new Date(), clockInterval = null;
+        let filterStartCalendarDate = new Date(), filterEndCalendarDate = new Date();
         let selectedFilterStartDate = localStorage.getItem('cfr_filter_start') ? new Date(localStorage.getItem('cfr_filter_start')) : null;
         let selectedFilterEndDate = localStorage.getItem('cfr_filter_end') ? new Date(localStorage.getItem('cfr_filter_end')) : null;
-        
-        let editingRowIndex = null;
-        let editingEntry = null;
+        let editingRowIndex = null, editingEntry = null, isOnline = navigator.onLine;
+        const SHIFT_ORDER = { '12:00PM - 8:00PM': 1, '8:00PM - 4:00AM': 2, '4:00AM - 12:00PM': 3 };
 
-        const SHIFT_ORDER = {
-            '12:00PM - 8:00PM': 1,
-            '8:00PM - 4:00AM': 2,
-            '4:00AM - 12:00PM': 3
-        };
+        // ========== TIMEZONE FUNCTIONS ==========
+        function formatTimeInTimezone(date = new Date()) { return date.toLocaleTimeString('en-US', { timeZone: CONFIG.timezone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }); }
+        function formatDateInTimezone(date = new Date()) { return date.toLocaleDateString('en-US', { timeZone: CONFIG.timezone, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }); }
+        function getDateStringInTimezone(date = new Date()) { const opts = { timeZone: CONFIG.timezone, year: 'numeric', month: '2-digit', day: '2-digit' }; const parts = new Intl.DateTimeFormat('en-CA', opts).formatToParts(date); return `${parts.find(p => p.type === 'year').value}-${parts.find(p => p.type === 'month').value}-${parts.find(p => p.type === 'day').value}`; }
+        function changeTimezone() { const s = document.getElementById('timezoneSelect'); CONFIG.timezone = s.value; localStorage.setItem('cfr_timezone', CONFIG.timezone); document.getElementById('settingsTimezone').value = CONFIG.timezone; updateClock(); if (selectedDate) selectDate(selectedDate); showToast(`Timezone: ${TIMEZONE_INFO[CONFIG.timezone].name}`, 'success'); }
+        function changeTimezoneFromSettings() { const s = document.getElementById('settingsTimezone'); CONFIG.timezone = s.value; localStorage.setItem('cfr_timezone', CONFIG.timezone); document.getElementById('timezoneSelect').value = CONFIG.timezone; updateClock(); if (selectedDate) selectDate(selectedDate); showToast(`Timezone: ${TIMEZONE_INFO[CONFIG.timezone].name}`, 'success'); }
+
+        // ========== LIVE CLOCK ==========
+        function updateClock() { const now = new Date(); const tzInfo = TIMEZONE_INFO[CONFIG.timezone]; document.getElementById('liveClock').textContent = formatTimeInTimezone(now); document.getElementById('liveDate').textContent = formatDateInTimezone(now); document.getElementById('clockTimezone').textContent = `${tzInfo.abbr} - ${tzInfo.name}`; }
+        function startClock() { updateClock(); clockInterval = setInterval(updateClock, 1000); }
+        function stopClock() { if (clockInterval) { clearInterval(clockInterval); clockInterval = null; } }
+
+        // ========== ONLINE/OFFLINE ==========
+        function updateOnlineStatus() { isOnline = navigator.onLine; const banner = document.getElementById('offlineBanner'); const dot = document.getElementById('statusDot'); if (!isOnline) { banner.classList.add('show'); dot.classList.add('offline'); dot.classList.remove('connected'); } else { banner.classList.remove('show'); dot.classList.remove('offline'); if (CONFIG.scriptUrl) dot.classList.add('connected'); } }
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            initCalendar();
-            initFilterCalendars();
-            selectDate(new Date());
-            setupTabs();
-            setupFormSubmit();
-            setupEditForm();
-            
-            updateStartingChips();
-            
-            if (CONFIG.scriptUrl) {
-                document.getElementById('scriptUrl').value = CONFIG.scriptUrl;
-                refreshData();
-            }
-
-            // Restore filter dates
-            if (selectedFilterStartDate) {
-                filterStartCalendarDate = new Date(selectedFilterStartDate);
-                document.getElementById('filterStartDate').value = formatDateDisplay(selectedFilterStartDate);
-            }
-            if (selectedFilterEndDate) {
-                filterEndCalendarDate = new Date(selectedFilterEndDate);
-                document.getElementById('filterEndDate').value = formatDateDisplay(selectedFilterEndDate);
-            }
-
-            setTimeout(() => {
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                updateConnectionStatus(!!CONFIG.scriptUrl);
-            }, 800);
-
+            document.getElementById('timezoneSelect').value = CONFIG.timezone;
+            document.getElementById('settingsTimezone').value = CONFIG.timezone;
+            startClock();
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
+            initCalendar(); initFilterCalendars(); selectDate(new Date()); setupTabs(); setupFormSubmit(); setupEditForm(); updateStartingChips();
+            if (CONFIG.scriptUrl) { document.getElementById('scriptUrl').value = CONFIG.scriptUrl; refreshData(); }
+            if (selectedFilterStartDate) { filterStartCalendarDate = new Date(selectedFilterStartDate); document.getElementById('filterStartDate').value = formatDateDisplay(selectedFilterStartDate); }
+            if (selectedFilterEndDate) { filterEndCalendarDate = new Date(selectedFilterEndDate); document.getElementById('filterEndDate').value = formatDateDisplay(selectedFilterEndDate); }
+            setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; updateConnectionStatus(!!CONFIG.scriptUrl); }, 800);
             setupPWA();
         });
+        window.addEventListener('beforeunload', () => stopClock());
 
         // ========== NUMBER FORMATTING ==========
-        function formatNumber(value, decimals = 5) {
-            const num = parseFloat(value) || 0;
-            return num.toLocaleString('en-US', { 
-                minimumFractionDigits: decimals, 
-                maximumFractionDigits: decimals 
-            });
-        }
-
-        function formatCurrency(value, decimals = 5) {
-            return '₱' + formatNumber(value, decimals);
-        }
+        function formatNumber(value, decimals = 5) { const num = parseFloat(value) || 0; return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
+        function formatCurrency(value, decimals = 5) { return '₱' + formatNumber(value, decimals); }
 
         // ========== STARTING CHIPS ==========
-        function updateStartingChips() {
-            const input = document.getElementById('startingChipsInput');
-            if (input) {
-                input.value = lastEndChips || '';
-                calculateAll();
-            }
-        }
-
-        function setLastEndChips(value) {
-            lastEndChips = parseFloat(value) || 0;
-            localStorage.setItem('cfr_last_end_chips', lastEndChips);
-        }
-
-        function removeStartingChips(btn) {
-            const row = btn.closest('.entry-row');
-            row.style.animation = 'slideIn 0.2s ease reverse';
-            setTimeout(() => {
-                row.remove();
-                calculateAll();
-            }, 200);
-        }
+        function updateStartingChips() { const list = document.getElementById('activeChipsList'); const existingRow = list.querySelector('.starting-chips'); if (lastEndChips > 0) { if (existingRow) { existingRow.querySelector('.entry-amount').value = lastEndChips; } else { const row = document.createElement('div'); row.className = 'entry-row starting-chips'; row.innerHTML = `<input type="number" step="0.00001" placeholder="Starting Chips" class="entry-amount" id="startingChipsInput" value="${lastEndChips}" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks" value="Starting Chips (Previous End)"><button type="button" class="btn-remove" onclick="removeStartingChips(this)">×</button>`; list.insertBefore(row, list.firstChild); } } calculateAll(); }
+        function setLastEndChips(value) { lastEndChips = parseFloat(value) || 0; localStorage.setItem('cfr_last_end_chips', lastEndChips); }
+        function removeStartingChips(btn) { const row = btn.closest('.entry-row'); row.style.animation = 'slideIn 0.2s ease reverse'; setTimeout(() => { row.remove(); calculateAll(); }, 200); }
 
         // ========== CALENDAR ==========
-        function initCalendar() {
-            const dateInput = document.getElementById('entryDate');
-            const popup = document.getElementById('calendarPopup');
-
-            dateInput.addEventListener('click', () => {
-                popup.classList.toggle('show');
-                renderCalendar();
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('#calendarPopup') && !e.target.closest('#entryDate')) {
-                    popup.classList.remove('show');
-                }
-            });
-
-            document.getElementById('prevMonth').addEventListener('click', (e) => {
-                e.stopPropagation();
-                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-                renderCalendar();
-            });
-
-            document.getElementById('nextMonth').addEventListener('click', (e) => {
-                e.stopPropagation();
-                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-                renderCalendar();
-            });
-        }
-
-        function renderCalendar() {
-            const year = currentCalendarDate.getFullYear();
-            const month = currentCalendarDate.getMonth();
-            
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                               'July', 'August', 'September', 'October', 'November', 'December'];
-            
-            document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
-            
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
-            
-            const daysContainer = document.getElementById('calendarDays');
-            daysContainer.innerHTML = '';
-            
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            for (let i = firstDay - 1; i >= 0; i--) {
-                const day = daysInPrevMonth - i;
-                const btn = createDayButton(day, true, new Date(year, month - 1, day), 'entry');
-                daysContainer.appendChild(btn);
-            }
-            
-            for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, month, day);
-                const btn = createDayButton(day, false, date, 'entry');
-                
-                if (date.getTime() === today.getTime()) btn.classList.add('today');
-                if (selectedDate && date.toDateString() === selectedDate.toDateString()) btn.classList.add('selected');
-                
-                daysContainer.appendChild(btn);
-            }
-            
-            const totalCells = 42;
-            const remainingCells = totalCells - (firstDay + daysInMonth);
-            for (let day = 1; day <= remainingCells; day++) {
-                const btn = createDayButton(day, true, new Date(year, month + 1, day), 'entry');
-                daysContainer.appendChild(btn);
-            }
-        }
-
-        function createDayButton(day, isOtherMonth, date, type) {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'calendar-day' + (isOtherMonth ? ' other-month' : '');
-            btn.textContent = day;
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (type === 'entry') selectDate(date);
-                else if (type === 'filterStart') selectFilterStartDate(date);
-                else if (type === 'filterEnd') selectFilterEndDate(date);
-            });
-            return btn;
-        }
-
-        function selectDate(date) {
-            selectedDate = date;
-            currentCalendarDate = new Date(date);
-            
-            const dateStr = date.toLocaleDateString('en-CA');
-            document.getElementById('entryDate').value = date.toLocaleDateString('en-US', {
-                weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-            });
-            document.getElementById('entryDate').dataset.value = dateStr;
-            
-            const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-            document.getElementById('entryDay').value = dayNames[date.getDay()];
-            
-            document.getElementById('calendarPopup').classList.remove('show');
-            renderCalendar();
-        }
+        function initCalendar() { const dateInput = document.getElementById('entryDate'); const popup = document.getElementById('calendarPopup'); dateInput.addEventListener('click', () => { popup.classList.toggle('show'); renderCalendar(); }); document.addEventListener('click', (e) => { if (!e.target.closest('#calendarPopup') && !e.target.closest('#entryDate')) popup.classList.remove('show'); }); document.getElementById('prevMonth').addEventListener('click', (e) => { e.stopPropagation(); currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); }); document.getElementById('nextMonth').addEventListener('click', (e) => { e.stopPropagation(); currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); }); }
+        function renderCalendar() { const year = currentCalendarDate.getFullYear(); const month = currentCalendarDate.getMonth(); const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`; const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate(); const daysInPrevMonth = new Date(year, month, 0).getDate(); const daysContainer = document.getElementById('calendarDays'); daysContainer.innerHTML = ''; const todayStr = getDateStringInTimezone(new Date()); for (let i = firstDay - 1; i >= 0; i--) { const day = daysInPrevMonth - i; daysContainer.appendChild(createDayButton(day, true, new Date(year, month - 1, day), 'entry')); } for (let day = 1; day <= daysInMonth; day++) { const date = new Date(year, month, day); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const btn = createDayButton(day, false, date, 'entry'); if (dateStr === todayStr) btn.classList.add('today'); if (selectedDate && date.toDateString() === selectedDate.toDateString()) btn.classList.add('selected'); daysContainer.appendChild(btn); } const totalCells = 42; const remainingCells = totalCells - (firstDay + daysInMonth); for (let day = 1; day <= remainingCells; day++) { daysContainer.appendChild(createDayButton(day, true, new Date(year, month + 1, day), 'entry')); } }
+        function createDayButton(day, isOtherMonth, date, type) { const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'calendar-day' + (isOtherMonth ? ' other-month' : ''); btn.textContent = day; btn.addEventListener('click', (e) => { e.stopPropagation(); if (type === 'entry') selectDate(date); else if (type === 'filterStart') selectFilterStartDate(date); else if (type === 'filterEnd') selectFilterEndDate(date); }); return btn; }
+        function selectDate(date) { selectedDate = date; currentCalendarDate = new Date(date); const dateStr = date.toLocaleDateString('en-CA'); document.getElementById('entryDate').value = date.toLocaleDateString('en-US', { timeZone: CONFIG.timezone, weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }); document.getElementById('entryDate').dataset.value = dateStr; const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY']; document.getElementById('entryDay').value = dayNames[date.getDay()]; document.getElementById('calendarPopup').classList.remove('show'); renderCalendar(); }
 
         // ========== FILTER CALENDARS ==========
-        function initFilterCalendars() {
-            // Start date calendar
-            document.getElementById('filterStartDate').addEventListener('click', () => {
-                document.getElementById('filterEndCalendarPopup').classList.remove('show');
-                document.getElementById('filterStartCalendarPopup').classList.toggle('show');
-                renderFilterCalendar('start');
-            });
-
-            // End date calendar
-            document.getElementById('filterEndDate').addEventListener('click', () => {
-                document.getElementById('filterStartCalendarPopup').classList.remove('show');
-                document.getElementById('filterEndCalendarPopup').classList.toggle('show');
-                renderFilterCalendar('end');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('#filterStartCalendarPopup') && !e.target.closest('#filterStartDate')) {
-                    document.getElementById('filterStartCalendarPopup').classList.remove('show');
-                }
-                if (!e.target.closest('#filterEndCalendarPopup') && !e.target.closest('#filterEndDate')) {
-                    document.getElementById('filterEndCalendarPopup').classList.remove('show');
-                }
-            });
-        }
-
-        function changeFilterMonth(type, delta) {
-            if (type === 'start') {
-                filterStartCalendarDate.setMonth(filterStartCalendarDate.getMonth() + delta);
-                renderFilterCalendar('start');
-            } else {
-                filterEndCalendarDate.setMonth(filterEndCalendarDate.getMonth() + delta);
-                renderFilterCalendar('end');
-            }
-        }
-
-        function renderFilterCalendar(type) {
-            const calendarDate = type === 'start' ? filterStartCalendarDate : filterEndCalendarDate;
-            const year = calendarDate.getFullYear();
-            const month = calendarDate.getMonth();
-            
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                               'July', 'August', 'September', 'October', 'November', 'December'];
-            
-            document.getElementById(`filter${type === 'start' ? 'Start' : 'End'}MonthYear`).textContent = `${monthNames[month]} ${year}`;
-            
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
-            
-            const daysContainer = document.getElementById(`filter${type === 'start' ? 'Start' : 'End'}CalendarDays`);
-            daysContainer.innerHTML = '';
-            
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const selectedDate = type === 'start' ? selectedFilterStartDate : selectedFilterEndDate;
-            
-            for (let i = firstDay - 1; i >= 0; i--) {
-                const day = daysInPrevMonth - i;
-                const btn = createDayButton(day, true, new Date(year, month - 1, day), type === 'start' ? 'filterStart' : 'filterEnd');
-                daysContainer.appendChild(btn);
-            }
-            
-            for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, month, day);
-                const btn = createDayButton(day, false, date, type === 'start' ? 'filterStart' : 'filterEnd');
-                
-                if (date.getTime() === today.getTime()) btn.classList.add('today');
-                if (selectedDate && date.toDateString() === selectedDate.toDateString()) btn.classList.add('selected');
-                
-                // Highlight range
-                if (selectedFilterStartDate && selectedFilterEndDate) {
-                    if (date >= selectedFilterStartDate && date <= selectedFilterEndDate) {
-                        btn.classList.add('in-range');
-                    }
-                }
-                
-                daysContainer.appendChild(btn);
-            }
-            
-            const totalCells = 42;
-            const remainingCells = totalCells - (firstDay + daysInMonth);
-            for (let day = 1; day <= remainingCells; day++) {
-                const btn = createDayButton(day, true, new Date(year, month + 1, day), type === 'start' ? 'filterStart' : 'filterEnd');
-                daysContainer.appendChild(btn);
-            }
-        }
-
-        function selectFilterStartDate(date) {
-            selectedFilterStartDate = date;
-            filterStartCalendarDate = new Date(date);
-            localStorage.setItem('cfr_filter_start', date.toISOString());
-            
-            document.getElementById('filterStartDate').value = formatDateDisplay(date);
-            document.getElementById('filterStartCalendarPopup').classList.remove('show');
-            
-            filterReport();
-        }
-
-        function selectFilterEndDate(date) {
-            selectedFilterEndDate = date;
-            filterEndCalendarDate = new Date(date);
-            localStorage.setItem('cfr_filter_end', date.toISOString());
-            
-            document.getElementById('filterEndDate').value = formatDateDisplay(date);
-            document.getElementById('filterEndCalendarPopup').classList.remove('show');
-            
-            filterReport();
-        }
-
-        function clearDateFilter() {
-            selectedFilterStartDate = null;
-            selectedFilterEndDate = null;
-            localStorage.removeItem('cfr_filter_start');
-            localStorage.removeItem('cfr_filter_end');
-            
-            document.getElementById('filterStartDate').value = '';
-            document.getElementById('filterEndDate').value = '';
-            document.getElementById('filterInfo').style.display = 'none';
-            
-            filterReport();
-        }
+        function initFilterCalendars() { document.getElementById('filterStartDate').addEventListener('click', () => { document.getElementById('filterEndCalendarPopup').classList.remove('show'); document.getElementById('filterStartCalendarPopup').classList.toggle('show'); renderFilterCalendar('start'); }); document.getElementById('filterEndDate').addEventListener('click', () => { document.getElementById('filterStartCalendarPopup').classList.remove('show'); document.getElementById('filterEndCalendarPopup').classList.toggle('show'); renderFilterCalendar('end'); }); document.addEventListener('click', (e) => { if (!e.target.closest('#filterStartCalendarPopup') && !e.target.closest('#filterStartDate')) document.getElementById('filterStartCalendarPopup').classList.remove('show'); if (!e.target.closest('#filterEndCalendarPopup') && !e.target.closest('#filterEndDate')) document.getElementById('filterEndCalendarPopup').classList.remove('show'); }); }
+        function changeFilterMonth(type, delta) { if (type === 'start') { filterStartCalendarDate.setMonth(filterStartCalendarDate.getMonth() + delta); renderFilterCalendar('start'); } else { filterEndCalendarDate.setMonth(filterEndCalendarDate.getMonth() + delta); renderFilterCalendar('end'); } }
+        function renderFilterCalendar(type) { const calendarDate = type === 'start' ? filterStartCalendarDate : filterEndCalendarDate; const year = calendarDate.getFullYear(); const month = calendarDate.getMonth(); const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; document.getElementById(`filter${type === 'start' ? 'Start' : 'End'}MonthYear`).textContent = `${monthNames[month]} ${year}`; const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate(); const daysInPrevMonth = new Date(year, month, 0).getDate(); const daysContainer = document.getElementById(`filter${type === 'start' ? 'Start' : 'End'}CalendarDays`); daysContainer.innerHTML = ''; const todayStr = getDateStringInTimezone(new Date()); const selectedDateObj = type === 'start' ? selectedFilterStartDate : selectedFilterEndDate; for (let i = firstDay - 1; i >= 0; i--) { daysContainer.appendChild(createDayButton(daysInPrevMonth - i, true, new Date(year, month - 1, daysInPrevMonth - i), type === 'start' ? 'filterStart' : 'filterEnd')); } for (let day = 1; day <= daysInMonth; day++) { const date = new Date(year, month, day); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const btn = createDayButton(day, false, date, type === 'start' ? 'filterStart' : 'filterEnd'); if (dateStr === todayStr) btn.classList.add('today'); if (selectedDateObj && date.toDateString() === selectedDateObj.toDateString()) btn.classList.add('selected'); if (selectedFilterStartDate && selectedFilterEndDate && date >= selectedFilterStartDate && date <= selectedFilterEndDate) btn.classList.add('in-range'); daysContainer.appendChild(btn); } const remainingCells = 42 - (firstDay + daysInMonth); for (let day = 1; day <= remainingCells; day++) { daysContainer.appendChild(createDayButton(day, true, new Date(year, month + 1, day), type === 'start' ? 'filterStart' : 'filterEnd')); } }
+        function selectFilterStartDate(date) { if (selectedFilterEndDate && date > selectedFilterEndDate) { showToast('Start date cannot be after end date', 'error'); return; } selectedFilterStartDate = date; filterStartCalendarDate = new Date(date); localStorage.setItem('cfr_filter_start', date.toISOString()); document.getElementById('filterStartDate').value = formatDateDisplay(date); document.getElementById('filterStartCalendarPopup').classList.remove('show'); filterReport(); }
+        function selectFilterEndDate(date) { if (selectedFilterStartDate && date < selectedFilterStartDate) { showToast('End date cannot be before start date', 'error'); return; } selectedFilterEndDate = date; filterEndCalendarDate = new Date(date); localStorage.setItem('cfr_filter_end', date.toISOString()); document.getElementById('filterEndDate').value = formatDateDisplay(date); document.getElementById('filterEndCalendarPopup').classList.remove('show'); filterReport(); }
+        function clearDateFilter() { selectedFilterStartDate = null; selectedFilterEndDate = null; localStorage.removeItem('cfr_filter_start'); localStorage.removeItem('cfr_filter_end'); document.getElementById('filterStartDate').value = ''; document.getElementById('filterEndDate').value = ''; document.getElementById('filterInfo').style.display = 'none'; filterReport(); }
 
         // ========== MULTI-ENTRY ==========
-        function addEntry(type, defaultRemarks = '') {
-            const listId = type === 'active' ? 'activeChipsList' : 
-                          type === 'end' ? 'endChipsList' : 'remittanceList';
-            const list = document.getElementById(listId);
-            
-            const row = document.createElement('div');
-            row.className = 'entry-row';
-            row.dataset.type = type;
-            row.innerHTML = `
-                <input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()">
-                <input type="text" placeholder="Remarks" class="entry-remarks" value="${defaultRemarks}">
-                <button type="button" class="btn-remove" onclick="removeEntry(this)">×</button>
-            `;
-            
-            list.appendChild(row);
-            row.querySelector('.entry-amount').focus();
-        }
-
-        function removeEntry(btn) {
-            const row = btn.closest('.entry-row');
-            row.style.animation = 'slideIn 0.2s ease reverse';
-            setTimeout(() => {
-                row.remove();
-                calculateAll();
-            }, 200);
-        }
-
-        function getEntrySum(listId) {
-            const list = document.getElementById(listId);
-            const amounts = list.querySelectorAll('.entry-amount');
-            let sum = 0;
-            amounts.forEach(input => {
-                sum += parseFloat(input.value) || 0;
-            });
-            return sum;
-        }
-
-        function getEntryDetails(listId) {
-            const list = document.getElementById(listId);
-            const rows = list.querySelectorAll('.entry-row');
-            const entries = [];
-            rows.forEach(row => {
-                const amountInput = row.querySelector('.entry-amount');
-                const amount = parseFloat(amountInput?.value) || 0;
-                const remarks = row.querySelector('.entry-remarks').value || '';
-                if (amount > 0 || remarks) {
-                    entries.push({ amount, remarks });
-                }
-            });
-            return entries;
-        }
+        function addEntry(type, defaultRemarks = '') { const listId = type === 'active' ? 'activeChipsList' : type === 'end' ? 'endChipsList' : 'remittanceList'; const list = document.getElementById(listId); const row = document.createElement('div'); row.className = 'entry-row'; row.dataset.type = type; row.innerHTML = `<input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks" value="${defaultRemarks}"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button>`; list.appendChild(row); row.querySelector('.entry-amount').focus(); }
+        function removeEntry(btn) { const row = btn.closest('.entry-row'); row.style.animation = 'slideIn 0.2s ease reverse'; setTimeout(() => { row.remove(); calculateAll(); }, 200); }
+        function getEntrySum(listId) { const list = document.getElementById(listId); let sum = 0; list.querySelectorAll('.entry-amount').forEach(input => { sum += parseFloat(input.value) || 0; }); return sum; }
+        function getEntryDetails(listId) { const list = document.getElementById(listId); const entries = []; list.querySelectorAll('.entry-row').forEach(row => { const amount = parseFloat(row.querySelector('.entry-amount')?.value) || 0; const remarks = row.querySelector('.entry-remarks').value || ''; if (amount > 0 || remarks) entries.push({ amount, remarks }); }); return entries; }
 
         // ========== CALCULATIONS ==========
-        function calculateAll() {
-            const activeTotal = getEntrySum('activeChipsList');
-            const endTotal = getEntrySum('endChipsList');
-            const remitTotal = getEntrySum('remittanceList');
-            const salary = parseFloat(document.getElementById('salary').value) || 0;
-            const bankFee = parseFloat(document.getElementById('bankFee').value) || 0;
+        function calculateAll() { const activeTotal = getEntrySum('activeChipsList'); const endTotal = getEntrySum('endChipsList'); const remitTotal = getEntrySum('remittanceList'); const salary = parseFloat(document.getElementById('salary').value) || 0; const cfr = activeTotal - endTotal; const totalRemit = remitTotal + salary; const unremitted = totalRemit - cfr; document.getElementById('activeChipsTotal').textContent = formatCurrency(activeTotal); document.getElementById('endChipsTotal').textContent = formatCurrency(endTotal); document.getElementById('remittanceTotal').textContent = formatCurrency(remitTotal); document.getElementById('calcCFR').textContent = formatCurrency(cfr); document.getElementById('calcTotalRemit').textContent = formatCurrency(totalRemit); const unremitEl = document.getElementById('calcUnremitted'); unremitEl.textContent = formatCurrency(unremitted); unremitEl.classList.toggle('negative', unremitted < 0); document.getElementById('statCFR').textContent = formatCurrency(cfr); document.getElementById('statRemit').textContent = formatCurrency(totalRemit); document.getElementById('statUnremit').textContent = formatCurrency(unremitted); }
 
-            const cfr = activeTotal - endTotal;
-            const totalRemit = remitTotal + salary;
-            const unremitted = totalRemit - cfr;
+        // ========== FORM VALIDATION ==========
+        function validateForm() { let isValid = true; const dateValue = document.getElementById('entryDate').dataset.value; if (!dateValue) { document.getElementById('dateError').classList.add('show'); document.getElementById('entryDate').classList.add('error'); isValid = false; } else { document.getElementById('dateError').classList.remove('show'); document.getElementById('entryDate').classList.remove('error'); } const shiftValue = document.getElementById('entryShift').value; if (!shiftValue) { document.getElementById('shiftError').classList.add('show'); document.getElementById('entryShift').classList.add('error'); isValid = false; } else { document.getElementById('shiftError').classList.remove('show'); document.getElementById('entryShift').classList.remove('error'); } const nameValue = document.getElementById('dutyName').value.trim(); if (!nameValue) { document.getElementById('nameError').classList.add('show'); document.getElementById('dutyName').classList.add('error'); isValid = false; } else { document.getElementById('nameError').classList.remove('show'); document.getElementById('dutyName').classList.remove('error'); } return isValid; }
 
-            document.getElementById('activeChipsTotal').textContent = formatCurrency(activeTotal);
-            document.getElementById('endChipsTotal').textContent = formatCurrency(endTotal);
-            document.getElementById('remittanceTotal').textContent = formatCurrency(remitTotal);
-
-            document.getElementById('calcCFR').textContent = formatCurrency(cfr);
-            document.getElementById('calcTotalRemit').textContent = formatCurrency(totalRemit);
-            
-            const unremitEl = document.getElementById('calcUnremitted');
-            unremitEl.textContent = formatCurrency(unremitted);
-            unremitEl.classList.toggle('negative', unremitted < 0);
-
-            document.getElementById('statCFR').textContent = formatCurrency(cfr);
-            document.getElementById('statRemit').textContent = formatCurrency(totalRemit);
-            document.getElementById('statUnremit').textContent = formatCurrency(unremitted);
-        }
-
-        // ========== FORM ==========
-        function setupFormSubmit() {
-            document.getElementById('entryForm').addEventListener('submit', handleSubmit);
-        }
-
-        async function handleSubmit(e) {
-            e.preventDefault();
-            
-            if (!CONFIG.scriptUrl) {
-                showToast('Please configure Google Apps Script URL in Settings', 'error');
-                return;
-            }
-
-            const btn = document.getElementById('submitBtn');
-            btn.innerHTML = '<div class="spinner"></div> Saving...';
-            btn.disabled = true;
-
-            const activeTotal = getEntrySum('activeChipsList');
-            const endTotal = getEntrySum('endChipsList');
-
-            const data = {
-                action: 'addEntry',
-                date: document.getElementById('entryDate').dataset.value,
-                day: document.getElementById('entryDay').value,
-                shift: document.getElementById('entryShift').value,
-                dutyName: document.getElementById('dutyName').value,
-                activeChips: getEntryDetails('activeChipsList'),
-                activeChipsTotal: activeTotal,
-                endChips: getEntryDetails('endChipsList'),
-                endChipsTotal: endTotal,
-                remittances: getEntryDetails('remittanceList'),
-                remittanceTotal: getEntrySum('remittanceList'),
-                bankFee: parseFloat(document.getElementById('bankFee').value) || 0,
-                salary: parseFloat(document.getElementById('salary').value) || 0,
-                remarks: document.getElementById('remarks').value
-            };
-
-            data.cfr = data.activeChipsTotal - data.endChipsTotal;
-            data.totalRemittances = data.remittanceTotal + data.salary;
-            data.unremitted = data.totalRemittances - data.cfr;
-
-            try {
-                await fetch(CONFIG.scriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                setLastEndChips(endTotal);
-                updateStartingChips();
-
-                showToast('Entry saved successfully!', 'success');
-                document.getElementById('savedBadge').style.display = 'inline-flex';
-                setTimeout(() => {
-                    document.getElementById('savedBadge').style.display = 'none';
-                }, 3000);
-
-                clearForm();
-                refreshData();
-
-            } catch (error) {
-                showToast('Failed to save: ' + error.message, 'error');
-            } finally {
-                btn.innerHTML = '<span>💾</span> Save Entry';
-                btn.disabled = false;
-            }
-        }
-
-        function clearForm() {
-            selectDate(new Date());
-            document.getElementById('dutyName').value = '';
-            document.getElementById('entryShift').value = '';
-            document.getElementById('bankFee').value = '0';
-            document.getElementById('salary').value = '0';
-            document.getElementById('remarks').value = '';
-
-            ['endChipsList', 'remittanceList'].forEach(listId => {
-                const list = document.getElementById(listId);
-                const rows = list.querySelectorAll('.entry-row');
-                rows.forEach((row, i) => {
-                    if (i === 0) {
-                        const amountInput = row.querySelector('.entry-amount');
-                        if (amountInput) amountInput.value = '';
-                    } else {
-                        row.remove();
-                    }
-                });
-            });
-
-            // Reset active chips additional entries only (keep starting chips if exists)
-            const activeList = document.getElementById('activeChipsList');
-            const activeRows = activeList.querySelectorAll('.entry-row:not(.starting-chips)');
-            activeRows.forEach(row => row.remove());
-
-            calculateAll();
-        }
+        // ========== FORM SUBMIT ==========
+        function setupFormSubmit() { document.getElementById('entryForm').addEventListener('submit', handleSubmit); }
+        async function handleSubmit(e) { e.preventDefault(); if (!validateForm()) { showToast('Please fill in all required fields', 'error'); return; } if (!CONFIG.scriptUrl) { showToast('Please configure Google Apps Script URL in Settings', 'error'); return; } if (!isOnline) { showToast('You are offline. Please check your connection.', 'error'); return; } const btn = document.getElementById('submitBtn'); btn.innerHTML = '<div class="spinner"></div> Saving...'; btn.disabled = true; const activeTotal = getEntrySum('activeChipsList'); const endTotal = getEntrySum('endChipsList'); const data = { action: 'addEntry', date: document.getElementById('entryDate').dataset.value, day: document.getElementById('entryDay').value, shift: document.getElementById('entryShift').value, dutyName: document.getElementById('dutyName').value, activeChips: getEntryDetails('activeChipsList'), activeChipsTotal: activeTotal, endChips: getEntryDetails('endChipsList'), endChipsTotal: endTotal, remittances: getEntryDetails('remittanceList'), remittanceTotal: getEntrySum('remittanceList'), bankFee: parseFloat(document.getElementById('bankFee').value) || 0, salary: parseFloat(document.getElementById('salary').value) || 0, remarks: document.getElementById('remarks').value, timezone: CONFIG.timezone, timestamp: new Date().toISOString() }; data.cfr = data.activeChipsTotal - data.endChipsTotal; data.totalRemittances = data.remittanceTotal + data.salary; data.unremitted = data.totalRemittances - data.cfr; try { await fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); setLastEndChips(endTotal); updateStartingChips(); showToast('Entry saved successfully!', 'success'); document.getElementById('savedBadge').style.display = 'inline-flex'; setTimeout(() => { document.getElementById('savedBadge').style.display = 'none'; }, 3000); clearForm(); refreshData(); } catch (error) { showToast('Failed to save: ' + error.message, 'error'); } finally { btn.innerHTML = '<span>💾</span> Save Entry'; btn.disabled = false; } }
+        function clearForm() { selectDate(new Date()); document.getElementById('dutyName').value = ''; document.getElementById('entryShift').value = ''; document.getElementById('bankFee').value = '0'; document.getElementById('salary').value = '0'; document.getElementById('remarks').value = ''; document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show')); document.querySelectorAll('.form-input.error, .form-select.error').forEach(el => el.classList.remove('error')); ['endChipsList', 'remittanceList'].forEach(listId => { const list = document.getElementById(listId); const rows = list.querySelectorAll('.entry-row'); rows.forEach((row, i) => { if (i === 0) { const ai = row.querySelector('.entry-amount'); if (ai) ai.value = ''; const ri = row.querySelector('.entry-remarks'); if (ri) ri.value = ''; } else { row.remove(); } }); }); const activeList = document.getElementById('activeChipsList'); activeList.querySelectorAll('.entry-row:not(.starting-chips)').forEach(row => row.remove()); calculateAll(); }
 
         // ========== TABS ==========
-        function setupTabs() {
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    tab.classList.add('active');
-                    document.getElementById(tab.dataset.tab).classList.add('active');
-
-                    if (tab.dataset.tab === 'report') refreshData();
-                    if (tab.dataset.tab === 'history') loadHistory();
-                });
-            });
-        }
+        function setupTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); if (tab.dataset.tab === 'report') refreshData(); if (tab.dataset.tab === 'history') loadHistory(); }); }); }
 
         // ========== DATA ==========
-        async function refreshData() {
-            if (!CONFIG.scriptUrl) {
-                updateConnectionStatus(false);
-                return;
-            }
-
-            try {
-                const response = await fetch(`${CONFIG.scriptUrl}?action=getData&_=${Date.now()}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    reportData = data.entries || [];
-                    
-                    if (reportData.length > 0) {
-                        const sortedData = [...reportData].sort((a, b) => {
-                            const dateA = new Date(a.date);
-                            const dateB = new Date(b.date);
-                            if (dateA.getTime() !== dateB.getTime()) return dateB - dateA;
-                            return (SHIFT_ORDER[b.shift] || 0) - (SHIFT_ORDER[a.shift] || 0);
-                        });
-                        const lastEntry = sortedData[0];
-                        if (lastEntry && lastEntry.endChipsTotal !== undefined) {
-                            setLastEndChips(lastEntry.endChipsTotal);
-                            updateStartingChips();
-                        }
-                    }
-                    
-                    filterReport();
-                    updateLoaderFilter();
-                    updateConnectionStatus(true);
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
-                updateConnectionStatus(false);
-            }
-        }
-
-        function updateLoaderFilter() {
-            const select = document.getElementById('filterLoader');
-            const loaders = [...new Set(reportData.map(e => e.dutyName).filter(Boolean))];
-            
-            select.innerHTML = '<option value="">All Loaders</option>';
-            loaders.forEach(loader => {
-                select.innerHTML += `<option value="${loader}">${loader}</option>`;
-            });
-        }
-
-        function filterReport() {
-            const loaderFilter = document.getElementById('filterLoader').value;
-            
-            let data = reportData;
-            if (loaderFilter) {
-                data = data.filter(e => e.dutyName === loaderFilter);
-            }
-
-            // Filter by date range
-            if (selectedFilterStartDate && selectedFilterEndDate) {
-                const start = new Date(selectedFilterStartDate);
-                start.setHours(0, 0, 0, 0);
-                const end = new Date(selectedFilterEndDate);
-                end.setHours(23, 59, 59, 999);
-                
-                data = data.filter(e => {
-                    const entryDate = new Date(e.date);
-                    return entryDate >= start && entryDate <= end;
-                });
-
-                document.getElementById('filterInfo').style.display = 'flex';
-                document.getElementById('filterRangeDisplay').textContent = 
-                    `${formatDateDisplay(selectedFilterStartDate)} → ${formatDateDisplay(selectedFilterEndDate)}`;
-                document.getElementById('filterCountDisplay').textContent = data.length;
-            } else if (selectedFilterStartDate || selectedFilterEndDate) {
-                // Single date filter
-                const filterDate = selectedFilterStartDate || selectedFilterEndDate;
-                data = data.filter(e => {
-                    const entryDate = new Date(e.date).toDateString();
-                    return entryDate === filterDate.toDateString();
-                });
-                
-                document.getElementById('filterInfo').style.display = 'flex';
-                document.getElementById('filterRangeDisplay').textContent = formatDateDisplay(filterDate);
-                document.getElementById('filterCountDisplay').textContent = data.length;
-            } else {
-                document.getElementById('filterInfo').style.display = 'none';
-            }
-
-            // Sort by date (ascending), then by shift order
-            data.sort((a, b) => {
-                const dateA = new Date(a.date);
-                const dateB = new Date(b.date);
-                if (dateA.getTime() !== dateB.getTime()) return dateA - dateB;
-                return (SHIFT_ORDER[a.shift] || 0) - (SHIFT_ORDER[b.shift] || 0);
-            });
-
-            filteredData = data;
-            updateReportTable();
-        }
-
-        function updateReportTable() {
-            const tbody = document.getElementById('reportBody');
-            
-            if (filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                    No entries found</td></tr>`;
-                return;
-            }
-
-            let html = '';
-            let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 };
-
-            filteredData.forEach(entry => {
-                totals.active += entry.activeChipsTotal || 0;
-                totals.end += entry.endChipsTotal || 0;
-                totals.cfr += entry.cfr || 0;
-                totals.remit += entry.totalRemittances || 0;
-                totals.unremit += entry.unremitted || 0;
-
-                html += `<tr>
-                    <td>${formatDateDisplay(entry.date)}</td>
-                    <td style="font-size: 0.7rem;">${entry.shift || '-'}</td>
-                    <td>${entry.dutyName || '-'}</td>
-                    <td>${formatCurrency(entry.activeChipsTotal)}</td>
-                    <td>${formatCurrency(entry.endChipsTotal)}</td>
-                    <td>${formatCurrency(entry.cfr)}</td>
-                    <td>${formatCurrency(entry.totalRemittances)}</td>
-                    <td>${formatCurrency(entry.bankFee)}</td>
-                    <td class="${(entry.unremitted || 0) < 0 ? 'negative' : ''}">${formatCurrency(entry.unremitted)}</td>
-                    <td><span class="badge ${entry.remarks === 'DONE' ? 'badge-success' : 'badge-warning'}">${entry.remarks || '-'}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="action-btn edit" onclick="openEditModal(${entry.rowIndex})">✏️</button>
-                            <button class="action-btn delete" onclick="openDeleteModal(${entry.rowIndex})">🗑️</button>
-                        </div>
-                    </td>
-                </tr>`;
-            });
-
-            html += `<tr class="total-row">
-                <td colspan="3"><strong>TOTAL</strong></td>
-                <td><strong>${formatCurrency(totals.active)}</strong></td>
-                <td><strong>${formatCurrency(totals.end)}</strong></td>
-                <td><strong>${formatCurrency(totals.cfr)}</strong></td>
-                <td><strong>${formatCurrency(totals.remit)}</strong></td>
-                <td>-</td>
-                <td class="${totals.unremit < 0 ? 'negative' : ''}"><strong>${formatCurrency(totals.unremit)}</strong></td>
-                <td colspan="2"></td>
-            </tr>`;
-
-            tbody.innerHTML = html;
-        }
-
-        function formatDateDisplay(dateInput) {
-            if (!dateInput) return '-';
-            const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
+        async function refreshData() { if (!CONFIG.scriptUrl) { updateConnectionStatus(false); return; } if (!isOnline) { showToast('You are offline', 'error'); return; } try { const response = await fetch(`${CONFIG.scriptUrl}?action=getData&_=${Date.now()}`); const data = await response.json(); if (data.success) { reportData = data.entries || []; if (reportData.length > 0) { const sortedData = [...reportData].sort((a, b) => { const dateA = new Date(a.date); const dateB = new Date(b.date); if (dateA.getTime() !== dateB.getTime()) return dateB - dateA; return (SHIFT_ORDER[b.shift] || 0) - (SHIFT_ORDER[a.shift] || 0); }); const lastEntry = sortedData[0]; if (lastEntry && lastEntry.endChipsTotal !== undefined) { setLastEndChips(lastEntry.endChipsTotal); updateStartingChips(); } } filterReport(); updateLoaderFilter(); updateConnectionStatus(true); } } catch (error) { console.error('Fetch error:', error); updateConnectionStatus(false); showToast('Failed to fetch data', 'error'); } }
+        function updateLoaderFilter() { const select = document.getElementById('filterLoader'); const loaders = [...new Set(reportData.map(e => e.dutyName).filter(Boolean))]; select.innerHTML = '<option value="">All Loaders</option>'; loaders.forEach(loader => { select.innerHTML += `<option value="${loader}">${loader}</option>`; }); }
+        function filterReport() { const loaderFilter = document.getElementById('filterLoader').value; let data = reportData; if (loaderFilter) data = data.filter(e => e.dutyName === loaderFilter); if (selectedFilterStartDate && selectedFilterEndDate) { const start = new Date(selectedFilterStartDate); start.setHours(0, 0, 0, 0); const end = new Date(selectedFilterEndDate); end.setHours(23, 59, 59, 999); data = data.filter(e => { const entryDate = new Date(e.date); return entryDate >= start && entryDate <= end; }); document.getElementById('filterInfo').style.display = 'flex'; document.getElementById('filterRangeDisplay').textContent = `${formatDateDisplay(selectedFilterStartDate)} → ${formatDateDisplay(selectedFilterEndDate)}`; document.getElementById('filterCountDisplay').textContent = data.length; } else if (selectedFilterStartDate || selectedFilterEndDate) { const filterDate = selectedFilterStartDate || selectedFilterEndDate; data = data.filter(e => new Date(e.date).toDateString() === filterDate.toDateString()); document.getElementById('filterInfo').style.display = 'flex'; document.getElementById('filterRangeDisplay').textContent = formatDateDisplay(filterDate); document.getElementById('filterCountDisplay').textContent = data.length; } else { document.getElementById('filterInfo').style.display = 'none'; } data.sort((a, b) => { const dateA = new Date(a.date); const dateB = new Date(b.date); if (dateA.getTime() !== dateB.getTime()) return dateA - dateB; return (SHIFT_ORDER[a.shift] || 0) - (SHIFT_ORDER[b.shift] || 0); }); filteredData = data; updateReportTable(); }
+        function updateReportTable() { const tbody = document.getElementById('reportBody'); if (filteredData.length === 0) { tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 2rem;">No entries found</td></tr>`; return; } let html = ''; let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 }; filteredData.forEach(entry => { totals.active += entry.activeChipsTotal || 0; totals.end += entry.endChipsTotal || 0; totals.cfr += entry.cfr || 0; totals.remit += entry.totalRemittances || 0; totals.unremit += entry.unremitted || 0; html += `<tr><td>${formatDateDisplay(entry.date)}</td><td style="font-size: 0.7rem;">${entry.shift || '-'}</td><td>${entry.dutyName || '-'}</td><td>${formatCurrency(entry.activeChipsTotal)}</td><td>${formatCurrency(entry.endChipsTotal)}</td><td>${formatCurrency(entry.cfr)}</td><td>${formatCurrency(entry.totalRemittances)}</td><td>${formatCurrency(entry.bankFee)}</td><td style="color: ${(entry.unremitted || 0) < 0 ? 'var(--accent-danger)' : 'var(--accent-warning)'};">${formatCurrency(entry.unremitted)}</td><td>${entry.remarks || '-'}</td><td><button class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.75rem;" onclick="openEditModal(${entry.rowIndex})">✏️</button></td></tr>`; }); html += `<tr class="table-footer"><td colspan="3" style="text-align: right; font-weight: 600;">TOTALS:</td><td>${formatCurrency(totals.active)}</td><td>${formatCurrency(totals.end)}</td><td>${formatCurrency(totals.cfr)}</td><td>${formatCurrency(totals.remit)}</td><td>-</td><td style="color: ${totals.unremit < 0 ? 'var(--accent-danger)' : 'var(--accent-primary)'};">${formatCurrency(totals.unremit)}</td><td colspan="2"></td></tr>`; tbody.innerHTML = html; }
+        function formatDateDisplay(dateInput) { if (!dateInput) return '-'; const date = dateInput instanceof Date ? dateInput : new Date(dateInput); return date.toLocaleDateString('en-US', { timeZone: CONFIG.timezone, month: 'short', day: 'numeric', year: 'numeric' }); }
 
         // ========== EDIT / DELETE ==========
-        function setupEditForm() {
-            document.getElementById('editForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                if (!editingRowIndex) return;
-                
-                const data = {
-                    action: 'updateEntry',
-                    rowIndex: editingRowIndex,
-                    date: document.getElementById('editDate').value,
-                    shift: document.getElementById('editShift').value,
-                    dutyName: document.getElementById('editDutyName').value,
-                    activeChipsTotal: parseFloat(document.getElementById('editActiveChips').value) || 0,
-                    endChipsTotal: parseFloat(document.getElementById('editEndChips').value) || 0,
-                    cfr: parseFloat(document.getElementById('editCFR').value) || 0,
-                    remittanceTotal: parseFloat(document.getElementById('editRemittance').value) || 0,
-                    bankFee: parseFloat(document.getElementById('editBankFee').value) || 0,
-                    salary: parseFloat(document.getElementById('editSalary').value) || 0,
-                    totalRemittances: parseFloat(document.getElementById('editRemittance').value) + parseFloat(document.getElementById('editSalary').value) || 0,
-                    unremitted: parseFloat(document.getElementById('editUnremitted').value) || 0,
-                    remarks: document.getElementById('editRemarks').value
-                };
-
-                try {
-                    await fetch(CONFIG.scriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-
-                    showToast('Entry updated!', 'success');
-                    closeEditModal();
-                    refreshData();
-                } catch (error) {
-                    showToast('Failed to update: ' + error.message, 'error');
-                }
-            });
-        }
-
-        function openEditModal(rowIndex) {
-            editingRowIndex = rowIndex;
-            editingEntry = reportData.find(e => e.rowIndex === rowIndex);
-            
-            if (!editingEntry) {
-                showToast('Entry not found', 'error');
-                return;
-            }
-
-            document.getElementById('editRowIndex').value = rowIndex;
-            document.getElementById('editDate').value = editingEntry.date;
-            document.getElementById('editShift').value = editingEntry.shift || '';
-            document.getElementById('editDutyName').value = editingEntry.dutyName || '';
-            document.getElementById('editActiveChips').value = editingEntry.activeChipsTotal || 0;
-            document.getElementById('editEndChips').value = editingEntry.endChipsTotal || 0;
-            document.getElementById('editCFR').value = editingEntry.cfr || 0;
-            document.getElementById('editRemittance').value = editingEntry.remittanceTotal || 0;
-            document.getElementById('editBankFee').value = editingEntry.bankFee || 0;
-            document.getElementById('editSalary').value = editingEntry.salary || 0;
-            document.getElementById('editUnremitted').value = editingEntry.unremitted || 0;
-            document.getElementById('editRemarks').value = editingEntry.remarks || '';
-
-            document.getElementById('editModal').classList.add('show');
-        }
-
-        function recalculateEdit() {
-            const active = parseFloat(document.getElementById('editActiveChips').value) || 0;
-            const end = parseFloat(document.getElementById('editEndChips').value) || 0;
-            const remit = parseFloat(document.getElementById('editRemittance').value) || 0;
-            const salary = parseFloat(document.getElementById('editSalary').value) || 0;
-
-            const cfr = active - end;
-            const totalRemit = remit + salary;
-            const unremitted = totalRemit - cfr;
-
-            document.getElementById('editCFR').value = cfr.toFixed(5);
-            document.getElementById('editUnremitted').value = unremitted.toFixed(5);
-        }
-
-        function closeEditModal() {
-            editingRowIndex = null;
-            editingEntry = null;
-            document.getElementById('editModal').classList.remove('show');
-        }
-
-        function openDeleteModal(rowIndex) {
-            editingRowIndex = rowIndex;
-            document.getElementById('deleteModal').classList.add('show');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('show');
-        }
-
-        function deleteEntry() {
-            closeEditModal();
-            openDeleteModal(editingRowIndex);
-        }
-
-        async function confirmDelete() {
-            if (!editingRowIndex) return;
-            
-            const data = {
-                action: 'deleteEntry',
-                rowIndex: editingRowIndex
-            };
-
-            try {
-                await fetch(CONFIG.scriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                showToast('Entry deleted!', 'success');
-                closeDeleteModal();
-                editingRowIndex = null;
-                refreshData();
-            } catch (error) {
-                showToast('Failed to delete: ' + error.message, 'error');
-            }
-        }
+        function setupEditForm() { document.getElementById('editForm').addEventListener('submit', async (e) => { e.preventDefault(); if (!editingRowIndex) return; const data = { action: 'updateEntry', rowIndex: editingRowIndex, date: document.getElementById('editDate').value, shift: document.getElementById('editShift').value, dutyName: document.getElementById('editDutyName').value, activeChipsTotal: parseFloat(document.getElementById('editActiveChips').value) || 0, endChipsTotal: parseFloat(document.getElementById('editEndChips').value) || 0, cfr: parseFloat(document.getElementById('editCFR').value) || 0, remittanceTotal: parseFloat(document.getElementById('editRemittance').value) || 0, bankFee: parseFloat(document.getElementById('editBankFee').value) || 0, salary: parseFloat(document.getElementById('editSalary').value) || 0, totalRemittances: parseFloat(document.getElementById('editRemittance').value) + parseFloat(document.getElementById('editSalary').value) || 0, unremitted: parseFloat(document.getElementById('editUnremitted').value) || 0, remarks: document.getElementById('editRemarks').value }; try { await fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); showToast('Entry updated!', 'success'); closeEditModal(); refreshData(); } catch (error) { showToast('Failed to update: ' + error.message, 'error'); } }); }
+        function openEditModal(rowIndex) { editingRowIndex = rowIndex; editingEntry = reportData.find(e => e.rowIndex === rowIndex); if (!editingEntry) { showToast('Entry not found', 'error'); return; } document.getElementById('editRowIndex').value = rowIndex; document.getElementById('editDate').value = editingEntry.date; document.getElementById('editShift').value = editingEntry.shift || ''; document.getElementById('editDutyName').value = editingEntry.dutyName || ''; document.getElementById('editActiveChips').value = editingEntry.activeChipsTotal || 0; document.getElementById('editEndChips').value = editingEntry.endChipsTotal || 0; document.getElementById('editCFR').value = editingEntry.cfr || 0; document.getElementById('editRemittance').value = editingEntry.remittanceTotal || 0; document.getElementById('editBankFee').value = editingEntry.bankFee || 0; document.getElementById('editSalary').value = editingEntry.salary || 0; document.getElementById('editUnremitted').value = editingEntry.unremitted || 0; document.getElementById('editRemarks').value = editingEntry.remarks || ''; document.getElementById('editModal').classList.add('show'); }
+        function recalculateEdit() { const active = parseFloat(document.getElementById('editActiveChips').value) || 0; const end = parseFloat(document.getElementById('editEndChips').value) || 0; const remit = parseFloat(document.getElementById('editRemittance').value) || 0; const salary = parseFloat(document.getElementById('editSalary').value) || 0; document.getElementById('editCFR').value = (active - end).toFixed(5); document.getElementById('editUnremitted').value = ((remit + salary) - (active - end)).toFixed(5); }
+        function closeEditModal() { editingRowIndex = null; editingEntry = null; document.getElementById('editModal').classList.remove('show'); }
+        function openDeleteModal(rowIndex) { editingRowIndex = rowIndex; document.getElementById('deleteModal').classList.add('show'); }
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); }
+        function deleteEntry() { closeEditModal(); openDeleteModal(editingRowIndex); }
+        async function confirmDelete() { if (!editingRowIndex) return; try { await fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'deleteEntry', rowIndex: editingRowIndex }) }); showToast('Entry deleted!', 'success'); closeDeleteModal(); editingRowIndex = null; refreshData(); } catch (error) { showToast('Failed to delete: ' + error.message, 'error'); } }
 
         // ========== EXPORT AS IMAGE ==========
-        async function exportReportAsImage() {
-            if (filteredData.length === 0) {
-                showToast('No data to export', 'error');
-                return;
-            }
-
-            showToast('Generating image...', 'success');
-
-            const canvas = document.getElementById('exportCanvas');
-            const ctx = canvas.getContext('2d');
-
-            const padding = 40;
-            const rowHeight = 35;
-            const headerHeight = 50;
-            const titleHeight = 60;
-            const cols = [80, 120, 60, 100, 100, 100, 100, 60, 100, 70];
-            const totalWidth = cols.reduce((a, b) => a + b, 0) + padding * 2;
-            const totalHeight = titleHeight + headerHeight + (filteredData.length + 1) * rowHeight + padding * 2;
-
-            canvas.width = totalWidth;
-            canvas.height = totalHeight;
-
-            ctx.fillStyle = '#0a0f1a';
-            ctx.fillRect(0, 0, totalWidth, totalHeight);
-
-            ctx.fillStyle = '#00d4ff';
-            ctx.font = 'bold 20px Outfit, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('WackyBuds CFR Report', totalWidth / 2, padding + 25);
-
-            if (selectedFilterStartDate && selectedFilterEndDate) {
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '12px Outfit, sans-serif';
-                ctx.fillText(
-                    `${formatDateDisplay(selectedFilterStartDate)} → ${formatDateDisplay(selectedFilterEndDate)}`,
-                    totalWidth / 2, padding + 45
-                );
-            }
-
-            const headers = ['Date', 'Shift', 'Loader', 'Active', 'End', 'CFR', 'Remit', 'Fee', 'Unremit', 'Status'];
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(padding, padding + titleHeight, totalWidth - padding * 2, headerHeight);
-
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = 'bold 10px JetBrains Mono, monospace';
-            ctx.textAlign = 'left';
-
-            let x = padding + 10;
-            headers.forEach((header, i) => {
-                ctx.fillText(header.toUpperCase(), x, padding + titleHeight + 30);
-                x += cols[i];
-            });
-
-            let y = padding + titleHeight + headerHeight;
-            let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 };
-
-            filteredData.forEach((entry, idx) => {
-                if (idx % 2 === 0) {
-                    ctx.fillStyle = '#111827';
-                    ctx.fillRect(padding, y, totalWidth - padding * 2, rowHeight);
-                }
-
-                totals.active += entry.activeChipsTotal || 0;
-                totals.end += entry.endChipsTotal || 0;
-                totals.cfr += entry.cfr || 0;
-                totals.remit += entry.totalRemittances || 0;
-                totals.unremit += entry.unremitted || 0;
-
-                ctx.font = '10px JetBrains Mono, monospace';
-                ctx.fillStyle = '#f1f5f9';
-
-                x = padding + 10;
-                const rowData = [
-                    formatDateDisplay(entry.date),
-                    (entry.shift || '-').substring(0, 15),
-                    entry.dutyName || '-',
-                    formatNumber(entry.activeChipsTotal),
-                    formatNumber(entry.endChipsTotal),
-                    formatNumber(entry.cfr),
-                    formatNumber(entry.totalRemittances),
-                    formatNumber(entry.bankFee),
-                    formatNumber(entry.unremitted),
-                    entry.remarks || '-'
-                ];
-
-                rowData.forEach((val, i) => {
-                    if (i === 8 && (entry.unremitted || 0) < 0) {
-                        ctx.fillStyle = '#ef4444';
-                    } else {
-                        ctx.fillStyle = '#f1f5f9';
-                    }
-                    ctx.fillText(String(val).substring(0, 12), x, y + 22);
-                    x += cols[i];
-                });
-
-                y += rowHeight;
-            });
-
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(padding, y, totalWidth - padding * 2, rowHeight);
-
-            ctx.fillStyle = '#00d4ff';
-            ctx.font = 'bold 10px JetBrains Mono, monospace';
-
-            x = padding + 10;
-            const totalRow = [
-                'TOTAL', '', '',
-                formatNumber(totals.active),
-                formatNumber(totals.end),
-                formatNumber(totals.cfr),
-                formatNumber(totals.remit),
-                '-',
-                formatNumber(totals.unremit),
-                ''
-            ];
-
-            totalRow.forEach((val, i) => {
-                if (i === 8 && totals.unremit < 0) {
-                    ctx.fillStyle = '#ef4444';
-                } else {
-                    ctx.fillStyle = '#00d4ff';
-                }
-                ctx.fillText(val, x, y + 22);
-                x += cols[i];
-            });
-
-            const link = document.createElement('a');
-            link.download = `CFR_Report_${new Date().toISOString().split('T')[0]}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-
-            showToast('Image exported!', 'success');
-        }
+        async function exportReportAsImage() { if (filteredData.length === 0) { showToast('No data to export', 'error'); return; } showToast('Generating image...', 'success'); const canvas = document.getElementById('exportCanvas'); const ctx = canvas.getContext('2d'); const padding = 40, rowHeight = 35, headerHeight = 50, titleHeight = 80; const cols = [80, 120, 60, 100, 100, 100, 100, 60, 100, 70]; const totalWidth = cols.reduce((a, b) => a + b, 0) + padding * 2; const totalHeight = titleHeight + headerHeight + (filteredData.length + 1) * rowHeight + padding * 2; canvas.width = totalWidth; canvas.height = totalHeight; ctx.fillStyle = '#0a0f1a'; ctx.fillRect(0, 0, totalWidth, totalHeight); ctx.fillStyle = '#00d4ff'; ctx.font = 'bold 20px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('WackyBuds CFR Report', totalWidth / 2, padding + 25); ctx.fillStyle = '#64748b'; ctx.font = '10px Outfit, sans-serif'; ctx.fillText(`Timezone: ${TIMEZONE_INFO[CONFIG.timezone].name}`, totalWidth / 2, padding + 42); if (selectedFilterStartDate && selectedFilterEndDate) { ctx.fillStyle = '#94a3b8'; ctx.font = '12px Outfit, sans-serif'; ctx.fillText(`${formatDateDisplay(selectedFilterStartDate)} → ${formatDateDisplay(selectedFilterEndDate)}`, totalWidth / 2, padding + 58); } const headers = ['Date', 'Shift', 'Loader', 'Active', 'End', 'CFR', 'Remit', 'Fee', 'Unremit', 'Status']; ctx.fillStyle = '#1e293b'; ctx.fillRect(padding, padding + titleHeight, totalWidth - padding * 2, headerHeight); ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 10px JetBrains Mono, monospace'; ctx.textAlign = 'left'; let x = padding + 10; headers.forEach((header, i) => { ctx.fillText(header.toUpperCase(), x, padding + titleHeight + 30); x += cols[i]; }); let y = padding + titleHeight + headerHeight; let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 }; filteredData.forEach((entry, idx) => { if (idx % 2 === 0) { ctx.fillStyle = '#111827'; ctx.fillRect(padding, y, totalWidth - padding * 2, rowHeight); } totals.active += entry.activeChipsTotal || 0; totals.end += entry.endChipsTotal || 0; totals.cfr += entry.cfr || 0; totals.remit += entry.totalRemittances || 0; totals.unremit += entry.unremitted || 0; ctx.font = '10px JetBrains Mono, monospace'; x = padding + 10; const rowData = [formatDateDisplay(entry.date), (entry.shift || '-').substring(0, 15), entry.dutyName || '-', formatNumber(entry.activeChipsTotal), formatNumber(entry.endChipsTotal), formatNumber(entry.cfr), formatNumber(entry.totalRemittances), formatNumber(entry.bankFee), formatNumber(entry.unremitted), entry.remarks || '-']; rowData.forEach((val, i) => { ctx.fillStyle = (i === 8 && (entry.unremitted || 0) < 0) ? '#ef4444' : '#f1f5f9'; ctx.fillText(String(val).substring(0, 12), x, y + 22); x += cols[i]; }); y += rowHeight; }); ctx.fillStyle = '#1e293b'; ctx.fillRect(padding, y, totalWidth - padding * 2, rowHeight); ctx.font = 'bold 10px JetBrains Mono, monospace'; x = padding + 10; const totalRow = ['TOTAL', '', '', formatNumber(totals.active), formatNumber(totals.end), formatNumber(totals.cfr), formatNumber(totals.remit), '-', formatNumber(totals.unremit), '']; totalRow.forEach((val, i) => { ctx.fillStyle = (i === 8 && totals.unremit < 0) ? '#ef4444' : '#00d4ff'; ctx.fillText(val, x, y + 22); x += cols[i]; }); const link = document.createElement('a'); link.download = `CFR_Report_${getDateStringInTimezone(new Date())}.png`; link.href = canvas.toDataURL('image/png'); link.click(); showToast('Image exported!', 'success'); }
 
         // ========== HISTORY ==========
-        async function loadHistory() {
-            if (!CONFIG.scriptUrl) return;
-
-            try {
-                const response = await fetch(`${CONFIG.scriptUrl}?action=getHistory&_=${Date.now()}`);
-                const data = await response.json();
-                
-                const tbody = document.getElementById('historyBody');
-                if (!data.success || !data.history?.length) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No history</td></tr>`;
-                    return;
-                }
-
-                tbody.innerHTML = data.history.slice(0, 50).map(h => `
-                    <tr>
-                        <td>${h.timestamp || '-'}</td>
-                        <td>${h.user || '-'}</td>
-                        <td>${h.action || '-'}</td>
-                        <td style="font-size: 0.7rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${h.details || '-'}</td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                console.error('History error:', error);
-            }
-        }
+        async function loadHistory() { if (!CONFIG.scriptUrl) return; try { const response = await fetch(`${CONFIG.scriptUrl}?action=getHistory&_=${Date.now()}`); const data = await response.json(); const tbody = document.getElementById('historyBody'); if (!data.success || !data.history?.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No history</td></tr>`; return; } tbody.innerHTML = data.history.slice(0, 50).map(h => `<tr><td>${h.timestamp || '-'}</td><td>${h.user || '-'}</td><td>${h.action || '-'}</td><td style="font-size: 0.7rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${h.details || '-'}</td></tr>`).join(''); } catch (error) { console.error('History error:', error); } }
 
         // ========== SETTINGS ==========
-        function saveSettings() {
-            const url = document.getElementById('scriptUrl').value.trim();
-            if (url) {
-                CONFIG.scriptUrl = url;
-                localStorage.setItem('cfr_script_url', url);
-                showToast('Settings saved!', 'success');
-                refreshData();
-            } else {
-                showToast('Please enter a valid URL', 'error');
-            }
-        }
-
-        async function testConnection() {
-            const url = document.getElementById('scriptUrl').value.trim();
-            if (!url) {
-                showToast('Enter URL first', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${url}?action=test&_=${Date.now()}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    showToast('Connection successful!', 'success');
-                    updateConnectionStatus(true);
-                } else {
-                    showToast('Connection failed', 'error');
-                    updateConnectionStatus(false);
-                }
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-                updateConnectionStatus(false);
-            }
-        }
-
-        function updateConnectionStatus(connected) {
-            const dot = document.getElementById('statusDot');
-            const text = document.getElementById('statusText');
-            
-            dot.classList.toggle('connected', connected);
-            text.textContent = connected ? 'Connected' : (CONFIG.scriptUrl ? 'Disconnected' : 'Not configured');
-        }
-
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span><span>${message}</span>`;
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
-        }
+        function saveSettings() { const url = document.getElementById('scriptUrl').value.trim(); if (url) { CONFIG.scriptUrl = url; localStorage.setItem('cfr_script_url', url); showToast('Settings saved!', 'success'); refreshData(); } else { showToast('Please enter a valid URL', 'error'); } }
+        async function testConnection() { const url = document.getElementById('scriptUrl').value.trim(); if (!url) { showToast('Enter URL first', 'error'); return; } if (!isOnline) { showToast('You are offline', 'error'); return; } try { const response = await fetch(`${url}?action=test&_=${Date.now()}`); const data = await response.json(); if (data.success) { showToast('Connection successful!', 'success'); updateConnectionStatus(true); } else { showToast('Connection failed', 'error'); updateConnectionStatus(false); } } catch (error) { showToast('Error: ' + error.message, 'error'); updateConnectionStatus(false); } }
+        function clearLocalData() { if (confirm('Are you sure you want to clear all local data? This will reset settings and filters.')) { localStorage.removeItem('cfr_script_url'); localStorage.removeItem('cfr_timezone'); localStorage.removeItem('cfr_last_end_chips'); localStorage.removeItem('cfr_filter_start'); localStorage.removeItem('cfr_filter_end'); showToast('Local data cleared!', 'success'); location.reload(); } }
+        function updateConnectionStatus(connected) { const dot = document.getElementById('statusDot'); const text = document.getElementById('statusText'); if (!isOnline) { dot.classList.add('offline'); dot.classList.remove('connected'); text.textContent = 'Offline'; } else { dot.classList.remove('offline'); dot.classList.toggle('connected', connected); text.textContent = connected ? 'Connected' : (CONFIG.scriptUrl ? 'Disconnected' : 'Not configured'); } }
+        function showToast(message, type = 'success') { const container = document.getElementById('toastContainer'); const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span><span>${message}</span>`; container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000); }
 
         // ========== PWA ==========
-        function setupPWA() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js').catch(console.log);
-            }
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                document.getElementById('installPrompt').classList.add('show');
-            });
-        }
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
-                    deferredPrompt = null;
-                    dismissInstall();
-                });
-            }
-        }
-
-        function dismissInstall() {
-            document.getElementById('installPrompt').classList.remove('show');
-        }
+        function setupPWA() { if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(console.log); window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installPrompt').classList.add('show'); }); }
+        function installApp() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissInstall(); }); } }
+        function dismissInstall() { document.getElementById('installPrompt').classList.remove('show'); }
     </script>
 </body>
 </html>
-
-
