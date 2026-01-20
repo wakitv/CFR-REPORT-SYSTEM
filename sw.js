@@ -2,7 +2,7 @@
  * WackyBuds CFR System v3 - Service Worker
  */
 
-const CACHE_NAME = 'wackybuds-cfr-v3.1';
+const CACHE_NAME = 'wackybuds-cfr-v3.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
