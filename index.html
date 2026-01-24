@@ -8,198 +8,163 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="WackyBuds CFR">
     <meta name="description" content="Cash For Remittance Report System - WackyBuds">
-    
     <title>WackyBuds CFR System</title>
-    
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --bg-primary: #0a0f1a;
-            --bg-secondary: #111827;
-            --bg-card: #141c2b;
-            --bg-input: #0d1320;
-            --bg-hover: #1e293b;
-            --accent-primary: #00d4ff;
-            --accent-secondary: #a855f7;
-            --accent-success: #10b981;
-            --accent-warning: #f59e0b;
-            --accent-danger: #ef4444;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: #1e293b;
-            --border-light: #334155;
-            --shadow-glow: 0 0 40px rgba(0, 212, 255, 0.1);
-            --gradient-primary: linear-gradient(135deg, #00d4ff 0%, #a855f7 100%);
-            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
-        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(ellipse at 10% 10%, rgba(0, 212, 255, 0.03) 0%, transparent 50%), radial-gradient(ellipse at 90% 90%, rgba(168, 85, 247, 0.03) 0%, transparent 50%), var(--bg-primary); }
-        .offline-banner { display: none; background: var(--gradient-danger); color: white; text-align: center; padding: 0.5rem; font-size: 0.85rem; font-weight: 500; }
-        .offline-banner.show { display: block; }
-        .header { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color); padding: 1rem 1.5rem; position: sticky; top: 0; z-index: 100; }
-        .header-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-        .logo { display: flex; align-items: center; gap: 0.75rem; }
-        .logo-icon { width: 44px; height: 44px; background: var(--gradient-primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800; box-shadow: var(--shadow-glow); }
-        .logo-text { font-size: 1.3rem; font-weight: 700; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .logo-subtitle { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
-        .live-clock { display: flex; flex-direction: column; align-items: center; padding: 0.5rem 1rem; background: var(--bg-input); border-radius: 12px; border: 1px solid var(--border-color); min-width: 180px; }
-        .clock-time { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 600; color: var(--accent-primary); letter-spacing: 1px; }
-        .clock-date { font-size: 0.75rem; color: var(--text-secondary); }
-        .clock-timezone { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
-        .header-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-        .timezone-select { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.5rem; color: var(--text-primary); font-size: 0.8rem; cursor: pointer; }
-        .timezone-select:focus { outline: none; border-color: var(--accent-primary); }
-        .connection-status { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-input); border-radius: 100px; font-size: 0.8rem; border: 1px solid var(--border-color); }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-warning); animation: pulse 2s infinite; }
-        .status-dot.connected { background: var(--accent-success); }
-        .status-dot.offline { background: var(--accent-danger); }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } }
-        .saved-badge { display: none; align-items: center; gap: 0.25rem; background: var(--accent-success); color: white; padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.75rem; font-weight: 600; }
-        .main-content { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
-        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
-        .tab { padding: 0.75rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-secondary); font-weight: 500; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-size: 0.9rem; }
-        .tab:hover { border-color: var(--accent-primary); color: var(--text-primary); transform: translateY(-2px); }
-        .tab.active { background: var(--gradient-primary); border-color: transparent; color: var(--bg-primary); font-weight: 600; }
-        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; }
-        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem; }
-        .card-title { font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
-        .card-icon { width: 36px; height: 36px; background: var(--bg-input); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 1rem; text-align: center; }
-        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
-        .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; color: var(--accent-primary); }
-        .stat-value.success { color: var(--accent-success); }
-        .stat-value.warning { color: var(--accent-warning); }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .form-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
-        .form-label.required::after { content: ' *'; color: var(--accent-danger); }
-        .form-input, .form-select { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.875rem 1rem; color: var(--text-primary); font-family: inherit; font-size: 0.95rem; transition: all 0.3s ease; width: 100%; }
-        .form-input:focus, .form-select:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1); }
-        .form-input.error { border-color: var(--accent-danger); }
-        .form-error { font-size: 0.75rem; color: var(--accent-danger); display: none; }
-        .form-error.show { display: block; }
-        .btn { padding: 0.875rem 1.5rem; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; font-family: inherit; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-primary { background: var(--gradient-primary); color: var(--bg-primary); }
-        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3); }
-        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); }
-        .btn-secondary:hover:not(:disabled) { border-color: var(--accent-primary); }
-        .btn-danger { background: var(--gradient-danger); color: white; }
-        .btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-        .entry-list { display: flex; flex-direction: column; gap: 0.75rem; }
-        .entry-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; align-items: center; animation: slideIn 0.2s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        .entry-amount, .entry-remarks { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem; color: var(--text-primary); font-size: 0.9rem; width: 100%; }
-        .entry-amount:focus, .entry-remarks:focus { outline: none; border-color: var(--accent-primary); }
-        .btn-add { background: var(--bg-input); border: 1px dashed var(--border-light); border-radius: 10px; padding: 0.75rem; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; width: 100%; text-align: center; }
-        .btn-add:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
-        .btn-remove { background: rgba(239, 68, 68, 0.1); border: none; border-radius: 8px; width: 36px; height: 36px; color: var(--accent-danger); cursor: pointer; font-size: 1.2rem; transition: all 0.3s ease; }
-        .btn-remove:hover { background: var(--accent-danger); color: white; }
-        .calculation-card { background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem; }
-        .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color); }
-        .calc-row:last-child { border-bottom: none; }
-        .calc-label { color: var(--text-secondary); font-size: 0.9rem; }
-        .calc-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; color: var(--accent-primary); }
-        .calc-value.highlight { font-size: 1.3rem; color: var(--accent-success); }
-        .calc-value.negative { color: var(--accent-danger); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .calendar-wrapper { position: relative; }
-        .calendar-popup { position: absolute; top: calc(100% + 8px); left: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 1rem; z-index: 1000; display: none; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); max-width: 320px; min-width: 280px; }
-        .calendar-popup.show { display: block; }
-        @media (max-width: 480px) { .calendar-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 320px; } }
-        .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-        .calendar-nav { background: var(--bg-input); border: none; border-radius: 8px; width: 32px; height: 32px; color: var(--text-primary); cursor: pointer; font-size: 1rem; }
-        .calendar-nav:hover { background: var(--bg-hover); }
-        .calendar-month-year { font-weight: 600; color: var(--text-primary); }
-        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 0.5rem; }
-        .calendar-weekday { text-align: center; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; padding: 0.25rem; }
-        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: var(--bg-input); border: none; border-radius: 8px; color: var(--text-primary); font-size: 0.85rem; cursor: pointer; transition: all 0.2s ease; }
-        .calendar-day:hover { background: var(--accent-primary); color: var(--bg-primary); }
-        .calendar-day.other-month { color: var(--text-muted); opacity: 0.5; }
-        .calendar-day.today { border: 2px solid var(--accent-primary); }
-        .calendar-day.selected { background: var(--gradient-primary); color: var(--bg-primary); font-weight: 600; }
-        .calendar-day.in-range { background: rgba(0, 212, 255, 0.2); }
-        .table-wrapper { overflow-x: auto; margin: -0.5rem; padding: 0.5rem; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th, td { padding: 0.875rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { background: var(--bg-secondary); color: var(--text-secondary); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; position: sticky; top: 0; }
-        td { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
-        tr:hover { background: var(--bg-hover); }
-        .table-footer td { background: var(--bg-secondary); font-weight: 600; color: var(--accent-primary); }
-        .filter-section { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem; }
-        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .filter-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-        .filter-info { display: none; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1rem; align-items: center; gap: 1rem; flex-wrap: wrap; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
-        .modal-overlay.show { display: flex; }
-        .modal { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
-        .modal-title { font-size: 1.2rem; font-weight: 600; }
-        .modal-close { background: var(--bg-input); border: none; border-radius: 8px; width: 32px; height: 32px; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; }
-        .modal-close:hover { background: var(--accent-danger); color: white; }
-        .settings-group { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.25rem; }
-        .settings-title { font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); }
-        .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
-        .settings-item:last-child { border-bottom: none; }
-        .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.5rem; }
-        .toast { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: toastIn 0.3s ease; }
-        .toast.success { border-color: var(--accent-success); }
-        .toast.error { border-color: var(--accent-danger); }
-        @keyframes toastIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
-        .loading-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 3000; }
-        .loading-logo { width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; animation: loadingPulse 1.5s ease infinite; }
-        @keyframes loadingPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .loading-text { color: var(--text-secondary); font-size: 1rem; }
-        .spinner { width: 20px; height: 20px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .install-prompt { position: fixed; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; background: var(--bg-card); border: 1px solid var(--accent-primary); border-radius: 16px; padding: 1rem 1.5rem; display: none; align-items: center; justify-content: space-between; gap: 1rem; z-index: 1000; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
-        .install-prompt.show { display: flex; }
-        #exportCanvas { display: none; }
-        @media (max-width: 768px) { .header-content { flex-direction: column; align-items: flex-start; } .header-right { width: 100%; justify-content: space-between; } .form-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .toast-container { left: 1rem; right: 1rem; bottom: 1rem; } .toast { width: 100%; } }
-        @media (max-width: 480px) { .header { padding: 0.75rem 1rem; } .main-content { padding: 1rem; } .card { padding: 1rem; border-radius: 16px; } .tabs { gap: 0.25rem; } .tab { padding: 0.6rem 1rem; font-size: 0.85rem; } .live-clock { min-width: 140px; padding: 0.4rem 0.75rem; } .clock-time { font-size: 1.1rem; } }
+        :root{--bg-primary:#0a0f1a;--bg-secondary:#111827;--bg-card:#141c2b;--bg-input:#0d1320;--bg-hover:#1e293b;--accent-primary:#00d4ff;--accent-secondary:#a855f7;--accent-success:#10b981;--accent-warning:#f59e0b;--accent-danger:#ef4444;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-muted:#64748b;--border-color:#1e293b;--border-light:#334155;--shadow-glow:0 0 40px rgba(0,212,255,0.1);--gradient-primary:linear-gradient(135deg,#00d4ff 0%,#a855f7 100%);--gradient-success:linear-gradient(135deg,#10b981 0%,#059669 100%);--gradient-danger:linear-gradient(135deg,#ef4444 0%,#dc2626 100%);--gradient-warning:linear-gradient(135deg,#f59e0b 0%,#d97706 100%)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Outfit',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+        .bg-animation{position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at 10% 10%,rgba(0,212,255,0.03) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(168,85,247,0.03) 0%,transparent 50%),var(--bg-primary)}
+        .offline-banner{display:none;background:var(--gradient-warning);color:#000;text-align:center;padding:0.5rem;font-size:0.85rem;font-weight:600}
+        .offline-banner.show{display:block}
+        .sync-banner{display:none;background:var(--gradient-primary);color:#000;text-align:center;padding:0.5rem;font-size:0.85rem;font-weight:600}
+        .sync-banner.show{display:flex;align-items:center;justify-content:center;gap:0.5rem}
+        .header{background:rgba(17,24,39,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border-color);padding:1rem 1.5rem;position:sticky;top:0;z-index:100}
+        .header-content{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+        .logo{display:flex;align-items:center;gap:0.75rem}
+        .logo-icon{width:44px;height:44px;background:var(--gradient-primary);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;box-shadow:var(--shadow-glow)}
+        .logo-text{font-size:1.3rem;font-weight:700;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .logo-subtitle{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px}
+        .live-clock{display:flex;flex-direction:column;align-items:center;padding:0.5rem 1rem;background:var(--bg-input);border-radius:12px;border:1px solid var(--border-color);min-width:160px}
+        .clock-time{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:600;color:var(--accent-primary);letter-spacing:1px}
+        .clock-date{font-size:0.7rem;color:var(--text-secondary)}
+        .clock-timezone{font-size:0.6rem;color:var(--text-muted);margin-top:2px}
+        .header-right{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap}
+        .connection-status{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;background:var(--bg-input);border-radius:100px;font-size:0.8rem;border:1px solid var(--border-color)}
+        .status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-warning);animation:pulse 2s infinite}
+        .status-dot.connected{background:var(--accent-success)}
+        .status-dot.offline{background:var(--accent-danger)}
+        .status-dot.syncing{background:var(--accent-primary);animation:spin 1s linear infinite}
+        .pending-badge{background:var(--accent-warning);color:#000;font-size:0.7rem;padding:0.15rem 0.4rem;border-radius:100px;font-weight:600;margin-left:0.25rem}
+        @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.9)}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .main-content{max-width:1400px;margin:0 auto;padding:1.5rem}
+        .tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;overflow-x:auto;padding-bottom:0.5rem;-webkit-overflow-scrolling:touch}
+        .tab{padding:0.75rem 1.5rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;color:var(--text-secondary);font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap;font-size:0.9rem;-webkit-user-select:none;user-select:none}
+        .tab:active{transform:scale(0.98)}
+        .tab.active{background:var(--gradient-primary);border-color:transparent;color:var(--bg-primary);font-weight:600}
+        .card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:1.5rem;margin-bottom:1.5rem}
+        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border-color);flex-wrap:wrap;gap:1rem}
+        .card-title{font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:0.5rem}
+        .card-icon{width:36px;height:36px;background:var(--bg-input);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+        .stat-card{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:1rem;text-align:center}
+        .stat-label{font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem}
+        .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--accent-primary)}
+        .stat-value.success{color:var(--accent-success)}
+        .stat-value.warning{color:var(--accent-warning)}
+        .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+        .form-group{display:flex;flex-direction:column;gap:0.5rem}
+        .form-label{font-size:0.85rem;color:var(--text-secondary);font-weight:500}
+        .form-label.required::after{content:' *';color:var(--accent-danger)}
+        .form-input,.form-select{background:var(--bg-input);border:1px solid var(--border-color);border-radius:12px;padding:0.875rem 1rem;color:var(--text-primary);font-family:inherit;font-size:0.95rem;transition:all 0.2s;width:100%;-webkit-appearance:none}
+        .form-input:focus,.form-select:focus{outline:none;border-color:var(--accent-primary);box-shadow:0 0 0 3px rgba(0,212,255,0.1)}
+        .form-input.error{border-color:var(--accent-danger)}
+        .form-error{font-size:0.75rem;color:var(--accent-danger);display:none}
+        .form-error.show{display:block}
+        .btn{padding:0.875rem 1.5rem;border-radius:12px;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;border:none;font-family:inherit;-webkit-user-select:none;user-select:none}
+        .btn:active{transform:scale(0.98)}
+        .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+        .btn-primary{background:var(--gradient-primary);color:var(--bg-primary)}
+        .btn-secondary{background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary)}
+        .btn-danger{background:var(--gradient-danger);color:#fff}
+        .btn-warning{background:var(--gradient-warning);color:#000}
+        .btn-group{display:flex;gap:0.75rem;flex-wrap:wrap}
+        .entry-list{display:flex;flex-direction:column;gap:0.75rem}
+        .entry-row{display:grid;grid-template-columns:1fr 1fr auto;gap:0.5rem;align-items:center;animation:slideIn 0.2s ease}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+        .entry-amount,.entry-remarks{background:var(--bg-input);border:1px solid var(--border-color);border-radius:10px;padding:0.75rem;color:var(--text-primary);font-size:0.9rem;width:100%}
+        .entry-amount:focus,.entry-remarks:focus{outline:none;border-color:var(--accent-primary)}
+        .btn-add{background:var(--bg-input);border:1px dashed var(--border-light);border-radius:10px;padding:0.75rem;color:var(--text-muted);font-size:0.85rem;cursor:pointer;transition:all 0.2s;width:100%;text-align:center}
+        .btn-remove{background:rgba(239,68,68,0.1);border:none;border-radius:8px;width:36px;height:36px;color:var(--accent-danger);cursor:pointer;font-size:1.2rem;transition:all 0.2s}
+        .btn-remove:active{background:var(--accent-danger);color:#fff}
+        .calculation-card{background:linear-gradient(135deg,rgba(0,212,255,0.05) 0%,rgba(168,85,247,0.05) 100%);border:1px solid var(--border-color);border-radius:16px;padding:1.5rem;margin-top:1.5rem}
+        .calc-row{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border-color)}
+        .calc-row:last-child{border-bottom:none}
+        .calc-label{color:var(--text-secondary);font-size:0.9rem}
+        .calc-value{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--accent-primary)}
+        .calc-value.highlight{font-size:1.3rem;color:var(--accent-success)}
+        .calc-value.negative{color:var(--accent-danger)}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        .calendar-wrapper{position:relative}
+        .calendar-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:1rem;z-index:1001;display:none;box-shadow:0 20px 40px rgba(0,0,0,0.5);width:90%;max-width:320px}
+        .calendar-popup.show{display:block}
+        .calendar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:none}
+        .calendar-overlay.show{display:block}
+        .calendar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+        .calendar-nav{background:var(--bg-input);border:none;border-radius:8px;width:40px;height:40px;color:var(--text-primary);cursor:pointer;font-size:1.2rem}
+        .calendar-month-year{font-weight:600;color:var(--text-primary)}
+        .calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:0.5rem}
+        .calendar-weekday{text-align:center;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;padding:0.25rem}
+        .calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+        .calendar-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--bg-input);border:none;border-radius:8px;color:var(--text-primary);font-size:0.85rem;cursor:pointer;transition:all 0.2s}
+        .calendar-day:active{background:var(--accent-primary);color:var(--bg-primary)}
+        .calendar-day.other-month{color:var(--text-muted);opacity:0.5}
+        .calendar-day.today{border:2px solid var(--accent-primary)}
+        .calendar-day.selected{background:var(--gradient-primary);color:var(--bg-primary);font-weight:600}
+        .calendar-day.in-range{background:rgba(0,212,255,0.2)}
+        .table-wrapper{overflow-x:auto;margin:-0.5rem;padding:0.5rem;-webkit-overflow-scrolling:touch}
+        table{width:100%;border-collapse:collapse;min-width:900px}
+        th,td{padding:0.875rem 0.75rem;text-align:left;border-bottom:1px solid var(--border-color)}
+        th{background:var(--bg-secondary);color:var(--text-secondary);font-weight:600;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;position:sticky;top:0}
+        td{font-family:'JetBrains Mono',monospace;font-size:0.85rem}
+        tr:hover{background:var(--bg-hover)}
+        tr.pending{background:rgba(245,158,11,0.1);border-left:3px solid var(--accent-warning)}
+        .table-footer td{background:var(--bg-secondary);font-weight:600;color:var(--accent-primary)}
+        .filter-section{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem}
+        .filter-group{display:flex;flex-direction:column;gap:0.5rem}
+        .filter-label{font-size:0.75rem;color:var(--text-muted);text-transform:uppercase}
+        .filter-info{display:none;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:12px;padding:0.75rem 1rem;margin-bottom:1rem;align-items:center;gap:1rem;flex-wrap:wrap}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1000;padding:1rem}
+        .modal-overlay.show{display:flex}
+        .modal{background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:1.5rem;width:100%;max-width:600px;max-height:90vh;max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+        .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border-color)}
+        .modal-title{font-size:1.2rem;font-weight:600}
+        .modal-close{background:var(--bg-input);border:none;border-radius:8px;width:40px;height:40px;color:var(--text-muted);cursor:pointer;font-size:1.5rem}
+        .settings-group{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:16px;padding:1.25rem;margin-bottom:1rem}
+        .settings-title{font-weight:600;margin-bottom:1rem;color:var(--text-primary)}
+        .settings-item{display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--border-color);gap:1rem}
+        .settings-item:last-child{border-bottom:none}
+        .toast-container{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:0.5rem;width:90%;max-width:400px}
+        .toast{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1rem 1.5rem;display:flex;align-items:center;gap:0.75rem;box-shadow:0 10px 30px rgba(0,0,0,0.3);animation:toastIn 0.3s ease}
+        .toast.success{border-color:var(--accent-success)}
+        .toast.error{border-color:var(--accent-danger)}
+        .toast.warning{border-color:var(--accent-warning)}
+        @keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .loading-screen{position:fixed;inset:0;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3000}
+        .loading-logo{width:80px;height:80px;background:var(--gradient-primary);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:800;margin-bottom:1.5rem;animation:loadingPulse 1.5s ease infinite}
+        @keyframes loadingPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        .loading-text{color:var(--text-secondary);font-size:1rem}
+        .spinner{width:20px;height:20px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin 0.6s linear infinite}
+        .install-prompt{position:fixed;bottom:1.5rem;left:1rem;right:1rem;background:var(--bg-card);border:1px solid var(--accent-primary);border-radius:16px;padding:1rem 1.25rem;display:none;align-items:center;justify-content:space-between;gap:1rem;z-index:1000;box-shadow:0 20px 40px rgba(0,0,0,0.3)}
+        .install-prompt.show{display:flex}
+        #exportCanvas{display:none}
+        @media(max-width:768px){.header-content{flex-direction:column;align-items:stretch}.header-right{justify-content:space-between}.form-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:480px){.header{padding:0.75rem 1rem}.main-content{padding:1rem}.card{padding:1rem;border-radius:16px}.tabs{gap:0.25rem}.tab{padding:0.6rem 1rem;font-size:0.85rem}.live-clock{min-width:140px;padding:0.4rem 0.75rem}.clock-time{font-size:1.1rem}}
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
-    <div class="offline-banner" id="offlineBanner">⚠️ You're offline. Some features may not work.</div>
-    <div class="loading-screen" id="loadingScreen"><div class="loading-logo">WB</div><div class="loading-text">Loading CFR System...</div></div>
-    <div id="mainApp" style="display: none;">
+    <div class="offline-banner" id="offlineBanner">📴 Offline Mode - Data saved locally</div>
+    <div class="sync-banner" id="syncBanner"><div class="spinner"></div> Syncing pending entries...</div>
+    <div class="loading-screen" id="loadingScreen"><div class="loading-logo">WB</div><div class="loading-text">Loading...</div></div>
+    <div id="mainApp" style="display:none">
         <header class="header">
             <div class="header-content">
-                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">Cash For Remittance</div></div></div>
-                <div class="live-clock"><div class="clock-time" id="liveClock">--:--:-- --</div><div class="clock-date" id="liveDate">Loading...</div><div class="clock-timezone" id="clockTimezone">--</div></div>
-                <div class="header-right">
-                    <select class="timezone-select" id="timezoneSelect" onchange="changeTimezone()">
-                        <option value="America/New_York">🇺🇸 Eastern (ET)</option>
-                        <option value="America/Chicago">🇺🇸 Central (CT)</option>
-                        <option value="America/Denver">🇺🇸 Mountain (MT)</option>
-                        <option value="America/Los_Angeles">🇺🇸 Pacific (PT)</option>
-                        <option value="America/Anchorage">🇺🇸 Alaska (AKT)</option>
-                        <option value="Pacific/Honolulu">🇺🇸 Hawaii (HST)</option>
-                        <option value="Asia/Manila">🇵🇭 Philippines (PHT)</option>
-                        <option value="UTC">🌐 UTC</option>
-                    </select>
-                    <div class="connection-status"><span class="status-dot" id="statusDot"></span><span id="statusText">Not configured</span></div>
-                    <span class="saved-badge" id="savedBadge">✓ Saved</span>
-                </div>
+                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">v3.4.0 • Offline Ready</div></div></div>
+                <div class="live-clock"><div class="clock-time" id="liveClock">--:--:-- --</div><div class="clock-date" id="liveDate">Loading...</div><div class="clock-timezone" id="clockTimezone">Philippines Time</div></div>
+                <div class="header-right"><div class="connection-status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="pending-badge" id="pendingBadge" style="display:none">0</span></div></div>
             </div>
         </header>
         <main class="main-content">
             <div class="tabs">
-                <button class="tab active" data-tab="entry">📝 New Entry</button>
+                <button class="tab active" data-tab="entry">📝 Entry</button>
                 <button class="tab" data-tab="report">📊 Report</button>
                 <button class="tab" data-tab="history">📜 History</button>
                 <button class="tab" data-tab="settings">⚙️ Settings</button>
@@ -207,251 +172,647 @@
             <div id="entry" class="tab-content active">
                 <form id="entryForm">
                     <div class="card">
-                        <div class="card-header"><div class="card-title"><div class="card-icon">📅</div>Basic Information</div></div>
+                        <div class="card-header"><div class="card-title"><div class="card-icon">📅</div>Basic Info</div></div>
                         <div class="form-grid">
                             <div class="form-group calendar-wrapper">
                                 <label class="form-label required">Date</label>
                                 <input type="text" class="form-input" id="entryDate" readonly placeholder="Select date">
-                                <span class="form-error" id="dateError">Please select a date</span>
-                                <div class="calendar-popup" id="calendarPopup">
-                                    <div class="calendar-header"><button type="button" class="calendar-nav" id="prevMonth">‹</button><span class="calendar-month-year" id="calendarMonthYear"></span><button type="button" class="calendar-nav" id="nextMonth">›</button></div>
-                                    <div class="calendar-weekdays"><div class="calendar-weekday">Sun</div><div class="calendar-weekday">Mon</div><div class="calendar-weekday">Tue</div><div class="calendar-weekday">Wed</div><div class="calendar-weekday">Thu</div><div class="calendar-weekday">Fri</div><div class="calendar-weekday">Sat</div></div>
-                                    <div class="calendar-days" id="calendarDays"></div>
-                                </div>
+                                <span class="form-error" id="dateError">Required</span>
                             </div>
-                            <div class="form-group"><label class="form-label">Day</label><input type="text" class="form-input" id="entryDay" readonly style="background: var(--bg-secondary);"></div>
-                            <div class="form-group"><label class="form-label required">Shift</label><select class="form-select" id="entryShift"><option value="">Select shift</option><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select><span class="form-error" id="shiftError">Please select a shift</span></div>
-                            <div class="form-group"><label class="form-label required">Loader / Duty Name</label><input type="text" class="form-input" id="dutyName" placeholder="Enter name"><span class="form-error" id="nameError">Please enter a name</span></div>
+                            <div class="form-group"><label class="form-label">Day</label><input type="text" class="form-input" id="entryDay" readonly style="background:var(--bg-secondary)"></div>
+                            <div class="form-group"><label class="form-label required">Shift</label><select class="form-select" id="entryShift"><option value="">Select</option><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select><span class="form-error" id="shiftError">Required</span></div>
+                            <div class="form-group"><label class="form-label required">Loader Name</label><input type="text" class="form-input" id="dutyName" placeholder="Enter name"><span class="form-error" id="nameError">Required</span></div>
                         </div>
                     </div>
                     <div class="stats-grid">
-                        <div class="stat-card"><div class="stat-label">CFR</div><div class="stat-value" id="statCFR">₱0.00000</div></div>
-                        <div class="stat-card"><div class="stat-label">Total Remit</div><div class="stat-value success" id="statRemit">₱0.00000</div></div>
-                        <div class="stat-card"><div class="stat-label">Unremitted</div><div class="stat-value warning" id="statUnremit">₱0.00000</div></div>
+                        <div class="stat-card"><div class="stat-label">CFR</div><div class="stat-value" id="statCFR">₱0.00</div></div>
+                        <div class="stat-card"><div class="stat-label">Remit</div><div class="stat-value success" id="statRemit">₱0.00</div></div>
+                        <div class="stat-card"><div class="stat-label">Unremit</div><div class="stat-value warning" id="statUnremit">₱0.00</div></div>
                     </div>
                     <div class="card">
-                        <div class="card-header"><div class="card-title"><div class="card-icon">💰</div>Active Chips</div><div id="activeChipsTotal" style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-primary); font-weight: 600;">₱0.00000</div></div>
+                        <div class="card-header"><div class="card-title"><div class="card-icon">💰</div>Active Chips</div><div id="activeChipsTotal" style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:var(--accent-primary);font-weight:600">₱0.00</div></div>
                         <div class="entry-list" id="activeChipsList"></div>
-                        <button type="button" class="btn-add" onclick="addEntry('active')">+ Add Active Chips</button>
+                        <button type="button" class="btn-add" onclick="addEntry('active')">+ Add</button>
                     </div>
                     <div class="card">
-                        <div class="card-header"><div class="card-title"><div class="card-icon">🎰</div>End Chips</div><div id="endChipsTotal" style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-primary); font-weight: 600;">₱0.00000</div></div>
+                        <div class="card-header"><div class="card-title"><div class="card-icon">🎰</div>End Chips</div><div id="endChipsTotal" style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:var(--accent-primary);font-weight:600">₱0.00</div></div>
                         <div class="entry-list" id="endChipsList"><div class="entry-row"><input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button></div></div>
-                        <button type="button" class="btn-add" onclick="addEntry('end')">+ Add End Chips</button>
+                        <button type="button" class="btn-add" onclick="addEntry('end')">+ Add</button>
                     </div>
                     <div class="card">
-                        <div class="card-header"><div class="card-title"><div class="card-icon">💸</div>Remittances</div><div id="remittanceTotal" style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-primary); font-weight: 600;">₱0.00000</div></div>
+                        <div class="card-header"><div class="card-title"><div class="card-icon">💸</div>Remittances</div><div id="remittanceTotal" style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:var(--accent-primary);font-weight:600">₱0.00</div></div>
                         <div class="entry-list" id="remittanceList"><div class="entry-row"><input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button></div></div>
-                        <button type="button" class="btn-add" onclick="addEntry('remit')">+ Add Remittance</button>
+                        <button type="button" class="btn-add" onclick="addEntry('remit')">+ Add</button>
                     </div>
                     <div class="card">
-                        <div class="card-header"><div class="card-title"><div class="card-icon">📋</div>Additional Details</div></div>
+                        <div class="card-header"><div class="card-title"><div class="card-icon">📋</div>Details</div></div>
                         <div class="form-grid">
                             <div class="form-group"><label class="form-label">Bank Fee</label><input type="number" step="0.00001" class="form-input" id="bankFee" value="0" oninput="calculateAll()"></div>
                             <div class="form-group"><label class="form-label">Salary</label><input type="number" step="0.00001" class="form-input" id="salary" value="0" oninput="calculateAll()"></div>
-                            <div class="form-group" style="grid-column: span 2;"><label class="form-label">Status / Remarks</label><input type="text" class="form-input" id="remarks" placeholder="e.g., DONE, PENDING, With Issues"></div>
+                            <div class="form-group" style="grid-column:span 2"><label class="form-label">Remarks</label><input type="text" class="form-input" id="remarks" placeholder="DONE, PENDING, etc."></div>
                         </div>
                         <div class="calculation-card">
-                            <div class="calc-row"><span class="calc-label">CFR (Active - End)</span><span class="calc-value" id="calcCFR">₱0.00000</span></div>
-                            <div class="calc-row"><span class="calc-label">Total Remittances + Salary</span><span class="calc-value" id="calcTotalRemit">₱0.00000</span></div>
-                            <div class="calc-row"><span class="calc-label">Unremitted (Remit - CFR)</span><span class="calc-value highlight" id="calcUnremitted">₱0.00000</span></div>
+                            <div class="calc-row"><span class="calc-label">CFR (Active - End)</span><span class="calc-value" id="calcCFR">₱0.00</span></div>
+                            <div class="calc-row"><span class="calc-label">Total Remit + Salary</span><span class="calc-value" id="calcTotalRemit">₱0.00</span></div>
+                            <div class="calc-row"><span class="calc-label">Unremitted</span><span class="calc-value highlight" id="calcUnremitted">₱0.00</span></div>
                         </div>
                     </div>
-                    <div class="btn-group" style="margin-top: 1.5rem;"><button type="submit" class="btn btn-primary" id="submitBtn"><span>💾</span> Save Entry</button><button type="button" class="btn btn-secondary" onclick="clearForm()"><span>🗑️</span> Clear</button></div>
+                    <div class="btn-group" style="margin-top:1.5rem"><button type="submit" class="btn btn-primary" id="submitBtn">💾 Save Entry</button><button type="button" class="btn btn-secondary" onclick="clearForm()">🗑️ Clear</button></div>
                 </form>
             </div>
             <div id="report" class="tab-content">
                 <div class="card">
-                    <div class="card-header"><div class="card-title"><div class="card-icon">📊</div>CFR Report</div><div class="btn-group"><button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button><button class="btn btn-primary" onclick="exportReportAsImage()">📸 Export</button></div></div>
+                    <div class="card-header"><div class="card-title"><div class="card-icon">📊</div>Report</div><div class="btn-group"><button class="btn btn-secondary" onclick="refreshData()">🔄</button><button class="btn btn-primary" onclick="exportReportAsImage()">📸</button></div></div>
                     <div class="filter-section">
-                        <div class="filter-group"><label class="filter-label">Loader</label><select class="form-select" id="filterLoader" onchange="filterReport()" style="min-width: 150px;"><option value="">All Loaders</option></select></div>
-                        <div class="filter-group calendar-wrapper"><label class="filter-label">Start Date</label><input type="text" class="form-input" id="filterStartDate" readonly placeholder="Select start" style="min-width: 140px;"><div class="calendar-popup" id="filterStartCalendarPopup"><div class="calendar-header"><button type="button" class="calendar-nav" onclick="changeFilterMonth('start', -1)">‹</button><span class="calendar-month-year" id="filterStartMonthYear"></span><button type="button" class="calendar-nav" onclick="changeFilterMonth('start', 1)">›</button></div><div class="calendar-weekdays"><div class="calendar-weekday">Sun</div><div class="calendar-weekday">Mon</div><div class="calendar-weekday">Tue</div><div class="calendar-weekday">Wed</div><div class="calendar-weekday">Thu</div><div class="calendar-weekday">Fri</div><div class="calendar-weekday">Sat</div></div><div class="calendar-days" id="filterStartCalendarDays"></div></div></div>
-                        <div class="filter-group calendar-wrapper"><label class="filter-label">End Date</label><input type="text" class="form-input" id="filterEndDate" readonly placeholder="Select end" style="min-width: 140px;"><div class="calendar-popup" id="filterEndCalendarPopup"><div class="calendar-header"><button type="button" class="calendar-nav" onclick="changeFilterMonth('end', -1)">‹</button><span class="calendar-month-year" id="filterEndMonthYear"></span><button type="button" class="calendar-nav" onclick="changeFilterMonth('end', 1)">›</button></div><div class="calendar-weekdays"><div class="calendar-weekday">Sun</div><div class="calendar-weekday">Mon</div><div class="calendar-weekday">Tue</div><div class="calendar-weekday">Wed</div><div class="calendar-weekday">Thu</div><div class="calendar-weekday">Fri</div><div class="calendar-weekday">Sat</div></div><div class="calendar-days" id="filterEndCalendarDays"></div></div></div>
-                        <button class="btn btn-secondary" onclick="clearDateFilter()">✕ Clear</button>
+                        <div class="filter-group"><label class="filter-label">Loader</label><select class="form-select" id="filterLoader" onchange="filterReport()" style="min-width:140px"><option value="">All</option></select></div>
+                        <div class="filter-group calendar-wrapper"><label class="filter-label">Start</label><input type="text" class="form-input" id="filterStartDate" readonly placeholder="Start" style="min-width:130px"></div>
+                        <div class="filter-group calendar-wrapper"><label class="filter-label">End</label><input type="text" class="form-input" id="filterEndDate" readonly placeholder="End" style="min-width:130px"></div>
+                        <button class="btn btn-secondary" onclick="clearDateFilter()">✕</button>
                     </div>
-                    <div class="filter-info" id="filterInfo"><span>📅 <strong id="filterRangeDisplay"></strong></span><span>📊 Entries: <strong id="filterCountDisplay">0</strong></span></div>
-                    <div class="table-wrapper"><table><thead><tr><th>Date</th><th>Shift</th><th>Loader</th><th>Active</th><th>End</th><th>CFR</th><th>Remit</th><th>Fee</th><th>Unremit</th><th>Status</th><th>Action</th></tr></thead><tbody id="reportBody"><tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 2rem;">No data yet. Add entries to see report.</td></tr></tbody></table></div>
+                    <div class="filter-info" id="filterInfo"><span>📅 <strong id="filterRangeDisplay"></strong></span><span>📊 <strong id="filterCountDisplay">0</strong></span></div>
+                    <div class="table-wrapper"><table><thead><tr><th>Date</th><th>Shift</th><th>Loader</th><th>Active</th><th>End</th><th>CFR</th><th>Remit</th><th>Fee</th><th>Unremit</th><th>Status</th><th></th></tr></thead><tbody id="reportBody"><tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:2rem">No data</td></tr></tbody></table></div>
                 </div>
             </div>
             <div id="history" class="tab-content">
                 <div class="card">
-                    <div class="card-header"><div class="card-title"><div class="card-icon">📜</div>Activity History</div><button class="btn btn-secondary" onclick="loadHistory()">🔄 Refresh</button></div>
-                    <div class="table-wrapper"><table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Details</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading history...</td></tr></tbody></table></div>
+                    <div class="card-header"><div class="card-title"><div class="card-icon">📜</div>History</div><button class="btn btn-secondary" onclick="loadHistory()">🔄</button></div>
+                    <div class="table-wrapper"><table><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Details</th></tr></thead><tbody id="historyBody"><tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem">Loading...</td></tr></tbody></table></div>
                 </div>
             </div>
             <div id="settings" class="tab-content">
                 <div class="card">
-                    <div class="card-header"><div class="card-title"><div class="card-icon">⚙️</div>Configuration</div></div>
+                    <div class="card-header"><div class="card-title"><div class="card-icon">⚙️</div>Settings</div></div>
                     <div class="settings-group">
-                        <div class="settings-title">🔗 Google Sheets Connection</div>
-                        <div class="form-group"><label class="form-label">Google Apps Script URL</label><input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/..."></div>
-                        <div class="btn-group" style="margin-top: 1rem;"><button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button><button class="btn btn-secondary" onclick="testConnection()">🔗 Test Connection</button></div>
+                        <div class="settings-title">🔗 Google Sheets</div>
+                        <div class="form-group"><label class="form-label">Script URL</label><input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/..."></div>
+                        <div class="btn-group" style="margin-top:1rem"><button class="btn btn-primary" onclick="saveSettings()">💾 Save</button><button class="btn btn-secondary" onclick="testConnection()">🔗 Test</button></div>
                     </div>
-                    <div class="settings-group" style="margin-top: 1.5rem;">
-                        <div class="settings-title">🌍 Timezone Settings</div>
-                        <div class="form-group"><label class="form-label">Select Timezone</label><select class="form-select" id="settingsTimezone" onchange="changeTimezoneFromSettings()"><option value="America/New_York">🇺🇸 Eastern Time (ET) - New York</option><option value="America/Chicago">🇺🇸 Central Time (CT) - Chicago</option><option value="America/Denver">🇺🇸 Mountain Time (MT) - Denver</option><option value="America/Los_Angeles">🇺🇸 Pacific Time (PT) - Los Angeles</option><option value="America/Anchorage">🇺🇸 Alaska Time (AKT)</option><option value="Pacific/Honolulu">🇺🇸 Hawaii Time (HST)</option><option value="Asia/Manila">🇵🇭 Philippines Time (PHT)</option><option value="UTC">🌐 Coordinated Universal Time (UTC)</option></select></div>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">All dates and times will be displayed in the selected timezone.</p>
+                    <div class="settings-group">
+                        <div class="settings-title">📴 Offline Data</div>
+                        <div class="settings-item"><div><strong>Pending Entries</strong><div style="font-size:0.8rem;color:var(--text-muted)" id="pendingCount">0 entries waiting to sync</div></div><button class="btn btn-warning" onclick="syncPendingEntries()">🔄 Sync Now</button></div>
+                        <div class="settings-item"><div><strong>Cached Data</strong><div style="font-size:0.8rem;color:var(--text-muted)" id="cachedCount">0 entries cached</div></div><button class="btn btn-secondary" onclick="clearCache()">🗑️ Clear</button></div>
                     </div>
-                    <div class="settings-group" style="margin-top: 1.5rem;">
+                    <div class="settings-group">
                         <div class="settings-title">📱 App</div>
-                        <div class="settings-item"><div><div style="font-weight: 500;">Version</div><div style="font-size: 0.8rem; color: var(--text-muted);">3.2.0</div></div></div>
-                        <div class="settings-item"><div><div style="font-weight: 500;">Install App</div><div style="font-size: 0.8rem; color: var(--text-muted);">Add to home screen</div></div><button class="btn btn-secondary" onclick="installApp()">📲 Install</button></div>
-                        <div class="settings-item"><div><div style="font-weight: 500;">Clear Local Data</div><div style="font-size: 0.8rem; color: var(--text-muted);">Reset all local settings</div></div><button class="btn btn-danger" onclick="clearLocalData()">🗑️ Clear</button></div>
+                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:0.8rem;color:var(--text-muted)">3.4.0 Offline Ready</div></div></div>
+                        <div class="settings-item"><div><strong>Install</strong><div style="font-size:0.8rem;color:var(--text-muted)">Add to home</div></div><button class="btn btn-secondary" onclick="installApp()">📲</button></div>
+                        <div class="settings-item"><div><strong>Clear All Data</strong><div style="font-size:0.8rem;color:var(--text-muted)">Reset everything</div></div><button class="btn btn-danger" onclick="clearLocalData()">🗑️</button></div>
                     </div>
                 </div>
             </div>
         </main>
-        <div class="install-prompt" id="installPrompt"><div><strong>Install WackyBuds CFR</strong><div style="font-size: 0.85rem; color: var(--text-secondary);">Quick access from home screen</div></div><div style="display: flex; gap: 0.5rem;"><button class="btn btn-secondary" onclick="dismissInstall()">Later</button><button class="btn btn-primary" onclick="installApp()">Install</button></div></div>
+        <div class="install-prompt" id="installPrompt"><div><strong>Install App</strong><div style="font-size:0.85rem;color:var(--text-secondary)">Works offline!</div></div><div style="display:flex;gap:0.5rem"><button class="btn btn-secondary" onclick="dismissInstall()">Later</button><button class="btn btn-primary" onclick="installApp()">Install</button></div></div>
         <div class="toast-container" id="toastContainer"></div>
+    </div>
+    <div class="calendar-overlay" id="calendarOverlay"></div>
+    <div class="calendar-popup" id="calendarPopup">
+        <div class="calendar-header"><button type="button" class="calendar-nav" id="prevMonth">‹</button><span class="calendar-month-year" id="calendarMonthYear"></span><button type="button" class="calendar-nav" id="nextMonth">›</button></div>
+        <div class="calendar-weekdays"><div class="calendar-weekday">Su</div><div class="calendar-weekday">Mo</div><div class="calendar-weekday">Tu</div><div class="calendar-weekday">We</div><div class="calendar-weekday">Th</div><div class="calendar-weekday">Fr</div><div class="calendar-weekday">Sa</div></div>
+        <div class="calendar-days" id="calendarDays"></div>
+    </div>
+    <div class="calendar-overlay" id="filterCalendarOverlay"></div>
+    <div class="calendar-popup" id="filterCalendarPopup">
+        <div class="calendar-header"><button type="button" class="calendar-nav" id="filterPrevMonth">‹</button><span class="calendar-month-year" id="filterMonthYear"></span><button type="button" class="calendar-nav" id="filterNextMonth">›</button></div>
+        <div class="calendar-weekdays"><div class="calendar-weekday">Su</div><div class="calendar-weekday">Mo</div><div class="calendar-weekday">Tu</div><div class="calendar-weekday">We</div><div class="calendar-weekday">Th</div><div class="calendar-weekday">Fr</div><div class="calendar-weekday">Sa</div></div>
+        <div class="calendar-days" id="filterCalendarDays"></div>
     </div>
     <div class="modal-overlay" id="editModal">
         <div class="modal">
             <div class="modal-header"><div class="modal-title">✏️ Edit Entry</div><button class="modal-close" onclick="closeEditModal()">×</button></div>
             <form id="editForm"><input type="hidden" id="editRowIndex">
-                <div class="form-grid" style="margin-bottom: 1rem;">
+                <div class="form-grid" style="margin-bottom:1rem">
                     <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="editDate"></div>
                     <div class="form-group"><label class="form-label">Shift</label><select class="form-select" id="editShift"><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select></div>
-                    <div class="form-group"><label class="form-label">Loader / Duty Name</label><input type="text" class="form-input" id="editDutyName"></div>
-                    <div class="form-group"><label class="form-label">Active Chips</label><input type="number" step="0.00001" class="form-input" id="editActiveChips" oninput="recalculateEdit()"></div>
-                    <div class="form-group"><label class="form-label">End Chips</label><input type="number" step="0.00001" class="form-input" id="editEndChips" oninput="recalculateEdit()"></div>
-                    <div class="form-group"><label class="form-label">CFR (Auto)</label><input type="number" step="0.00001" class="form-input" id="editCFR" style="color: var(--accent-primary);"></div>
-                    <div class="form-group"><label class="form-label">Remittance</label><input type="number" step="0.00001" class="form-input" id="editRemittance" oninput="recalculateEdit()"></div>
-                    <div class="form-group"><label class="form-label">Bank Fee</label><input type="number" step="0.00001" class="form-input" id="editBankFee"></div>
+                    <div class="form-group"><label class="form-label">Loader</label><input type="text" class="form-input" id="editDutyName"></div>
+                    <div class="form-group"><label class="form-label">Active</label><input type="number" step="0.00001" class="form-input" id="editActiveChips" oninput="recalculateEdit()"></div>
+                    <div class="form-group"><label class="form-label">End</label><input type="number" step="0.00001" class="form-input" id="editEndChips" oninput="recalculateEdit()"></div>
+                    <div class="form-group"><label class="form-label">CFR</label><input type="number" step="0.00001" class="form-input" id="editCFR" readonly style="color:var(--accent-primary)"></div>
+                    <div class="form-group"><label class="form-label">Remit</label><input type="number" step="0.00001" class="form-input" id="editRemittance" oninput="recalculateEdit()"></div>
+                    <div class="form-group"><label class="form-label">Fee</label><input type="number" step="0.00001" class="form-input" id="editBankFee"></div>
                     <div class="form-group"><label class="form-label">Salary</label><input type="number" step="0.00001" class="form-input" id="editSalary" oninput="recalculateEdit()"></div>
-                    <div class="form-group"><label class="form-label">Unremitted (Auto)</label><input type="number" step="0.00001" class="form-input" id="editUnremitted" style="color: var(--accent-warning);"></div>
-                    <div class="form-group" style="grid-column: span 2;"><label class="form-label">Status / Remarks</label><input type="text" class="form-input" id="editRemarks" placeholder="e.g., DONE, PENDING"></div>
+                    <div class="form-group"><label class="form-label">Unremit</label><input type="number" step="0.00001" class="form-input" id="editUnremitted" readonly style="color:var(--accent-warning)"></div>
+                    <div class="form-group" style="grid-column:span 2"><label class="form-label">Remarks</label><input type="text" class="form-input" id="editRemarks"></div>
                 </div>
-                <div class="btn-group"><button type="submit" class="btn btn-primary">💾 Save Changes</button><button type="button" class="btn btn-danger" onclick="deleteEntry()">🗑️ Delete Entry</button></div>
+                <div class="btn-group"><button type="submit" class="btn btn-primary">💾 Save</button><button type="button" class="btn btn-danger" onclick="deleteEntry()">🗑️ Delete</button></div>
             </form>
         </div>
     </div>
     <div class="modal-overlay" id="deleteModal">
         <div class="modal">
-            <div class="modal-header"><div class="modal-title">⚠️ Confirm Delete</div><button class="modal-close" onclick="closeDeleteModal()">×</button></div>
-            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Are you sure you want to delete this entry? This action cannot be undone.</p>
+            <div class="modal-header"><div class="modal-title">⚠️ Delete Entry?</div><button class="modal-close" onclick="closeDeleteModal()">×</button></div>
+            <p style="margin-bottom:1.5rem;color:var(--text-secondary)">This action cannot be undone.</p>
             <div class="btn-group"><button class="btn btn-danger" onclick="confirmDelete()">🗑️ Yes, Delete</button><button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button></div>
         </div>
     </div>
     <canvas id="exportCanvas"></canvas>
     <script>
         // ========== CONFIG ==========
-        let CONFIG = { scriptUrl: localStorage.getItem('cfr_script_url') || '', timezone: localStorage.getItem('cfr_timezone') || 'America/New_York' };
-        const TIMEZONE_INFO = { 'America/New_York': { abbr: 'ET', name: 'Eastern Time' }, 'America/Chicago': { abbr: 'CT', name: 'Central Time' }, 'America/Denver': { abbr: 'MT', name: 'Mountain Time' }, 'America/Los_Angeles': { abbr: 'PT', name: 'Pacific Time' }, 'America/Anchorage': { abbr: 'AKT', name: 'Alaska Time' }, 'Pacific/Honolulu': { abbr: 'HST', name: 'Hawaii Time' }, 'Asia/Manila': { abbr: 'PHT', name: 'Philippines Time' }, 'UTC': { abbr: 'UTC', name: 'Coordinated Universal Time' } };
-        let reportData = [], filteredData = [], lastEndChips = parseFloat(localStorage.getItem('cfr_last_end_chips')) || 0, deferredPrompt = null, currentCalendarDate = new Date(), selectedDate = new Date(), clockInterval = null;
-        let filterStartCalendarDate = new Date(), filterEndCalendarDate = new Date();
+        const CONFIG = { scriptUrl: localStorage.getItem('cfr_script_url') || '', timezone: 'Asia/Manila' };
+        let reportData = [], filteredData = [], lastEndChips = parseFloat(localStorage.getItem('cfr_last_end_chips')) || 0;
+        let deferredPrompt = null, currentCalendarDate = new Date(), selectedDate = new Date(), clockInterval = null;
+        let filterCalendarDate = new Date(), filterCalendarType = null;
         let selectedFilterStartDate = localStorage.getItem('cfr_filter_start') ? new Date(localStorage.getItem('cfr_filter_start')) : null;
         let selectedFilterEndDate = localStorage.getItem('cfr_filter_end') ? new Date(localStorage.getItem('cfr_filter_end')) : null;
-        let editingRowIndex = null, editingEntry = null, isOnline = navigator.onLine;
+        let editingRowIndex = null, editingEntry = null, isOnline = navigator.onLine, isSyncing = false;
         const SHIFT_ORDER = { '12:00PM - 8:00PM': 1, '8:00PM - 4:00AM': 2, '4:00AM - 12:00PM': 3 };
 
-        // ========== TIMEZONE FUNCTIONS ==========
-        function formatTimeInTimezone(date = new Date()) { return date.toLocaleTimeString('en-US', { timeZone: CONFIG.timezone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }); }
-        function formatDateInTimezone(date = new Date()) { return date.toLocaleDateString('en-US', { timeZone: CONFIG.timezone, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }); }
-        function getDateStringInTimezone(date = new Date()) { const opts = { timeZone: CONFIG.timezone, year: 'numeric', month: '2-digit', day: '2-digit' }; const parts = new Intl.DateTimeFormat('en-CA', opts).formatToParts(date); return `${parts.find(p => p.type === 'year').value}-${parts.find(p => p.type === 'month').value}-${parts.find(p => p.type === 'day').value}`; }
-        function changeTimezone() { const s = document.getElementById('timezoneSelect'); CONFIG.timezone = s.value; localStorage.setItem('cfr_timezone', CONFIG.timezone); document.getElementById('settingsTimezone').value = CONFIG.timezone; updateClock(); if (selectedDate) selectDate(selectedDate); showToast(`Timezone: ${TIMEZONE_INFO[CONFIG.timezone].name}`, 'success'); }
-        function changeTimezoneFromSettings() { const s = document.getElementById('settingsTimezone'); CONFIG.timezone = s.value; localStorage.setItem('cfr_timezone', CONFIG.timezone); document.getElementById('timezoneSelect').value = CONFIG.timezone; updateClock(); if (selectedDate) selectDate(selectedDate); showToast(`Timezone: ${TIMEZONE_INFO[CONFIG.timezone].name}`, 'success'); }
+        // ========== OFFLINE STORAGE ==========
+        const STORAGE_KEYS = { pending: 'cfr_pending_entries', cache: 'cfr_cached_data', lastSync: 'cfr_last_sync' };
+        
+        function getPendingEntries() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.pending)) || []; } catch { return []; } }
+        function savePendingEntries(entries) { localStorage.setItem(STORAGE_KEYS.pending, JSON.stringify(entries)); updatePendingUI(); }
+        function addPendingEntry(entry) { const pending = getPendingEntries(); entry.pendingId = Date.now(); entry.pending = true; pending.push(entry); savePendingEntries(pending); }
+        function removePendingEntry(pendingId) { const pending = getPendingEntries().filter(e => e.pendingId !== pendingId); savePendingEntries(pending); }
+        
+        function getCachedData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.cache)) || []; } catch { return []; } }
+        function saveCachedData(data) { localStorage.setItem(STORAGE_KEYS.cache, JSON.stringify(data)); localStorage.setItem(STORAGE_KEYS.lastSync, new Date().toISOString()); updateCacheUI(); }
+        
+        function updatePendingUI() {
+            const pending = getPendingEntries();
+            const badge = document.getElementById('pendingBadge');
+            const countEl = document.getElementById('pendingCount');
+            if (pending.length > 0) { badge.textContent = pending.length; badge.style.display = 'inline'; }
+            else { badge.style.display = 'none'; }
+            if (countEl) countEl.textContent = `${pending.length} entries waiting to sync`;
+        }
+        function updateCacheUI() {
+            const cached = getCachedData();
+            const countEl = document.getElementById('cachedCount');
+            const lastSync = localStorage.getItem(STORAGE_KEYS.lastSync);
+            if (countEl) countEl.textContent = `${cached.length} entries cached` + (lastSync ? ` (${new Date(lastSync).toLocaleString()})` : '');
+        }
+        function clearCache() { if (confirm('Clear cached data?')) { localStorage.removeItem(STORAGE_KEYS.cache); localStorage.removeItem(STORAGE_KEYS.lastSync); updateCacheUI(); showToast('Cache cleared', 'success'); } }
 
-        // ========== LIVE CLOCK ==========
-        function updateClock() { const now = new Date(); const tzInfo = TIMEZONE_INFO[CONFIG.timezone]; document.getElementById('liveClock').textContent = formatTimeInTimezone(now); document.getElementById('liveDate').textContent = formatDateInTimezone(now); document.getElementById('clockTimezone').textContent = `${tzInfo.abbr} - ${tzInfo.name}`; }
-        function startClock() { updateClock(); clockInterval = setInterval(updateClock, 1000); }
-        function stopClock() { if (clockInterval) { clearInterval(clockInterval); clockInterval = null; } }
+        // ========== AUTO SYNC ==========
+        async function syncPendingEntries() {
+            if (!CONFIG.scriptUrl || !isOnline || isSyncing) return;
+            const pending = getPendingEntries();
+            if (pending.length === 0) return;
+            
+            isSyncing = true;
+            document.getElementById('syncBanner').classList.add('show');
+            document.getElementById('statusDot').classList.add('syncing');
+            
+            for (const entry of pending) {
+                try {
+                    const response = await fetch(CONFIG.scriptUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) });
+                    if (response.ok || response.type === 'opaque') { removePendingEntry(entry.pendingId); }
+                } catch (err) { console.log('Sync failed for entry:', err); break; }
+            }
+            
+            isSyncing = false;
+            document.getElementById('syncBanner').classList.remove('show');
+            document.getElementById('statusDot').classList.remove('syncing');
+            
+            const remaining = getPendingEntries();
+            if (remaining.length === 0) { showToast('All entries synced!', 'success'); refreshData(); }
+            else { showToast(`${remaining.length} entries still pending`, 'warning'); }
+        }
 
-        // ========== ONLINE/OFFLINE ==========
-        function updateOnlineStatus() { isOnline = navigator.onLine; const banner = document.getElementById('offlineBanner'); const dot = document.getElementById('statusDot'); if (!isOnline) { banner.classList.add('show'); dot.classList.add('offline'); dot.classList.remove('connected'); } else { banner.classList.remove('show'); dot.classList.remove('offline'); if (CONFIG.scriptUrl) dot.classList.add('connected'); } }
+        // ========== PHT TIME ==========
+        const formatTime = (d = new Date()) => d.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        const formatDateFull = (d = new Date()) => d.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        const formatDateShort = (d) => { if (!d) return '-'; const date = d instanceof Date ? d : new Date(d); return date.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' }); };
+        const getDateStr = (d = new Date()) => { const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(d); return `${p.find(x=>x.type==='year').value}-${p.find(x=>x.type==='month').value}-${p.find(x=>x.type==='day').value}`; };
+        const updateClock = () => { document.getElementById('liveClock').textContent = formatTime(); document.getElementById('liveDate').textContent = formatDateFull(); };
+        const startClock = () => { updateClock(); clockInterval = setInterval(updateClock, 1000); };
+
+        // ========== ONLINE STATUS ==========
+        function updateOnlineStatus() {
+            isOnline = navigator.onLine;
+            document.getElementById('offlineBanner').classList.toggle('show', !isOnline);
+            const dot = document.getElementById('statusDot'), text = document.getElementById('statusText');
+            dot.classList.remove('offline', 'connected', 'syncing');
+            if (!isOnline) { dot.classList.add('offline'); text.textContent = 'Offline'; }
+            else if (CONFIG.scriptUrl) { dot.classList.add('connected'); text.textContent = 'Online'; syncPendingEntries(); }
+            else { text.textContent = 'Ready'; }
+        }
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('timezoneSelect').value = CONFIG.timezone;
-            document.getElementById('settingsTimezone').value = CONFIG.timezone;
             startClock();
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
-            updateOnlineStatus();
-            initCalendar(); initFilterCalendars(); selectDate(new Date()); setupTabs(); setupFormSubmit(); setupEditForm(); updateStartingChips();
+            updateOnlineStatus(); updatePendingUI(); updateCacheUI();
+            initCalendar(); initFilterCalendar(); selectDate(new Date()); setupTabs(); setupFormSubmit(); setupEditForm(); updateStartingChips();
             if (CONFIG.scriptUrl) { document.getElementById('scriptUrl').value = CONFIG.scriptUrl; refreshData(); }
-            if (selectedFilterStartDate) { filterStartCalendarDate = new Date(selectedFilterStartDate); document.getElementById('filterStartDate').value = formatDateDisplay(selectedFilterStartDate); }
-            if (selectedFilterEndDate) { filterEndCalendarDate = new Date(selectedFilterEndDate); document.getElementById('filterEndDate').value = formatDateDisplay(selectedFilterEndDate); }
-            setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; updateConnectionStatus(!!CONFIG.scriptUrl); }, 800);
+            else { loadCachedData(); }
+            if (selectedFilterStartDate) document.getElementById('filterStartDate').value = formatDateShort(selectedFilterStartDate);
+            if (selectedFilterEndDate) document.getElementById('filterEndDate').value = formatDateShort(selectedFilterEndDate);
+            setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; }, 400);
             setupPWA();
         });
-        window.addEventListener('beforeunload', () => stopClock());
+        window.addEventListener('beforeunload', () => { if (clockInterval) clearInterval(clockInterval); });
 
-        // ========== NUMBER FORMATTING ==========
-        function formatNumber(value, decimals = 5) { const num = parseFloat(value) || 0; return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
-        function formatCurrency(value, decimals = 5) { return '₱' + formatNumber(value, decimals); }
+        // ========== FORMAT ==========
+        const formatNum = (v, d = 5) => (parseFloat(v) || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+        const formatCur = (v, d = 5) => '₱' + formatNum(v, d);
 
         // ========== STARTING CHIPS ==========
-        function updateStartingChips() { const list = document.getElementById('activeChipsList'); const existingRow = list.querySelector('.starting-chips'); if (lastEndChips > 0) { if (existingRow) { existingRow.querySelector('.entry-amount').value = lastEndChips; } else { const row = document.createElement('div'); row.className = 'entry-row starting-chips'; row.innerHTML = `<input type="number" step="0.00001" placeholder="Starting Chips" class="entry-amount" id="startingChipsInput" value="${lastEndChips}" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks" value="Starting Chips (Previous End)"><button type="button" class="btn-remove" onclick="removeStartingChips(this)">×</button>`; list.insertBefore(row, list.firstChild); } } calculateAll(); }
-        function setLastEndChips(value) { lastEndChips = parseFloat(value) || 0; localStorage.setItem('cfr_last_end_chips', lastEndChips); }
-        function removeStartingChips(btn) { const row = btn.closest('.entry-row'); row.style.animation = 'slideIn 0.2s ease reverse'; setTimeout(() => { row.remove(); calculateAll(); }, 200); }
+        function updateStartingChips() { const list = document.getElementById('activeChipsList'); const existing = list.querySelector('.starting-chips'); if (lastEndChips > 0) { if (existing) { existing.querySelector('.entry-amount').value = lastEndChips; } else { const row = document.createElement('div'); row.className = 'entry-row starting-chips'; row.innerHTML = `<input type="number" step="0.00001" class="entry-amount" value="${lastEndChips}" oninput="calculateAll()"><input type="text" class="entry-remarks" value="Starting (Prev End)"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button>`; list.insertBefore(row, list.firstChild); } } calculateAll(); }
+        const setLastEndChips = (v) => { lastEndChips = parseFloat(v) || 0; localStorage.setItem('cfr_last_end_chips', lastEndChips); };
 
-        // ========== CALENDAR ==========
-        function initCalendar() { const dateInput = document.getElementById('entryDate'); const popup = document.getElementById('calendarPopup'); dateInput.addEventListener('click', () => { popup.classList.toggle('show'); renderCalendar(); }); document.addEventListener('click', (e) => { if (!e.target.closest('#calendarPopup') && !e.target.closest('#entryDate')) popup.classList.remove('show'); }); document.getElementById('prevMonth').addEventListener('click', (e) => { e.stopPropagation(); currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); }); document.getElementById('nextMonth').addEventListener('click', (e) => { e.stopPropagation(); currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); }); }
-        function renderCalendar() { const year = currentCalendarDate.getFullYear(); const month = currentCalendarDate.getMonth(); const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`; const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate(); const daysInPrevMonth = new Date(year, month, 0).getDate(); const daysContainer = document.getElementById('calendarDays'); daysContainer.innerHTML = ''; const todayStr = getDateStringInTimezone(new Date()); for (let i = firstDay - 1; i >= 0; i--) { const day = daysInPrevMonth - i; daysContainer.appendChild(createDayButton(day, true, new Date(year, month - 1, day), 'entry')); } for (let day = 1; day <= daysInMonth; day++) { const date = new Date(year, month, day); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const btn = createDayButton(day, false, date, 'entry'); if (dateStr === todayStr) btn.classList.add('today'); if (selectedDate && date.toDateString() === selectedDate.toDateString()) btn.classList.add('selected'); daysContainer.appendChild(btn); } const totalCells = 42; const remainingCells = totalCells - (firstDay + daysInMonth); for (let day = 1; day <= remainingCells; day++) { daysContainer.appendChild(createDayButton(day, true, new Date(year, month + 1, day), 'entry')); } }
-        function createDayButton(day, isOtherMonth, date, type) { const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'calendar-day' + (isOtherMonth ? ' other-month' : ''); btn.textContent = day; btn.addEventListener('click', (e) => { e.stopPropagation(); if (type === 'entry') selectDate(date); else if (type === 'filterStart') selectFilterStartDate(date); else if (type === 'filterEnd') selectFilterEndDate(date); }); return btn; }
-        function selectDate(date) { selectedDate = date; currentCalendarDate = new Date(date); const dateStr = date.toLocaleDateString('en-CA'); document.getElementById('entryDate').value = date.toLocaleDateString('en-US', { timeZone: CONFIG.timezone, weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }); document.getElementById('entryDate').dataset.value = dateStr; const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY']; document.getElementById('entryDay').value = dayNames[date.getDay()]; document.getElementById('calendarPopup').classList.remove('show'); renderCalendar(); }
-
-        // ========== FILTER CALENDARS ==========
-        function initFilterCalendars() { document.getElementById('filterStartDate').addEventListener('click', () => { document.getElementById('filterEndCalendarPopup').classList.remove('show'); document.getElementById('filterStartCalendarPopup').classList.toggle('show'); renderFilterCalendar('start'); }); document.getElementById('filterEndDate').addEventListener('click', () => { document.getElementById('filterStartCalendarPopup').classList.remove('show'); document.getElementById('filterEndCalendarPopup').classList.toggle('show'); renderFilterCalendar('end'); }); document.addEventListener('click', (e) => { if (!e.target.closest('#filterStartCalendarPopup') && !e.target.closest('#filterStartDate')) document.getElementById('filterStartCalendarPopup').classList.remove('show'); if (!e.target.closest('#filterEndCalendarPopup') && !e.target.closest('#filterEndDate')) document.getElementById('filterEndCalendarPopup').classList.remove('show'); }); }
-        function changeFilterMonth(type, delta) { if (type === 'start') { filterStartCalendarDate.setMonth(filterStartCalendarDate.getMonth() + delta); renderFilterCalendar('start'); } else { filterEndCalendarDate.setMonth(filterEndCalendarDate.getMonth() + delta); renderFilterCalendar('end'); } }
-        function renderFilterCalendar(type) { const calendarDate = type === 'start' ? filterStartCalendarDate : filterEndCalendarDate; const year = calendarDate.getFullYear(); const month = calendarDate.getMonth(); const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; document.getElementById(`filter${type === 'start' ? 'Start' : 'End'}MonthYear`).textContent = `${monthNames[month]} ${year}`; const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate(); const daysInPrevMonth = new Date(year, month, 0).getDate(); const daysContainer = document.getElementById(`filter${type === 'start' ? 'Start' : 'End'}CalendarDays`); daysContainer.innerHTML = ''; const todayStr = getDateStringInTimezone(new Date()); const selectedDateObj = type === 'start' ? selectedFilterStartDate : selectedFilterEndDate; for (let i = firstDay - 1; i >= 0; i--) { daysContainer.appendChild(createDayButton(daysInPrevMonth - i, true, new Date(year, month - 1, daysInPrevMonth - i), type === 'start' ? 'filterStart' : 'filterEnd')); } for (let day = 1; day <= daysInMonth; day++) { const date = new Date(year, month, day); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; const btn = createDayButton(day, false, date, type === 'start' ? 'filterStart' : 'filterEnd'); if (dateStr === todayStr) btn.classList.add('today'); if (selectedDateObj && date.toDateString() === selectedDateObj.toDateString()) btn.classList.add('selected'); if (selectedFilterStartDate && selectedFilterEndDate && date >= selectedFilterStartDate && date <= selectedFilterEndDate) btn.classList.add('in-range'); daysContainer.appendChild(btn); } const remainingCells = 42 - (firstDay + daysInMonth); for (let day = 1; day <= remainingCells; day++) { daysContainer.appendChild(createDayButton(day, true, new Date(year, month + 1, day), type === 'start' ? 'filterStart' : 'filterEnd')); } }
-        function selectFilterStartDate(date) { if (selectedFilterEndDate && date > selectedFilterEndDate) { showToast('Start date cannot be after end date', 'error'); return; } selectedFilterStartDate = date; filterStartCalendarDate = new Date(date); localStorage.setItem('cfr_filter_start', date.toISOString()); document.getElementById('filterStartDate').value = formatDateDisplay(date); document.getElementById('filterStartCalendarPopup').classList.remove('show'); filterReport(); }
-        function selectFilterEndDate(date) { if (selectedFilterStartDate && date < selectedFilterStartDate) { showToast('End date cannot be before start date', 'error'); return; } selectedFilterEndDate = date; filterEndCalendarDate = new Date(date); localStorage.setItem('cfr_filter_end', date.toISOString()); document.getElementById('filterEndDate').value = formatDateDisplay(date); document.getElementById('filterEndCalendarPopup').classList.remove('show'); filterReport(); }
+        // ========== CALENDARS ==========
+        function initCalendar() {
+            const popup = document.getElementById('calendarPopup'), overlay = document.getElementById('calendarOverlay');
+            document.getElementById('entryDate').addEventListener('click', () => { popup.classList.add('show'); overlay.classList.add('show'); renderCalendar(); });
+            overlay.addEventListener('click', () => { popup.classList.remove('show'); overlay.classList.remove('show'); });
+            document.getElementById('prevMonth').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); renderCalendar(); });
+            document.getElementById('nextMonth').addEventListener('click', () => { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); renderCalendar(); });
+        }
+        function renderCalendar() {
+            const y = currentCalendarDate.getFullYear(), m = currentCalendarDate.getMonth();
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            document.getElementById('calendarMonthYear').textContent = `${months[m]} ${y}`;
+            const firstDay = new Date(y, m, 1).getDay(), daysInMonth = new Date(y, m + 1, 0).getDate(), prevDays = new Date(y, m, 0).getDate();
+            const container = document.getElementById('calendarDays'); container.innerHTML = '';
+            const todayStr = getDateStr();
+            for (let i = firstDay - 1; i >= 0; i--) { container.appendChild(createDayBtn(prevDays - i, true, new Date(y, m - 1, prevDays - i))); }
+            for (let d = 1; d <= daysInMonth; d++) { const date = new Date(y, m, d), dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const btn = createDayBtn(d, false, date); if (dateStr === todayStr) btn.classList.add('today'); if (selectedDate && date.toDateString() === selectedDate.toDateString()) btn.classList.add('selected'); container.appendChild(btn); }
+            for (let d = 1; d <= 42 - firstDay - daysInMonth; d++) { container.appendChild(createDayBtn(d, true, new Date(y, m + 1, d))); }
+        }
+        function createDayBtn(day, other, date) { const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'calendar-day' + (other ? ' other-month' : ''); btn.textContent = day; btn.onclick = () => selectDate(date); return btn; }
+        function selectDate(date) {
+            selectedDate = date; currentCalendarDate = new Date(date);
+            document.getElementById('entryDate').value = date.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById('entryDate').dataset.value = date.toLocaleDateString('en-CA');
+            document.getElementById('entryDay').value = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][date.getDay()];
+            document.getElementById('calendarPopup').classList.remove('show'); document.getElementById('calendarOverlay').classList.remove('show');
+            renderCalendar();
+        }
+        function initFilterCalendar() {
+            const popup = document.getElementById('filterCalendarPopup'), overlay = document.getElementById('filterCalendarOverlay');
+            document.getElementById('filterStartDate').addEventListener('click', () => { filterCalendarType = 'start'; filterCalendarDate = selectedFilterStartDate ? new Date(selectedFilterStartDate) : new Date(); popup.classList.add('show'); overlay.classList.add('show'); renderFilterCalendar(); });
+            document.getElementById('filterEndDate').addEventListener('click', () => { filterCalendarType = 'end'; filterCalendarDate = selectedFilterEndDate ? new Date(selectedFilterEndDate) : new Date(); popup.classList.add('show'); overlay.classList.add('show'); renderFilterCalendar(); });
+            overlay.addEventListener('click', () => { popup.classList.remove('show'); overlay.classList.remove('show'); });
+            document.getElementById('filterPrevMonth').addEventListener('click', () => { filterCalendarDate.setMonth(filterCalendarDate.getMonth() - 1); renderFilterCalendar(); });
+            document.getElementById('filterNextMonth').addEventListener('click', () => { filterCalendarDate.setMonth(filterCalendarDate.getMonth() + 1); renderFilterCalendar(); });
+        }
+        function renderFilterCalendar() {
+            const y = filterCalendarDate.getFullYear(), m = filterCalendarDate.getMonth();
+            document.getElementById('filterMonthYear').textContent = `${['January','February','March','April','May','June','July','August','September','October','November','December'][m]} ${y}`;
+            const firstDay = new Date(y, m, 1).getDay(), daysInMonth = new Date(y, m + 1, 0).getDate(), prevDays = new Date(y, m, 0).getDate();
+            const container = document.getElementById('filterCalendarDays'); container.innerHTML = '';
+            const todayStr = getDateStr(), selected = filterCalendarType === 'start' ? selectedFilterStartDate : selectedFilterEndDate;
+            for (let i = firstDay - 1; i >= 0; i--) { container.appendChild(createFilterDayBtn(prevDays - i, true, new Date(y, m - 1, prevDays - i))); }
+            for (let d = 1; d <= daysInMonth; d++) {
+                const date = new Date(y, m, d), dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const btn = createFilterDayBtn(d, false, date);
+                if (dateStr === todayStr) btn.classList.add('today');
+                if (selected && date.toDateString() === selected.toDateString()) btn.classList.add('selected');
+                if (selectedFilterStartDate && selectedFilterEndDate && date >= selectedFilterStartDate && date <= selectedFilterEndDate) btn.classList.add('in-range');
+                container.appendChild(btn);
+            }
+            for (let d = 1; d <= 42 - firstDay - daysInMonth; d++) { container.appendChild(createFilterDayBtn(d, true, new Date(y, m + 1, d))); }
+        }
+        function createFilterDayBtn(day, other, date) { const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'calendar-day' + (other ? ' other-month' : ''); btn.textContent = day; btn.onclick = () => selectFilterDate(date); return btn; }
+        function selectFilterDate(date) {
+            if (filterCalendarType === 'start') {
+                if (selectedFilterEndDate && date > selectedFilterEndDate) { showToast('Start > End', 'error'); return; }
+                selectedFilterStartDate = date; localStorage.setItem('cfr_filter_start', date.toISOString()); document.getElementById('filterStartDate').value = formatDateShort(date);
+            } else {
+                if (selectedFilterStartDate && date < selectedFilterStartDate) { showToast('End < Start', 'error'); return; }
+                selectedFilterEndDate = date; localStorage.setItem('cfr_filter_end', date.toISOString()); document.getElementById('filterEndDate').value = formatDateShort(date);
+            }
+            document.getElementById('filterCalendarPopup').classList.remove('show'); document.getElementById('filterCalendarOverlay').classList.remove('show');
+            filterReport();
+        }
         function clearDateFilter() { selectedFilterStartDate = null; selectedFilterEndDate = null; localStorage.removeItem('cfr_filter_start'); localStorage.removeItem('cfr_filter_end'); document.getElementById('filterStartDate').value = ''; document.getElementById('filterEndDate').value = ''; document.getElementById('filterInfo').style.display = 'none'; filterReport(); }
 
-        // ========== MULTI-ENTRY ==========
-        function addEntry(type, defaultRemarks = '') { const listId = type === 'active' ? 'activeChipsList' : type === 'end' ? 'endChipsList' : 'remittanceList'; const list = document.getElementById(listId); const row = document.createElement('div'); row.className = 'entry-row'; row.dataset.type = type; row.innerHTML = `<input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks" value="${defaultRemarks}"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button>`; list.appendChild(row); row.querySelector('.entry-amount').focus(); }
-        function removeEntry(btn) { const row = btn.closest('.entry-row'); row.style.animation = 'slideIn 0.2s ease reverse'; setTimeout(() => { row.remove(); calculateAll(); }, 200); }
-        function getEntrySum(listId) { const list = document.getElementById(listId); let sum = 0; list.querySelectorAll('.entry-amount').forEach(input => { sum += parseFloat(input.value) || 0; }); return sum; }
-        function getEntryDetails(listId) { const list = document.getElementById(listId); const entries = []; list.querySelectorAll('.entry-row').forEach(row => { const amount = parseFloat(row.querySelector('.entry-amount')?.value) || 0; const remarks = row.querySelector('.entry-remarks').value || ''; if (amount > 0 || remarks) entries.push({ amount, remarks }); }); return entries; }
+        // ========== ENTRIES ==========
+        function addEntry(type) { const listId = type === 'active' ? 'activeChipsList' : type === 'end' ? 'endChipsList' : 'remittanceList'; const list = document.getElementById(listId); const row = document.createElement('div'); row.className = 'entry-row'; row.innerHTML = `<input type="number" step="0.00001" placeholder="Amount" class="entry-amount" oninput="calculateAll()"><input type="text" placeholder="Remarks" class="entry-remarks"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button>`; list.appendChild(row); row.querySelector('.entry-amount').focus(); }
+        function removeEntry(btn) { const row = btn.closest('.entry-row'); row.style.opacity = '0'; row.style.transform = 'translateX(-20px)'; setTimeout(() => { row.remove(); calculateAll(); }, 150); }
+        const getEntrySum = (id) => { let sum = 0; document.getElementById(id).querySelectorAll('.entry-amount').forEach(i => sum += parseFloat(i.value) || 0); return sum; };
+        const getEntryDetails = (id) => { const entries = []; document.getElementById(id).querySelectorAll('.entry-row').forEach(row => { const a = parseFloat(row.querySelector('.entry-amount')?.value) || 0, r = row.querySelector('.entry-remarks')?.value || ''; if (a > 0 || r) entries.push({ amount: a, remarks: r }); }); return entries; };
 
         // ========== CALCULATIONS ==========
-        function calculateAll() { const activeTotal = getEntrySum('activeChipsList'); const endTotal = getEntrySum('endChipsList'); const remitTotal = getEntrySum('remittanceList'); const salary = parseFloat(document.getElementById('salary').value) || 0; const cfr = activeTotal - endTotal; const totalRemit = remitTotal + salary; const unremitted = totalRemit - cfr; document.getElementById('activeChipsTotal').textContent = formatCurrency(activeTotal); document.getElementById('endChipsTotal').textContent = formatCurrency(endTotal); document.getElementById('remittanceTotal').textContent = formatCurrency(remitTotal); document.getElementById('calcCFR').textContent = formatCurrency(cfr); document.getElementById('calcTotalRemit').textContent = formatCurrency(totalRemit); const unremitEl = document.getElementById('calcUnremitted'); unremitEl.textContent = formatCurrency(unremitted); unremitEl.classList.toggle('negative', unremitted < 0); document.getElementById('statCFR').textContent = formatCurrency(cfr); document.getElementById('statRemit').textContent = formatCurrency(totalRemit); document.getElementById('statUnremit').textContent = formatCurrency(unremitted); }
+        function calculateAll() {
+            const active = getEntrySum('activeChipsList'), end = getEntrySum('endChipsList'), remit = getEntrySum('remittanceList'), salary = parseFloat(document.getElementById('salary').value) || 0;
+            const cfr = active - end, totalRemit = remit + salary, unremit = totalRemit - cfr;
+            document.getElementById('activeChipsTotal').textContent = formatCur(active);
+            document.getElementById('endChipsTotal').textContent = formatCur(end);
+            document.getElementById('remittanceTotal').textContent = formatCur(remit);
+            document.getElementById('calcCFR').textContent = formatCur(cfr);
+            document.getElementById('calcTotalRemit').textContent = formatCur(totalRemit);
+            const unremitEl = document.getElementById('calcUnremitted'); unremitEl.textContent = formatCur(unremit); unremitEl.classList.toggle('negative', unremit < 0);
+            document.getElementById('statCFR').textContent = formatCur(cfr);
+            document.getElementById('statRemit').textContent = formatCur(totalRemit);
+            document.getElementById('statUnremit').textContent = formatCur(unremit);
+        }
 
         // ========== FORM VALIDATION ==========
-        function validateForm() { let isValid = true; const dateValue = document.getElementById('entryDate').dataset.value; if (!dateValue) { document.getElementById('dateError').classList.add('show'); document.getElementById('entryDate').classList.add('error'); isValid = false; } else { document.getElementById('dateError').classList.remove('show'); document.getElementById('entryDate').classList.remove('error'); } const shiftValue = document.getElementById('entryShift').value; if (!shiftValue) { document.getElementById('shiftError').classList.add('show'); document.getElementById('entryShift').classList.add('error'); isValid = false; } else { document.getElementById('shiftError').classList.remove('show'); document.getElementById('entryShift').classList.remove('error'); } const nameValue = document.getElementById('dutyName').value.trim(); if (!nameValue) { document.getElementById('nameError').classList.add('show'); document.getElementById('dutyName').classList.add('error'); isValid = false; } else { document.getElementById('nameError').classList.remove('show'); document.getElementById('dutyName').classList.remove('error'); } return isValid; }
+        function validateForm() {
+            let valid = true;
+            [{ id: 'entryDate', err: 'dateError', val: document.getElementById('entryDate').dataset.value },
+             { id: 'entryShift', err: 'shiftError', val: document.getElementById('entryShift').value },
+             { id: 'dutyName', err: 'nameError', val: document.getElementById('dutyName').value.trim() }
+            ].forEach(c => {
+                const el = document.getElementById(c.id), errEl = document.getElementById(c.err);
+                if (!c.val) { errEl.classList.add('show'); el.classList.add('error'); valid = false; }
+                else { errEl.classList.remove('show'); el.classList.remove('error'); }
+            });
+            return valid;
+        }
 
-        // ========== FORM SUBMIT ==========
+        // ========== FORM SUBMIT - OFFLINE READY ==========
         function setupFormSubmit() { document.getElementById('entryForm').addEventListener('submit', handleSubmit); }
-        async function handleSubmit(e) { e.preventDefault(); if (!validateForm()) { showToast('Please fill in all required fields', 'error'); return; } if (!CONFIG.scriptUrl) { showToast('Please configure Google Apps Script URL in Settings', 'error'); return; } if (!isOnline) { showToast('You are offline. Please check your connection.', 'error'); return; } const btn = document.getElementById('submitBtn'); btn.innerHTML = '<div class="spinner"></div> Saving...'; btn.disabled = true; const activeTotal = getEntrySum('activeChipsList'); const endTotal = getEntrySum('endChipsList'); const data = { action: 'addEntry', date: document.getElementById('entryDate').dataset.value, day: document.getElementById('entryDay').value, shift: document.getElementById('entryShift').value, dutyName: document.getElementById('dutyName').value, activeChips: getEntryDetails('activeChipsList'), activeChipsTotal: activeTotal, endChips: getEntryDetails('endChipsList'), endChipsTotal: endTotal, remittances: getEntryDetails('remittanceList'), remittanceTotal: getEntrySum('remittanceList'), bankFee: parseFloat(document.getElementById('bankFee').value) || 0, salary: parseFloat(document.getElementById('salary').value) || 0, remarks: document.getElementById('remarks').value, timezone: CONFIG.timezone, timestamp: new Date().toISOString() }; data.cfr = data.activeChipsTotal - data.endChipsTotal; data.totalRemittances = data.remittanceTotal + data.salary; data.unremitted = data.totalRemittances - data.cfr; try { await fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); setLastEndChips(endTotal); updateStartingChips(); showToast('Entry saved successfully!', 'success'); document.getElementById('savedBadge').style.display = 'inline-flex'; setTimeout(() => { document.getElementById('savedBadge').style.display = 'none'; }, 3000); clearForm(); refreshData(); } catch (error) { showToast('Failed to save: ' + error.message, 'error'); } finally { btn.innerHTML = '<span>💾</span> Save Entry'; btn.disabled = false; } }
-        function clearForm() { selectDate(new Date()); document.getElementById('dutyName').value = ''; document.getElementById('entryShift').value = ''; document.getElementById('bankFee').value = '0'; document.getElementById('salary').value = '0'; document.getElementById('remarks').value = ''; document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show')); document.querySelectorAll('.form-input.error, .form-select.error').forEach(el => el.classList.remove('error')); ['endChipsList', 'remittanceList'].forEach(listId => { const list = document.getElementById(listId); const rows = list.querySelectorAll('.entry-row'); rows.forEach((row, i) => { if (i === 0) { const ai = row.querySelector('.entry-amount'); if (ai) ai.value = ''; const ri = row.querySelector('.entry-remarks'); if (ri) ri.value = ''; } else { row.remove(); } }); }); const activeList = document.getElementById('activeChipsList'); activeList.querySelectorAll('.entry-row:not(.starting-chips)').forEach(row => row.remove()); calculateAll(); }
+        async function handleSubmit(e) {
+            e.preventDefault();
+            if (!validateForm()) { showToast('Fill required fields', 'error'); return; }
+            
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<div class="spinner"></div>'; btn.disabled = true;
+            
+            const activeTotal = getEntrySum('activeChipsList'), endTotal = getEntrySum('endChipsList');
+            const data = {
+                action: 'addEntry',
+                date: document.getElementById('entryDate').dataset.value,
+                day: document.getElementById('entryDay').value,
+                shift: document.getElementById('entryShift').value,
+                dutyName: document.getElementById('dutyName').value,
+                activeChips: getEntryDetails('activeChipsList'),
+                activeChipsTotal: activeTotal,
+                endChips: getEntryDetails('endChipsList'),
+                endChipsTotal: endTotal,
+                remittances: getEntryDetails('remittanceList'),
+                remittanceTotal: getEntrySum('remittanceList'),
+                bankFee: parseFloat(document.getElementById('bankFee').value) || 0,
+                salary: parseFloat(document.getElementById('salary').value) || 0,
+                remarks: document.getElementById('remarks').value,
+                timestamp: new Date().toISOString()
+            };
+            data.cfr = data.activeChipsTotal - data.endChipsTotal;
+            data.totalRemittances = data.remittanceTotal + data.salary;
+            data.unremitted = data.totalRemittances - data.cfr;
+
+            setLastEndChips(endTotal);
+            
+            if (!isOnline || !CONFIG.scriptUrl) {
+                // OFFLINE: Save locally
+                addPendingEntry(data);
+                showToast('Saved offline! Will sync when online.', 'warning');
+            } else {
+                // ONLINE: Try to send, fallback to offline
+                try {
+                    await fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                    showToast('Saved!', 'success');
+                    setTimeout(() => refreshData(), 300);
+                } catch (err) {
+                    addPendingEntry(data);
+                    showToast('Network error - saved offline', 'warning');
+                }
+            }
+            
+            clearForm();
+            btn.innerHTML = '💾 Save Entry'; btn.disabled = false;
+        }
+        function clearForm() {
+            selectDate(new Date());
+            document.getElementById('dutyName').value = '';
+            document.getElementById('entryShift').value = '';
+            document.getElementById('bankFee').value = '0';
+            document.getElementById('salary').value = '0';
+            document.getElementById('remarks').value = '';
+            document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('.form-input.error,.form-select.error').forEach(el => el.classList.remove('error'));
+            ['endChipsList', 'remittanceList'].forEach(id => {
+                const list = document.getElementById(id);
+                list.querySelectorAll('.entry-row').forEach((row, i) => {
+                    if (i === 0) { row.querySelector('.entry-amount').value = ''; row.querySelector('.entry-remarks').value = ''; }
+                    else row.remove();
+                });
+            });
+            document.getElementById('activeChipsList').querySelectorAll('.entry-row:not(.starting-chips)').forEach(row => row.remove());
+            updateStartingChips();
+        }
 
         // ========== TABS ==========
-        function setupTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); if (tab.dataset.tab === 'report') refreshData(); if (tab.dataset.tab === 'history') loadHistory(); }); }); }
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                    if (tab.dataset.tab === 'report') refreshData();
+                    if (tab.dataset.tab === 'history') loadHistory();
+                });
+            });
+        }
 
-        // ========== DATA ==========
-        async function refreshData() { if (!CONFIG.scriptUrl) { updateConnectionStatus(false); return; } if (!isOnline) { showToast('You are offline', 'error'); return; } try { const response = await fetch(`${CONFIG.scriptUrl}?action=getData&_=${Date.now()}`); const data = await response.json(); if (data.success) { reportData = data.entries || []; if (reportData.length > 0) { const sortedData = [...reportData].sort((a, b) => { const dateA = new Date(a.date); const dateB = new Date(b.date); if (dateA.getTime() !== dateB.getTime()) return dateB - dateA; return (SHIFT_ORDER[b.shift] || 0) - (SHIFT_ORDER[a.shift] || 0); }); const lastEntry = sortedData[0]; if (lastEntry && lastEntry.endChipsTotal !== undefined) { setLastEndChips(lastEntry.endChipsTotal); updateStartingChips(); } } filterReport(); updateLoaderFilter(); updateConnectionStatus(true); } } catch (error) { console.error('Fetch error:', error); updateConnectionStatus(false); showToast('Failed to fetch data', 'error'); } }
-        function updateLoaderFilter() { const select = document.getElementById('filterLoader'); const loaders = [...new Set(reportData.map(e => e.dutyName).filter(Boolean))]; select.innerHTML = '<option value="">All Loaders</option>'; loaders.forEach(loader => { select.innerHTML += `<option value="${loader}">${loader}</option>`; }); }
-        function filterReport() { const loaderFilter = document.getElementById('filterLoader').value; let data = reportData; if (loaderFilter) data = data.filter(e => e.dutyName === loaderFilter); if (selectedFilterStartDate && selectedFilterEndDate) { const start = new Date(selectedFilterStartDate); start.setHours(0, 0, 0, 0); const end = new Date(selectedFilterEndDate); end.setHours(23, 59, 59, 999); data = data.filter(e => { const entryDate = new Date(e.date); return entryDate >= start && entryDate <= end; }); document.getElementById('filterInfo').style.display = 'flex'; document.getElementById('filterRangeDisplay').textContent = `${formatDateDisplay(selectedFilterStartDate)} → ${formatDateDisplay(selectedFilterEndDate)}`; document.getElementById('filterCountDisplay').textContent = data.length; } else if (selectedFilterStartDate || selectedFilterEndDate) { const filterDate = selectedFilterStartDate || selectedFilterEndDate; data = data.filter(e => new Date(e.date).toDateString() === filterDate.toDateString()); document.getElementById('filterInfo').style.display = 'flex'; document.getElementById('filterRangeDisplay').textContent = formatDateDisplay(filterDate); document.getElementById('filterCountDisplay').textContent = data.length; } else { document.getElementById('filterInfo').style.display = 'none'; } data.sort((a, b) => { const dateA = new Date(a.date); const dateB = new Date(b.date); if (dateA.getTime() !== dateB.getTime()) return dateA - dateB; return (SHIFT_ORDER[a.shift] || 0) - (SHIFT_ORDER[b.shift] || 0); }); filteredData = data; updateReportTable(); }
-        function updateReportTable() { const tbody = document.getElementById('reportBody'); if (filteredData.length === 0) { tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: var(--text-muted); padding: 2rem;">No entries found</td></tr>`; return; } let html = ''; let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 }; filteredData.forEach(entry => { totals.active += entry.activeChipsTotal || 0; totals.end += entry.endChipsTotal || 0; totals.cfr += entry.cfr || 0; totals.remit += entry.totalRemittances || 0; totals.unremit += entry.unremitted || 0; html += `<tr><td>${formatDateDisplay(entry.date)}</td><td style="font-size: 0.7rem;">${entry.shift || '-'}</td><td>${entry.dutyName || '-'}</td><td>${formatCurrency(entry.activeChipsTotal)}</td><td>${formatCurrency(entry.endChipsTotal)}</td><td>${formatCurrency(entry.cfr)}</td><td>${formatCurrency(entry.totalRemittances)}</td><td>${formatCurrency(entry.bankFee)}</td><td style="color: ${(entry.unremitted || 0) < 0 ? 'var(--accent-danger)' : 'var(--accent-warning)'};">${formatCurrency(entry.unremitted)}</td><td>${entry.remarks || '-'}</td><td><button class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.75rem;" onclick="openEditModal(${entry.rowIndex})">✏️</button></td></tr>`; }); html += `<tr class="table-footer"><td colspan="3" style="text-align: right; font-weight: 600;">TOTALS:</td><td>${formatCurrency(totals.active)}</td><td>${formatCurrency(totals.end)}</td><td>${formatCurrency(totals.cfr)}</td><td>${formatCurrency(totals.remit)}</td><td>-</td><td style="color: ${totals.unremit < 0 ? 'var(--accent-danger)' : 'var(--accent-primary)'};">${formatCurrency(totals.unremit)}</td><td colspan="2"></td></tr>`; tbody.innerHTML = html; }
-        function formatDateDisplay(dateInput) { if (!dateInput) return '-'; const date = dateInput instanceof Date ? dateInput : new Date(dateInput); return date.toLocaleDateString('en-US', { timeZone: CONFIG.timezone, month: 'short', day: 'numeric', year: 'numeric' }); }
+        // ========== DATA - WITH CACHE ==========
+        function loadCachedData() {
+            const cached = getCachedData();
+            const pending = getPendingEntries();
+            reportData = [...cached, ...pending.map(p => ({...p, pending: true}))];
+            filterReport(); updateLoaderFilter();
+        }
+        async function refreshData() {
+            if (!CONFIG.scriptUrl) { loadCachedData(); return; }
+            if (!isOnline) { loadCachedData(); showToast('Offline - showing cached data', 'warning'); return; }
+            
+            try {
+                const response = await fetch(`${CONFIG.scriptUrl}?action=getData&_=${Date.now()}`);
+                const data = await response.json();
+                if (data.success) {
+                    saveCachedData(data.entries || []);
+                    const pending = getPendingEntries();
+                    reportData = [...(data.entries || []), ...pending.map(p => ({...p, pending: true}))];
+                    if (reportData.length > 0) {
+                        const sorted = [...reportData].filter(e => !e.pending).sort((a, b) => new Date(b.date) - new Date(a.date) || (SHIFT_ORDER[b.shift] || 0) - (SHIFT_ORDER[a.shift] || 0));
+                        if (sorted[0]?.endChipsTotal !== undefined) { setLastEndChips(sorted[0].endChipsTotal); updateStartingChips(); }
+                    }
+                    filterReport(); updateLoaderFilter(); updateOnlineStatus();
+                }
+            } catch (err) { console.error(err); loadCachedData(); showToast('Network error - showing cached', 'warning'); }
+        }
+        function updateLoaderFilter() {
+            const select = document.getElementById('filterLoader');
+            const loaders = [...new Set(reportData.map(e => e.dutyName).filter(Boolean))];
+            select.innerHTML = '<option value="">All</option>' + loaders.map(l => `<option value="${l}">${l}</option>`).join('');
+        }
+        function filterReport() {
+            let data = reportData;
+            const loader = document.getElementById('filterLoader').value;
+            if (loader) data = data.filter(e => e.dutyName === loader);
+            if (selectedFilterStartDate && selectedFilterEndDate) {
+                const start = new Date(selectedFilterStartDate); start.setHours(0,0,0,0);
+                const end = new Date(selectedFilterEndDate); end.setHours(23,59,59,999);
+                data = data.filter(e => { const d = new Date(e.date); return d >= start && d <= end; });
+                document.getElementById('filterInfo').style.display = 'flex';
+                document.getElementById('filterRangeDisplay').textContent = `${formatDateShort(selectedFilterStartDate)} → ${formatDateShort(selectedFilterEndDate)}`;
+                document.getElementById('filterCountDisplay').textContent = data.length;
+            } else if (selectedFilterStartDate || selectedFilterEndDate) {
+                const fd = selectedFilterStartDate || selectedFilterEndDate;
+                data = data.filter(e => new Date(e.date).toDateString() === fd.toDateString());
+                document.getElementById('filterInfo').style.display = 'flex';
+                document.getElementById('filterRangeDisplay').textContent = formatDateShort(fd);
+                document.getElementById('filterCountDisplay').textContent = data.length;
+            } else { document.getElementById('filterInfo').style.display = 'none'; }
+            data.sort((a, b) => new Date(a.date) - new Date(b.date) || (SHIFT_ORDER[a.shift] || 0) - (SHIFT_ORDER[b.shift] || 0));
+            filteredData = data; updateReportTable();
+        }
+        function updateReportTable() {
+            const tbody = document.getElementById('reportBody');
+            if (filteredData.length === 0) { tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:2rem">No data</td></tr>'; return; }
+            let html = '', totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 };
+            filteredData.forEach(e => {
+                totals.active += e.activeChipsTotal || 0; totals.end += e.endChipsTotal || 0; totals.cfr += e.cfr || 0; totals.remit += e.totalRemittances || 0; totals.unremit += e.unremitted || 0;
+                const isPending = e.pending;
+                html += `<tr class="${isPending ? 'pending' : ''}"><td>${formatDateShort(e.date)}${isPending ? ' ⏳' : ''}</td><td style="font-size:0.7rem">${e.shift||'-'}</td><td>${e.dutyName||'-'}</td><td>${formatCur(e.activeChipsTotal)}</td><td>${formatCur(e.endChipsTotal)}</td><td>${formatCur(e.cfr)}</td><td>${formatCur(e.totalRemittances)}</td><td>${formatCur(e.bankFee)}</td><td style="color:${(e.unremitted||0)<0?'var(--accent-danger)':'var(--accent-warning)'}">${formatCur(e.unremitted)}</td><td>${isPending ? '⏳ Pending' : (e.remarks||'-')}</td><td>${!isPending && e.rowIndex ? `<button class="btn btn-secondary" style="padding:0.5rem;font-size:0.75rem" onclick="openEditModal(${e.rowIndex})">✏️</button>` : ''}</td></tr>`;
+            });
+            html += `<tr class="table-footer"><td colspan="3" style="text-align:right;font-weight:600">TOTAL:</td><td>${formatCur(totals.active)}</td><td>${formatCur(totals.end)}</td><td>${formatCur(totals.cfr)}</td><td>${formatCur(totals.remit)}</td><td>-</td><td style="color:${totals.unremit<0?'var(--accent-danger)':'var(--accent-primary)'}">${formatCur(totals.unremit)}</td><td colspan="2"></td></tr>`;
+            tbody.innerHTML = html;
+        }
 
-        // ========== EDIT / DELETE ==========
-        function setupEditForm() { document.getElementById('editForm').addEventListener('submit', async (e) => { e.preventDefault(); if (!editingRowIndex) return; const data = { action: 'updateEntry', rowIndex: editingRowIndex, date: document.getElementById('editDate').value, shift: document.getElementById('editShift').value, dutyName: document.getElementById('editDutyName').value, activeChipsTotal: parseFloat(document.getElementById('editActiveChips').value) || 0, endChipsTotal: parseFloat(document.getElementById('editEndChips').value) || 0, cfr: parseFloat(document.getElementById('editCFR').value) || 0, remittanceTotal: parseFloat(document.getElementById('editRemittance').value) || 0, bankFee: parseFloat(document.getElementById('editBankFee').value) || 0, salary: parseFloat(document.getElementById('editSalary').value) || 0, totalRemittances: parseFloat(document.getElementById('editRemittance').value) + parseFloat(document.getElementById('editSalary').value) || 0, unremitted: parseFloat(document.getElementById('editUnremitted').value) || 0, remarks: document.getElementById('editRemarks').value }; try { await fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); showToast('Entry updated!', 'success'); closeEditModal(); refreshData(); } catch (error) { showToast('Failed to update: ' + error.message, 'error'); } }); }
-        function openEditModal(rowIndex) { editingRowIndex = rowIndex; editingEntry = reportData.find(e => e.rowIndex === rowIndex); if (!editingEntry) { showToast('Entry not found', 'error'); return; } document.getElementById('editRowIndex').value = rowIndex; document.getElementById('editDate').value = editingEntry.date; document.getElementById('editShift').value = editingEntry.shift || ''; document.getElementById('editDutyName').value = editingEntry.dutyName || ''; document.getElementById('editActiveChips').value = editingEntry.activeChipsTotal || 0; document.getElementById('editEndChips').value = editingEntry.endChipsTotal || 0; document.getElementById('editCFR').value = editingEntry.cfr || 0; document.getElementById('editRemittance').value = editingEntry.remittanceTotal || 0; document.getElementById('editBankFee').value = editingEntry.bankFee || 0; document.getElementById('editSalary').value = editingEntry.salary || 0; document.getElementById('editUnremitted').value = editingEntry.unremitted || 0; document.getElementById('editRemarks').value = editingEntry.remarks || ''; document.getElementById('editModal').classList.add('show'); }
-        function recalculateEdit() { const active = parseFloat(document.getElementById('editActiveChips').value) || 0; const end = parseFloat(document.getElementById('editEndChips').value) || 0; const remit = parseFloat(document.getElementById('editRemittance').value) || 0; const salary = parseFloat(document.getElementById('editSalary').value) || 0; document.getElementById('editCFR').value = (active - end).toFixed(5); document.getElementById('editUnremitted').value = ((remit + salary) - (active - end)).toFixed(5); }
+        // ========== EDIT - INSTANT ==========
+        function setupEditForm() {
+            document.getElementById('editForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!editingRowIndex) return;
+                
+                const data = {
+                    action: 'updateEntry', rowIndex: editingRowIndex,
+                    date: document.getElementById('editDate').value,
+                    shift: document.getElementById('editShift').value,
+                    dutyName: document.getElementById('editDutyName').value,
+                    activeChipsTotal: parseFloat(document.getElementById('editActiveChips').value) || 0,
+                    endChipsTotal: parseFloat(document.getElementById('editEndChips').value) || 0,
+                    cfr: parseFloat(document.getElementById('editCFR').value) || 0,
+                    remittanceTotal: parseFloat(document.getElementById('editRemittance').value) || 0,
+                    bankFee: parseFloat(document.getElementById('editBankFee').value) || 0,
+                    salary: parseFloat(document.getElementById('editSalary').value) || 0,
+                    totalRemittances: (parseFloat(document.getElementById('editRemittance').value) || 0) + (parseFloat(document.getElementById('editSalary').value) || 0),
+                    unremitted: parseFloat(document.getElementById('editUnremitted').value) || 0,
+                    remarks: document.getElementById('editRemarks').value
+                };
+
+                const idx = reportData.findIndex(e => e.rowIndex === editingRowIndex);
+                if (idx !== -1) Object.assign(reportData[idx], data);
+                filterReport();
+                showToast('Updated!', 'success');
+                closeEditModal();
+                
+                if (isOnline && CONFIG.scriptUrl) {
+                    fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
+                    setTimeout(() => refreshData(), 300);
+                }
+            });
+        }
+        function openEditModal(rowIndex) {
+            editingRowIndex = rowIndex;
+            editingEntry = reportData.find(e => e.rowIndex === rowIndex);
+            if (!editingEntry) { showToast('Not found', 'error'); return; }
+            document.getElementById('editRowIndex').value = rowIndex;
+            document.getElementById('editDate').value = editingEntry.date;
+            document.getElementById('editShift').value = editingEntry.shift || '';
+            document.getElementById('editDutyName').value = editingEntry.dutyName || '';
+            document.getElementById('editActiveChips').value = editingEntry.activeChipsTotal || 0;
+            document.getElementById('editEndChips').value = editingEntry.endChipsTotal || 0;
+            document.getElementById('editCFR').value = editingEntry.cfr || 0;
+            document.getElementById('editRemittance').value = editingEntry.remittanceTotal || 0;
+            document.getElementById('editBankFee').value = editingEntry.bankFee || 0;
+            document.getElementById('editSalary').value = editingEntry.salary || 0;
+            document.getElementById('editUnremitted').value = editingEntry.unremitted || 0;
+            document.getElementById('editRemarks').value = editingEntry.remarks || '';
+            document.getElementById('editModal').classList.add('show');
+        }
+        function recalculateEdit() {
+            const active = parseFloat(document.getElementById('editActiveChips').value) || 0, end = parseFloat(document.getElementById('editEndChips').value) || 0;
+            const remit = parseFloat(document.getElementById('editRemittance').value) || 0, salary = parseFloat(document.getElementById('editSalary').value) || 0;
+            document.getElementById('editCFR').value = (active - end).toFixed(5);
+            document.getElementById('editUnremitted').value = ((remit + salary) - (active - end)).toFixed(5);
+        }
         function closeEditModal() { editingRowIndex = null; editingEntry = null; document.getElementById('editModal').classList.remove('show'); }
-        function openDeleteModal(rowIndex) { editingRowIndex = rowIndex; document.getElementById('deleteModal').classList.add('show'); }
+        function deleteEntry() { closeEditModal(); document.getElementById('deleteModal').classList.add('show'); }
         function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); }
-        function deleteEntry() { closeEditModal(); openDeleteModal(editingRowIndex); }
-        async function confirmDelete() { if (!editingRowIndex) return; try { await fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'deleteEntry', rowIndex: editingRowIndex }) }); showToast('Entry deleted!', 'success'); closeDeleteModal(); editingRowIndex = null; refreshData(); } catch (error) { showToast('Failed to delete: ' + error.message, 'error'); } }
+        
+        async function confirmDelete() {
+            if (!editingRowIndex) return;
+            const rowToDelete = editingRowIndex;
+            reportData = reportData.filter(e => e.rowIndex !== rowToDelete);
+            filterReport();
+            showToast('Deleted!', 'success');
+            closeDeleteModal();
+            editingRowIndex = null;
+            
+            if (isOnline && CONFIG.scriptUrl) {
+                fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'deleteEntry', rowIndex: rowToDelete }) }).catch(() => {});
+                setTimeout(() => refreshData(), 300);
+            }
+        }
 
-        // ========== EXPORT AS IMAGE ==========
-        async function exportReportAsImage() { if (filteredData.length === 0) { showToast('No data to export', 'error'); return; } showToast('Generating image...', 'success'); const canvas = document.getElementById('exportCanvas'); const ctx = canvas.getContext('2d'); const padding = 40, rowHeight = 35, headerHeight = 50, titleHeight = 80; const cols = [80, 120, 60, 100, 100, 100, 100, 60, 100, 70]; const totalWidth = cols.reduce((a, b) => a + b, 0) + padding * 2; const totalHeight = titleHeight + headerHeight + (filteredData.length + 1) * rowHeight + padding * 2; canvas.width = totalWidth; canvas.height = totalHeight; ctx.fillStyle = '#0a0f1a'; ctx.fillRect(0, 0, totalWidth, totalHeight); ctx.fillStyle = '#00d4ff'; ctx.font = 'bold 20px Outfit, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('WackyBuds CFR Report', totalWidth / 2, padding + 25); ctx.fillStyle = '#64748b'; ctx.font = '10px Outfit, sans-serif'; ctx.fillText(`Timezone: ${TIMEZONE_INFO[CONFIG.timezone].name}`, totalWidth / 2, padding + 42); if (selectedFilterStartDate && selectedFilterEndDate) { ctx.fillStyle = '#94a3b8'; ctx.font = '12px Outfit, sans-serif'; ctx.fillText(`${formatDateDisplay(selectedFilterStartDate)} → ${formatDateDisplay(selectedFilterEndDate)}`, totalWidth / 2, padding + 58); } const headers = ['Date', 'Shift', 'Loader', 'Active', 'End', 'CFR', 'Remit', 'Fee', 'Unremit', 'Status']; ctx.fillStyle = '#1e293b'; ctx.fillRect(padding, padding + titleHeight, totalWidth - padding * 2, headerHeight); ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 10px JetBrains Mono, monospace'; ctx.textAlign = 'left'; let x = padding + 10; headers.forEach((header, i) => { ctx.fillText(header.toUpperCase(), x, padding + titleHeight + 30); x += cols[i]; }); let y = padding + titleHeight + headerHeight; let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 }; filteredData.forEach((entry, idx) => { if (idx % 2 === 0) { ctx.fillStyle = '#111827'; ctx.fillRect(padding, y, totalWidth - padding * 2, rowHeight); } totals.active += entry.activeChipsTotal || 0; totals.end += entry.endChipsTotal || 0; totals.cfr += entry.cfr || 0; totals.remit += entry.totalRemittances || 0; totals.unremit += entry.unremitted || 0; ctx.font = '10px JetBrains Mono, monospace'; x = padding + 10; const rowData = [formatDateDisplay(entry.date), (entry.shift || '-').substring(0, 15), entry.dutyName || '-', formatNumber(entry.activeChipsTotal), formatNumber(entry.endChipsTotal), formatNumber(entry.cfr), formatNumber(entry.totalRemittances), formatNumber(entry.bankFee), formatNumber(entry.unremitted), entry.remarks || '-']; rowData.forEach((val, i) => { ctx.fillStyle = (i === 8 && (entry.unremitted || 0) < 0) ? '#ef4444' : '#f1f5f9'; ctx.fillText(String(val).substring(0, 12), x, y + 22); x += cols[i]; }); y += rowHeight; }); ctx.fillStyle = '#1e293b'; ctx.fillRect(padding, y, totalWidth - padding * 2, rowHeight); ctx.font = 'bold 10px JetBrains Mono, monospace'; x = padding + 10; const totalRow = ['TOTAL', '', '', formatNumber(totals.active), formatNumber(totals.end), formatNumber(totals.cfr), formatNumber(totals.remit), '-', formatNumber(totals.unremit), '']; totalRow.forEach((val, i) => { ctx.fillStyle = (i === 8 && totals.unremit < 0) ? '#ef4444' : '#00d4ff'; ctx.fillText(val, x, y + 22); x += cols[i]; }); const link = document.createElement('a'); link.download = `CFR_Report_${getDateStringInTimezone(new Date())}.png`; link.href = canvas.toDataURL('image/png'); link.click(); showToast('Image exported!', 'success'); }
+        // ========== EXPORT ==========
+        async function exportReportAsImage() {
+            if (filteredData.length === 0) { showToast('No data', 'error'); return; }
+            showToast('Exporting...', 'success');
+            const canvas = document.getElementById('exportCanvas'), ctx = canvas.getContext('2d');
+            const pad = 40, rh = 35, hh = 50, th = 70, cols = [80, 110, 60, 95, 95, 95, 95, 55, 95, 70];
+            const tw = cols.reduce((a,b) => a+b, 0) + pad*2, tht = th + hh + (filteredData.length + 1) * rh + pad*2;
+            canvas.width = tw; canvas.height = tht;
+            ctx.fillStyle = '#0a0f1a'; ctx.fillRect(0, 0, tw, tht);
+            ctx.fillStyle = '#00d4ff'; ctx.font = 'bold 18px Outfit'; ctx.textAlign = 'center';
+            ctx.fillText('WackyBuds CFR Report', tw/2, pad + 22);
+            ctx.fillStyle = '#64748b'; ctx.font = '10px Outfit';
+            ctx.fillText('Philippines Time (PHT)', tw/2, pad + 38);
+            if (selectedFilterStartDate && selectedFilterEndDate) { ctx.fillStyle = '#94a3b8'; ctx.font = '11px Outfit'; ctx.fillText(`${formatDateShort(selectedFilterStartDate)} → ${formatDateShort(selectedFilterEndDate)}`, tw/2, pad + 54); }
+            const headers = ['Date','Shift','Loader','Active','End','CFR','Remit','Fee','Unremit','Status'];
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(pad, pad + th, tw - pad*2, hh);
+            ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 9px JetBrains Mono'; ctx.textAlign = 'left';
+            let x = pad + 8; headers.forEach((h,i) => { ctx.fillText(h.toUpperCase(), x, pad + th + 30); x += cols[i]; });
+            let y = pad + th + hh, totals = { active:0, end:0, cfr:0, remit:0, unremit:0 };
+            filteredData.forEach((e, idx) => {
+                if (idx % 2 === 0) { ctx.fillStyle = '#111827'; ctx.fillRect(pad, y, tw - pad*2, rh); }
+                totals.active += e.activeChipsTotal || 0; totals.end += e.endChipsTotal || 0; totals.cfr += e.cfr || 0; totals.remit += e.totalRemittances || 0; totals.unremit += e.unremitted || 0;
+                ctx.font = '9px JetBrains Mono'; x = pad + 8;
+                [formatDateShort(e.date), (e.shift||'-').substring(0,12), e.dutyName||'-', formatNum(e.activeChipsTotal), formatNum(e.endChipsTotal), formatNum(e.cfr), formatNum(e.totalRemittances), formatNum(e.bankFee), formatNum(e.unremitted), e.pending ? 'Pending' : (e.remarks||'-')].forEach((v, i) => { ctx.fillStyle = (i===8 && (e.unremitted||0)<0) ? '#ef4444' : '#f1f5f9'; ctx.fillText(String(v).substring(0,11), x, y + 22); x += cols[i]; });
+                y += rh;
+            });
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(pad, y, tw - pad*2, rh);
+            ctx.font = 'bold 9px JetBrains Mono'; x = pad + 8;
+            ['TOTAL','','',formatNum(totals.active),formatNum(totals.end),formatNum(totals.cfr),formatNum(totals.remit),'-',formatNum(totals.unremit),''].forEach((v,i) => { ctx.fillStyle = (i===8 && totals.unremit<0)?'#ef4444':'#00d4ff'; ctx.fillText(v, x, y + 22); x += cols[i]; });
+            const link = document.createElement('a'); link.download = `CFR_${getDateStr()}.png`; link.href = canvas.toDataURL('image/png'); link.click();
+            showToast('Exported!', 'success');
+        }
 
         // ========== HISTORY ==========
-        async function loadHistory() { if (!CONFIG.scriptUrl) return; try { const response = await fetch(`${CONFIG.scriptUrl}?action=getHistory&_=${Date.now()}`); const data = await response.json(); const tbody = document.getElementById('historyBody'); if (!data.success || !data.history?.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No history</td></tr>`; return; } tbody.innerHTML = data.history.slice(0, 50).map(h => `<tr><td>${h.timestamp || '-'}</td><td>${h.user || '-'}</td><td>${h.action || '-'}</td><td style="font-size: 0.7rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${h.details || '-'}</td></tr>`).join(''); } catch (error) { console.error('History error:', error); } }
+        async function loadHistory() {
+            if (!CONFIG.scriptUrl || !isOnline) { document.getElementById('historyBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem">Offline - history unavailable</td></tr>'; return; }
+            try {
+                const res = await fetch(`${CONFIG.scriptUrl}?action=getHistory&_=${Date.now()}`);
+                const data = await res.json();
+                const tbody = document.getElementById('historyBody');
+                if (!data.success || !data.history?.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem">No history</td></tr>'; return; }
+                tbody.innerHTML = data.history.slice(0, 50).map(h => `<tr><td>${h.timestamp||'-'}</td><td>${h.user||'-'}</td><td>${h.action||'-'}</td><td style="font-size:0.7rem;max-width:200px;overflow:hidden;text-overflow:ellipsis">${h.details||'-'}</td></tr>`).join('');
+            } catch (err) { console.error(err); }
+        }
 
         // ========== SETTINGS ==========
-        function saveSettings() { const url = document.getElementById('scriptUrl').value.trim(); if (url) { CONFIG.scriptUrl = url; localStorage.setItem('cfr_script_url', url); showToast('Settings saved!', 'success'); refreshData(); } else { showToast('Please enter a valid URL', 'error'); } }
-        async function testConnection() { const url = document.getElementById('scriptUrl').value.trim(); if (!url) { showToast('Enter URL first', 'error'); return; } if (!isOnline) { showToast('You are offline', 'error'); return; } try { const response = await fetch(`${url}?action=test&_=${Date.now()}`); const data = await response.json(); if (data.success) { showToast('Connection successful!', 'success'); updateConnectionStatus(true); } else { showToast('Connection failed', 'error'); updateConnectionStatus(false); } } catch (error) { showToast('Error: ' + error.message, 'error'); updateConnectionStatus(false); } }
-        function clearLocalData() { if (confirm('Are you sure you want to clear all local data? This will reset settings and filters.')) { localStorage.removeItem('cfr_script_url'); localStorage.removeItem('cfr_timezone'); localStorage.removeItem('cfr_last_end_chips'); localStorage.removeItem('cfr_filter_start'); localStorage.removeItem('cfr_filter_end'); showToast('Local data cleared!', 'success'); location.reload(); } }
-        function updateConnectionStatus(connected) { const dot = document.getElementById('statusDot'); const text = document.getElementById('statusText'); if (!isOnline) { dot.classList.add('offline'); dot.classList.remove('connected'); text.textContent = 'Offline'; } else { dot.classList.remove('offline'); dot.classList.toggle('connected', connected); text.textContent = connected ? 'Connected' : (CONFIG.scriptUrl ? 'Disconnected' : 'Not configured'); } }
-        function showToast(message, type = 'success') { const container = document.getElementById('toastContainer'); const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span><span>${message}</span>`; container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000); }
+        function saveSettings() { const url = document.getElementById('scriptUrl').value.trim(); if (url) { CONFIG.scriptUrl = url; localStorage.setItem('cfr_script_url', url); showToast('Saved!', 'success'); refreshData(); syncPendingEntries(); } else showToast('Enter URL', 'error'); }
+        async function testConnection() {
+            const url = document.getElementById('scriptUrl').value.trim();
+            if (!url) { showToast('Enter URL', 'error'); return; }
+            if (!isOnline) { showToast('You are offline', 'error'); return; }
+            try { const res = await fetch(`${url}?action=test&_=${Date.now()}`); const data = await res.json(); showToast(data.success ? 'Connected!' : 'Failed', data.success ? 'success' : 'error'); }
+            catch (err) { showToast('Connection failed', 'error'); }
+        }
+        function clearLocalData() { if (confirm('Clear ALL local data including pending entries?')) { localStorage.clear(); showToast('Cleared!', 'success'); location.reload(); } }
+        function showToast(msg, type = 'success') { const c = document.getElementById('toastContainer'), t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<span>${type==='success'?'✅':type==='warning'?'⚠️':'❌'}</span><span>${msg}</span>`; c.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 200); }, 2500); }
 
         // ========== PWA ==========
-        function setupPWA() { if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(console.log); window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installPrompt').classList.add('show'); }); }
-        function installApp() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissInstall(); }); } }
+        function setupPWA() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    reg.addEventListener('updatefound', () => {
+                        const nw = reg.installing;
+                        nw.addEventListener('statechange', () => { if (nw.state === 'installed' && navigator.serviceWorker.controller) showToast('Update available! Refresh.', 'success'); });
+                    });
+                }).catch(console.log);
+            }
+            window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; document.getElementById('installPrompt').classList.add('show'); });
+            window.addEventListener('appinstalled', () => { showToast('Installed!', 'success'); dismissInstall(); });
+        }
+        function installApp() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissInstall(); }); } else showToast('Use browser menu → Add to Home', 'success'); }
         function dismissInstall() { document.getElementById('installPrompt').classList.remove('show'); }
     </script>
 </body>
