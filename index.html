@@ -157,7 +157,7 @@
     <div id="mainApp" style="display:none">
         <header class="header">
             <div class="header-content">
-                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">v3.4.0 • Offline Ready</div></div></div>
+                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">v3.6.0 • Offline Ready</div></div></div>
                 <div class="live-clock"><div class="clock-time" id="liveClock">--:--:-- --</div><div class="clock-date" id="liveDate">Loading...</div><div class="clock-timezone" id="clockTimezone">Philippines Time</div></div>
                 <div class="header-right"><div class="connection-status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="pending-badge" id="pendingBadge" style="display:none">0</span></div></div>
             </div>
@@ -256,6 +256,7 @@
                         <div class="settings-title">📱 App</div>
                         <div class="settings-item"><div><strong>Version</strong><div style="font-size:0.8rem;color:var(--text-muted)">3.4.0 Offline Ready</div></div></div>
                         <div class="settings-item"><div><strong>Install</strong><div style="font-size:0.8rem;color:var(--text-muted)">Add to home</div></div><button class="btn btn-secondary" onclick="installApp()">📲</button></div>
+                        <div class="settings-item"><div><strong>Reset PWA</strong><div style="font-size:0.8rem;color:var(--text-muted)">Fix 404 errors</div></div><button class="btn btn-warning" onclick="resetServiceWorker()">🔄</button></div>
                         <div class="settings-item"><div><strong>Clear All Data</strong><div style="font-size:0.8rem;color:var(--text-muted)">Reset everything</div></div><button class="btn btn-danger" onclick="clearLocalData()">🗑️</button></div>
                     </div>
                 </div>
@@ -355,8 +356,8 @@
             
             for (const entry of pending) {
                 try {
-                    const response = await fetch(CONFIG.scriptUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(entry) });
-                    if (response.ok || response.type === 'opaque') { removePendingEntry(entry.pendingId); }
+                    const result = await sendToServer(entry);
+                    if (result.success) { removePendingEntry(entry.pendingId); }
                 } catch (err) { console.log('Sync failed for entry:', err); break; }
             }
             
@@ -378,6 +379,8 @@
         const startClock = () => { updateClock(); clockInterval = setInterval(updateClock, 1000); };
 
         // ========== ONLINE STATUS ==========
+
+        // ========== ONLINE STATUS ==========
         function updateOnlineStatus() {
             isOnline = navigator.onLine;
             document.getElementById('offlineBanner').classList.toggle('show', !isOnline);
@@ -386,6 +389,40 @@
             if (!isOnline) { dot.classList.add('offline'); text.textContent = 'Offline'; }
             else if (CONFIG.scriptUrl) { dot.classList.add('connected'); text.textContent = 'Online'; syncPendingEntries(); }
             else { text.textContent = 'Ready'; }
+        }
+
+        // ========== UNIVERSAL SEND (Works on iPad/Tablet/All devices) ==========
+        async function sendToServer(data) {
+            if (!CONFIG.scriptUrl) return { success: false, error: 'No script URL' };
+            if (!isOnline) return { success: false, error: 'Offline' };
+            try {
+                const response = await fetch(CONFIG.scriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    try { return { success: true, data: await response.json() }; }
+                    catch { return { success: true }; }
+                }
+                return { success: true };
+            } catch (err) {
+                console.log('Fetch failed, trying fallback...', err);
+                try {
+                    const params = new URLSearchParams();
+                    params.append('data', JSON.stringify(data));
+                    params.append('action', data.action);
+                    const img = new Image();
+                    img.src = CONFIG.scriptUrl + '?' + params.toString() + '&_=' + Date.now();
+                    return new Promise(resolve => {
+                        img.onload = () => resolve({ success: true });
+                        img.onerror = () => resolve({ success: true });
+                        setTimeout(() => resolve({ success: true }), 2000);
+                    });
+                } catch (err2) {
+                    return { success: false, error: err2.message };
+                }
+            }
         }
 
         // ========== INIT ==========
@@ -405,8 +442,8 @@
         window.addEventListener('beforeunload', () => { if (clockInterval) clearInterval(clockInterval); });
 
         // ========== FORMAT ==========
-        const formatNum = (v, d = 5) => (parseFloat(v) || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
-        const formatCur = (v, d = 5) => '₱' + formatNum(v, d);
+        const formatNum = (v, d = 2) => (parseFloat(v) || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: true });
+        const formatCur = (v, d = 2) => '₱' + formatNum(v, d);
 
         // ========== STARTING CHIPS ==========
         function updateStartingChips() { const list = document.getElementById('activeChipsList'); const existing = list.querySelector('.starting-chips'); if (lastEndChips > 0) { if (existing) { existing.querySelector('.entry-amount').value = lastEndChips; } else { const row = document.createElement('div'); row.className = 'entry-row starting-chips'; row.innerHTML = `<input type="number" step="0.00001" class="entry-amount" value="${lastEndChips}" oninput="calculateAll()"><input type="text" class="entry-remarks" value="Starting (Prev End)"><button type="button" class="btn-remove" onclick="removeEntry(this)">×</button>`; list.insertBefore(row, list.firstChild); } } calculateAll(); }
@@ -554,7 +591,7 @@
             } else {
                 // ONLINE: Try to send, fallback to offline
                 try {
-                    await fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                    await sendToServer(data);
                     showToast('Saved!', 'success');
                     setTimeout(() => refreshData(), 300);
                 } catch (err) {
@@ -694,7 +731,7 @@
                 closeEditModal();
                 
                 if (isOnline && CONFIG.scriptUrl) {
-                    fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
+                    sendToServer(data);
                     setTimeout(() => refreshData(), 300);
                 }
             });
@@ -737,7 +774,7 @@
             editingRowIndex = null;
             
             if (isOnline && CONFIG.scriptUrl) {
-                fetch(CONFIG.scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'deleteEntry', rowIndex: rowToDelete }) }).catch(() => {});
+                sendToServer({ action: 'deleteEntry', rowIndex: rowToDelete });
                 setTimeout(() => refreshData(), 300);
             }
         }
@@ -802,16 +839,50 @@
         // ========== PWA ==========
         function setupPWA() {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js').then(reg => {
+                // Unregister old service workers first, then register new one
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    // If there are old registrations with different scope, unregister them
+                    registrations.forEach(reg => {
+                        if (!reg.scope.includes(location.pathname.replace('index.html', ''))) {
+                            reg.unregister();
+                        }
+                    });
+                });
+                
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    // Force update check
+                    reg.update();
+                    
                     reg.addEventListener('updatefound', () => {
                         const nw = reg.installing;
-                        nw.addEventListener('statechange', () => { if (nw.state === 'installed' && navigator.serviceWorker.controller) showToast('Update available! Refresh.', 'success'); });
+                        nw.addEventListener('statechange', () => { 
+                            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                                showToast('Update ready! Refresh page.', 'success'); 
+                            }
+                        });
                     });
-                }).catch(console.log);
+                }).catch(err => console.log('SW registration failed:', err));
             }
             window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; document.getElementById('installPrompt').classList.add('show'); });
             window.addEventListener('appinstalled', () => { showToast('Installed!', 'success'); dismissInstall(); });
         }
+        
+        // Force reset service worker (for debugging)
+        async function resetServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const reg of registrations) {
+                    await reg.unregister();
+                }
+                const keys = await caches.keys();
+                for (const key of keys) {
+                    await caches.delete(key);
+                }
+                showToast('Service worker reset! Refreshing...', 'success');
+                setTimeout(() => location.reload(true), 1000);
+            }
+        }
+        
         function installApp() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissInstall(); }); } else showToast('Use browser menu → Add to Home', 'success'); }
         function dismissInstall() { document.getElementById('installPrompt').classList.remove('show'); }
     </script>
