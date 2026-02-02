@@ -157,7 +157,7 @@
     <div id="mainApp" style="display:none">
         <header class="header">
             <div class="header-content">
-                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">v3.7.1 • Stable</div></div></div>
+                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">v3.7.3 • Stable</div></div></div>
                 <div class="live-clock"><div class="clock-time" id="liveClock">--:--:-- --</div><div class="clock-date" id="liveDate">Loading...</div><div class="clock-timezone" id="clockTimezone">Philippines Time</div></div>
                 <div class="header-right"><div class="connection-status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="pending-badge" id="pendingBadge" style="display:none">0</span></div></div>
             </div>
@@ -250,14 +250,12 @@
                     <div class="settings-group">
                         <div class="settings-title">📴 Offline Data</div>
                         <div class="settings-item"><div><strong>Pending Entries</strong><div style="font-size:0.8rem;color:var(--text-muted)" id="pendingCount">0 entries waiting to sync</div></div><button class="btn btn-warning" onclick="syncPendingEntries()">🔄 Sync Now</button></div>
-                        <div class="settings-item"><div><strong>Cached Data</strong><div style="font-size:0.8rem;color:var(--text-muted)" id="cachedCount">0 entries cached</div></div><button class="btn btn-secondary" onclick="clearCache()">🗑️ Clear</button></div>
                     </div>
                     <div class="settings-group">
                         <div class="settings-title">📱 App</div>
-                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:0.8rem;color:var(--text-muted)">3.4.0 Offline Ready</div></div></div>
+                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:0.8rem;color:var(--text-muted)">3.7.3 Stable</div></div></div>
                         <div class="settings-item"><div><strong>Install</strong><div style="font-size:0.8rem;color:var(--text-muted)">Add to home</div></div><button class="btn btn-secondary" onclick="installApp()">📲</button></div>
-                        <div class="settings-item"><div><strong>Reset PWA</strong><div style="font-size:0.8rem;color:var(--text-muted)">Fix 404 errors</div></div><button class="btn btn-warning" onclick="resetServiceWorker()">🔄</button></div>
-                        <div class="settings-item"><div><strong>Clear All Data</strong><div style="font-size:0.8rem;color:var(--text-muted)">Reset everything</div></div><button class="btn btn-danger" onclick="clearLocalData()">🗑️</button></div>
+                        <div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:0.8rem;color:var(--text-muted)">Ctrl+Shift+R</div></div><button class="btn btn-primary" onclick="hardRefresh()" style="background:var(--gradient-success);color:#fff">🔃</button></div>
                     </div>
                 </div>
             </div>
@@ -856,6 +854,7 @@
             window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; document.getElementById('installPrompt').classList.add('show'); });
             window.addEventListener('appinstalled', () => { showToast('Installed!', 'success'); dismissInstall(); });
         }
+        function hardRefresh() { showToast('Refreshing...', 'success'); setTimeout(() => location.reload(true), 300); }
         async function resetServiceWorker() { if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); for (const r of regs) await r.unregister(); const keys = await caches.keys(); for (const k of keys) await caches.delete(k); showToast('Reset! Refreshing...', 'success'); setTimeout(() => location.reload(true), 1000); } }
         function installApp() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissInstall(); }); } else showToast('Use browser menu → Add to Home', 'success'); }
         function dismissInstall() { document.getElementById('installPrompt').classList.remove('show'); }
