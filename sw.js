@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wackybuds-cfr-v3.7.1';
+const CACHE_NAME = 'wackybuds-cfr-v3.7.3';
 
 self.addEventListener('install', e => {
     e.waitUntil(
