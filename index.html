@@ -157,7 +157,7 @@
     <div id="mainApp" style="display:none">
         <header class="header">
             <div class="header-content">
-                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">v3.7.5 • Stable</div></div></div>
+                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-subtitle">v3.7.6 • Stable</div></div></div>
                 <div class="live-clock"><div class="clock-time" id="liveClock">--:--:-- --</div><div class="clock-date" id="liveDate">Loading...</div><div class="clock-timezone" id="clockTimezone">Philippines Time</div></div>
                 <div class="header-right"><div class="connection-status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="pending-badge" id="pendingBadge" style="display:none">0</span></div></div>
             </div>
@@ -253,7 +253,7 @@
                     </div>
                     <div class="settings-group">
                         <div class="settings-title">📱 App</div>
-                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:0.8rem;color:var(--text-muted)">3.7.5 Stable</div></div></div>
+                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:0.8rem;color:var(--text-muted)">3.7.6 Stable</div></div></div>
                         <div class="settings-item"><div><strong>Install</strong><div style="font-size:0.8rem;color:var(--text-muted)">Add to home</div></div><button class="btn btn-secondary" onclick="installApp()">📲</button></div>
                         <div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:0.8rem;color:var(--text-muted)">Ctrl+Shift+R</div></div><button class="btn btn-primary" onclick="hardRefresh()" style="background:var(--gradient-success);color:#fff">🔃</button></div>
                     </div>
@@ -312,7 +312,7 @@
         let filterCalendarDate = new Date(), filterCalendarType = null;
         let selectedFilterStartDate = localStorage.getItem('cfr_filter_start') ? new Date(localStorage.getItem('cfr_filter_start')) : null;
         let selectedFilterEndDate = localStorage.getItem('cfr_filter_end') ? new Date(localStorage.getItem('cfr_filter_end')) : null;
-        let editingRowIndex = null, editingEntry = null, isOnline = navigator.onLine, isSyncing = false;
+        let editingRowIndex = null, editingEntry = null, isOnline = navigator.onLine, isSyncing = false, isSubmitting = false;
         const SHIFT_ORDER = { '12:00PM - 8:00PM': 1, '8:00PM - 4:00AM': 2, '4:00AM - 12:00PM': 3 };
 
         // ========== UNIVERSAL DATA SENDER (Works on iPad/iPhone/Android/Desktop) ==========
@@ -559,11 +559,7 @@
         function setupFormSubmit() { 
             const form = document.getElementById('entryForm');
             form.addEventListener('submit', handleSubmit);
-            // Also add touchend handler for iPad
-            document.getElementById('submitBtn').addEventListener('touchend', function(e) {
-                e.preventDefault();
-                form.dispatchEvent(new Event('submit', { cancelable: true }));
-            });
+            
         }
         
         async function handleSubmit(e) {
@@ -573,7 +569,8 @@
             if (!validateForm()) { showToast('Fill required fields', 'error'); return; }
             
             const btn = document.getElementById('submitBtn');
-            if (btn.disabled) return; // Prevent double submit
+            if (btn.disabled || isSubmitting) return;
+            isSubmitting = true;
             btn.innerHTML = '<div class="spinner"></div>'; btn.disabled = true;
             
             const activeTotal = getEntrySum('activeChipsList'), endTotal = getEntrySum('endChipsList');
@@ -604,7 +601,7 @@
             addPendingEntry(data);
             showToast('Saving...', 'success');
             clearForm();
-            btn.innerHTML = '💾 Save Entry'; btn.disabled = false;
+            setTimeout(() => { btn.innerHTML = '💾 Save Entry'; btn.disabled = false; isSubmitting = false; }, 1000);
             
             // Then try to sync immediately if online
             if (isOnline && CONFIG.scriptUrl) {
