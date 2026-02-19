@@ -1,50 +1,10 @@
-const CACHE_NAME = 'wackybuds-cfr-v3.7.6';
-
-self.addEventListener('install', e => {
-    e.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(['./', './index.html']);
-        }).then(() => self.skipWaiting())
-    );
-});
-
-self.addEventListener('activate', e => {
-    e.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
-        }).then(() => self.clients.claim())
-    );
-});
-
-self.addEventListener('fetch', e => {
-    const url = new URL(e.request.url);
-    if (e.request.method !== 'GET') return;
-    if (url.hostname.includes('script.google.com') || url.hostname.includes('googleapis.com')) return;
-    
-    if (e.request.mode === 'navigate') {
-        e.respondWith(
-            caches.match('./index.html').then(cached => {
-                if (cached) return cached;
-                return fetch('./index.html').then(res => {
-                    const clone = res.clone();
-                    caches.open(CACHE_NAME).then(c => c.put('./index.html', clone));
-                    return res;
-                });
-            }).catch(() => caches.match('./index.html'))
-        );
-        return;
-    }
-    
-    e.respondWith(
-        caches.match(e.request).then(cached => {
-            if (cached) return cached;
-            return fetch(e.request).then(res => {
-                if (res.ok) {
-                    const clone = res.clone();
-                    caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                }
-                return res;
-            });
-        }).catch(() => caches.match('./index.html'))
-    );
+const CACHE='wackybuds-cfr-v3.8.1';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html'])).then(()=>self.skipWaiting()));});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{
+    if(e.request.method!=='GET')return;
+    const u=new URL(e.request.url);
+    if(u.hostname.includes('script.google.com')||u.hostname.includes('googleapis.com'))return;
+    if(e.request.mode==='navigate'){e.respondWith(caches.match('./index.html').then(c=>c||fetch('./index.html')).catch(()=>caches.match('./index.html')));return;}
+    e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{if(r.ok){const cl=r.clone();caches.open(CACHE).then(ca=>ca.put(e.request,cl));}return r;})).catch(()=>caches.match('./index.html')));
 });
