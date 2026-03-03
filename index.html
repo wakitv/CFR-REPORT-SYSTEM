@@ -130,7 +130,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
     <div id="app" style="display:none">
         <header class="header">
             <div class="header-content">
-                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v3.8.1 • NO DUPLICATES</div></div></div>
+                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v3.8.3 • STABLE</div></div></div>
                 <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
                 <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
             </div>
@@ -214,7 +214,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
                     </div>
                     <div class="settings-group">
                         <div class="settings-title">📱 App</div>
-                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">3.8.1 No Duplicates</div></div></div>
+                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">3.8.3 Stable</div></div></div>
                         <div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:.75rem;color:var(--muted)">Clear cache & reload</div></div><button class="btn btn-green" onclick="hardRefresh()">🔃</button></div>
                     </div>
                 </div>
@@ -263,7 +263,7 @@ const CFG={url:localStorage.getItem('cfr_url')||'',tz:'Asia/Manila'};
 let data=[],filtered=[],lastEnd=parseFloat(localStorage.getItem('cfr_last_end'))||0;
 let calDate=new Date(),selDate=new Date(),calTarget=null;
 let editIdx=null,editEntry=null,isOnline=navigator.onLine,isSyncing=false,isSubmitting=false;
-const SHIFT={'12:00PM - 8:00PM':1,'8:00PM - 4:00AM':2,'4:00AM - 12:00PM':3};
+const SHIFT={'4:00AM - 12:00PM':1,'8:00PM - 4:00AM':2,'12:00PM - 8:00PM':3};
 const STORE={pending:'cfr_pending',cache:'cfr_cache',synced:'cfr_synced_ids'};
 
 // ===== UTILS =====
@@ -321,7 +321,7 @@ async function send(d){
     }
 }
 
-// ===== SYNC PENDING - NO DUPLICATES =====
+// ===== SYNC PENDING - STABLE =====
 async function syncNow(){
     if(!CFG.url||!isOnline||isSyncing)return;
     const pending=getPending();
@@ -377,11 +377,15 @@ function updStatus(){
 // Auto sync when coming online
 let syncTimeout=null;
 function onOnline(){
-    updStatus();
-    // Debounce sync to prevent multiple calls
-    if(syncTimeout)clearTimeout(syncTimeout);
-    syncTimeout=setTimeout(()=>{if(isOnline&&CFG.url)syncNow();},1000);
+    isOnline=true;updStatus();
+    const pending=getPending();
+    if(pending.length>0&&CFG.url){
+        toast("Back online! Syncing...");
+        if(syncTimeout)clearTimeout(syncTimeout);
+        syncTimeout=setTimeout(syncNow,500);
+    }
 }
+
 
 // ===== CLOCK =====
 function updClock(){$('clock').textContent=fmtTime();$('date').textContent=fmtDateFull();}
@@ -478,7 +482,7 @@ function validate(){
     return ok;
 }
 
-// ===== FORM SUBMIT - NO DUPLICATES =====
+// ===== FORM SUBMIT - STABLE =====
 $('entryForm').onsubmit=async e=>{
     e.preventDefault();
     if(!validate()){toast('Fill required fields','error');return;}
@@ -566,7 +570,7 @@ async function loadData(){
             const serverData=json.entries||[];
             data=[...serverData,...pending.filter(p=>!isSynced(p.uniqueId)).map(p=>({...p,pending:true}))];
             if(data.length>0){
-                const sorted=[...data].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT[b.shift]||0)-(SHIFT[a.shift]||0));
+                const sorted=[...data].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT[a.shift]||0)-(SHIFT[b.shift]||0));
                 if(sorted[0]?.endChipsTotal!==undefined){setLastEnd(sorted[0].endChipsTotal);updStarting();}
             }
             filterData();updLoaderFilter();
@@ -585,7 +589,7 @@ function filterData(){
     const start=$('filterStart').dataset.value,end=$('filterEnd').dataset.value;
     if(start&&end){const s=new Date(start),e=new Date(end);s.setHours(0,0,0,0);e.setHours(23,59,59,999);d=d.filter(x=>{const dt=new Date(x.date);return dt>=s&&dt<=e;});}
     else if(start||end){const fd=new Date(start||end);d=d.filter(x=>new Date(x.date).toDateString()===fd.toDateString());}
-    d.sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT[b.shift]||0)-(SHIFT[a.shift]||0));
+    d.sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT[a.shift]||0)-(SHIFT[b.shift]||0));
     filtered=d;renderTable();
 }
 
@@ -659,6 +663,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     initCal();pickDate(new Date());updStarting();
     if(CFG.url){$('scriptUrl').value=CFG.url;loadData();}else loadCached();
     setTimeout(()=>{$('loading').style.display='none';$('app').style.display='block';},300);
+    // Periodic sync check every 30 seconds
+    setInterval(()=>{if(isOnline&&CFG.url&&!isSyncing&&getPending().length>0)syncNow();},30000);
 });
 </script>
 </body>
