@@ -115,7 +115,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
     <div id="app" style="display:none">
         <header class="header">
             <div class="header-content">
-                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.0.0 • STABLE</div></div></div>
+                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.0.1 • STABLE</div></div></div>
                 <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
                 <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
             </div>
@@ -200,7 +200,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
                     </div>
                     <div class="settings-group">
                         <div class="settings-title">📱 App</div>
-                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">5.0.0 Stable</div></div></div>
+                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">5.0.1 Stable</div></div></div>
                         <div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:.75rem;color:var(--muted)">Clear cache & reload</div></div><button class="btn btn-green" onclick="hardRefresh()">🔃</button></div>
                         <div class="settings-item"><div><strong>Clear All Data</strong><div style="font-size:.75rem;color:var(--muted)">Reset local storage</div></div><button class="btn btn-danger" onclick="clearAllData()">🗑️</button></div>
                     </div>
@@ -240,7 +240,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
     </div>
 <script>
 // ===============================================
-// WACKYBUDS CFR v5.0.0 - COMPLETE REWRITE
+// WACKYBUDS CFR v5.0.1 - COMPLETE REWRITE
 // ===============================================
 // Features:
 // - No duplicate entries (uniqueId tracking)
@@ -721,11 +721,30 @@ function loadLocalData() {
 }
 
 async function loadData() {
-    if (!CONFIG.url) { showToast('Set URL in Settings', 'warning'); loadLocalData(); return; }
-    if (!isOnline) { showToast('Offline', 'warning'); loadLocalData(); return; }
+    if (!CONFIG.url) { 
+        showToast('Set URL in Settings', 'warning'); 
+        loadLocalData(); 
+        return; 
+    }
+    if (!isOnline) { 
+        showToast('Offline - showing cached data', 'warning'); 
+        loadLocalData(); 
+        return; 
+    }
+    
+    // Show loading feedback
+    showToast('Loading...');
     
     try {
-        const response = await fetch(`${CONFIG.url}?action=getData&_=${Date.now()}`);
+        const response = await fetch(`${CONFIG.url}?action=getData&_=${Date.now()}`, {
+            method: 'GET',
+            mode: 'cors'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Server returned ' + response.status);
+        }
+        
         const text = await response.text();
         
         let json;
@@ -733,7 +752,7 @@ async function loadData() {
             json = JSON.parse(text);
         } catch (parseErr) {
             console.log('Parse error:', parseErr, 'Response:', text.substring(0, 500));
-            showToast('Invalid response', 'error');
+            showToast('Invalid server response', 'error');
             loadLocalData();
             return;
         }
@@ -758,31 +777,45 @@ async function loadData() {
                 uniqueId: e.uniqueId || ''
             }));
             
+            // Save to cache
             saveCache(serverEntries);
             
+            // Merge with pending entries
             const pending = getPending().filter(e => !wasSent(e.uniqueId));
             allData = [...pending.map(p => ({ ...p, pending: true })), ...serverEntries];
+            
+            // Update UI
             filterData();
             updateLoaderFilter();
             
+            // Get last end chips from most recent entry
             const sorted = [...allData].filter(e => !e.pending).sort((a, b) => 
                 new Date(b.date) - new Date(a.date) || 
                 (SHIFT_DISPLAY_ORDER[a.shift] || 0) - (SHIFT_DISPLAY_ORDER[b.shift] || 0)
             );
-            if (sorted[0]?.endChipsTotal !== undefined) setLastEndChips(sorted[0].endChipsTotal);
+            if (sorted[0]?.endChipsTotal !== undefined) {
+                setLastEndChips(sorted[0].endChipsTotal);
+            }
             
             setNextEntry();
             updateStartingChips();
             updatePendingUI();
             showToast(`✓ Loaded ${serverEntries.length} entries!`);
+        } else if (json.success && !json.entries) {
+            // No entries yet
+            saveCache([]);
+            allData = getPending().filter(e => !wasSent(e.uniqueId)).map(p => ({ ...p, pending: true }));
+            filterData();
+            updateLoaderFilter();
+            showToast('No entries found');
         } else {
             console.log('Server response:', json);
-            showToast(json.message || 'Load failed', 'error');
+            showToast(json.message || json.error || 'Load failed', 'error');
             loadLocalData();
         }
     } catch (err) {
         console.log('Load error:', err);
-        showToast('Connection error', 'error');
+        showToast('Connection error: ' + err.message, 'error');
         loadLocalData();
     }
 }
@@ -911,7 +944,7 @@ function saveEdit(e) {
     e.preventDefault();
     if (!currentEditRow) return;
     
-    const data = {
+    const updatedData = {
         action: 'updateEntry',
         rowIndex: currentEditRow,
         date: $('editDate').value,
@@ -928,9 +961,19 @@ function saveEdit(e) {
         remarks: $('editRemarks').value
     };
     
-    // Update local data
-    const idx = allData.findIndex(e => e.rowIndex === currentEditRow);
-    if (idx !== -1) Object.assign(allData[idx], data);
+    // Update local allData
+    const idx = allData.findIndex(entry => entry.rowIndex === currentEditRow);
+    if (idx !== -1) {
+        Object.assign(allData[idx], updatedData);
+    }
+    
+    // Update cache as well
+    const cache = getCache();
+    const cacheIdx = cache.findIndex(entry => entry.rowIndex === currentEditRow);
+    if (cacheIdx !== -1) {
+        Object.assign(cache[cacheIdx], updatedData);
+        saveCache(cache);
+    }
     
     filterData();
     showToast('Updated!');
@@ -938,7 +981,18 @@ function saveEdit(e) {
     
     // Send to server
     if (isOnline && CONFIG.url) {
-        fetch(CONFIG.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(data) }).catch(() => {});
+        fetch(CONFIG.url, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain' }, 
+            body: JSON.stringify(updatedData) 
+        })
+        .then(res => res.json())
+        .then(json => {
+            if (!json.success) {
+                showToast('Server error', 'error');
+            }
+        })
+        .catch(() => showToast('Sync failed', 'warning'));
     }
 }
 
@@ -955,24 +1009,40 @@ function confirmDelete() {
     if (!currentEditRow) return;
     
     const rowToDelete = currentEditRow;
-    allData = allData.filter(e => e.rowIndex !== rowToDelete);
+    
+    // Remove from local allData
+    allData = allData.filter(entry => entry.rowIndex !== rowToDelete);
+    
+    // Remove from cache
+    const cache = getCache();
+    const updatedCache = cache.filter(entry => entry.rowIndex !== rowToDelete);
+    saveCache(updatedCache);
+    
     filterData();
     showToast('Deleted!');
     closeDeleteModal();
-    
-    if (isOnline && CONFIG.url) {
-        fetch(CONFIG.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'deleteEntry', rowIndex: rowToDelete }) }).catch(() => {});
-    }
     currentEditRow = null;
+    
+    // Send to server and reload data to get fresh row indices
+    if (isOnline && CONFIG.url) {
+        fetch(CONFIG.url, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain' }, 
+            body: JSON.stringify({ action: 'deleteEntry', rowIndex: rowToDelete }) 
+        })
+        .then(res => res.json())
+        .then(json => {
+            if (json.success) {
+                // Reload data from server to get updated row indices
+                // (because deleting a row shifts all subsequent row numbers)
+                setTimeout(() => loadData(), 500);
+            } else {
+                showToast('Server error', 'error');
+            }
+        })
+        .catch(() => showToast('Sync failed', 'warning'));
+    }
 }
-
-// ===============================================
-// SETTINGS
-// ===============================================
-function saveUrl() {
-    const url = $('scriptUrl').value.trim();
-    if (url) {
-        CONFIG.url = url;
         localStorage.setItem('cfr_url', url);
         showToast('Saved!');
         updateStatus();
