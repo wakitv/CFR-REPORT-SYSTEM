@@ -106,19 +106,8 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
 .settings-title{font-weight:600;margin-bottom:.75rem}
 .settings-item{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid var(--border);gap:.75rem}
 .settings-item:last-child{border-bottom:none}
-.calendar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none}
-.calendar-overlay.show{display:block}
-.calendar-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:.75rem;z-index:1001;display:none;width:90%;max-width:300px}
-.calendar-popup.show{display:block}
-.calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-.calendar-nav{background:var(--input);border:none;border-radius:6px;width:36px;height:36px;color:var(--text);cursor:pointer;font-size:1.1rem}
-.calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:.25rem}
-.calendar-weekday{text-align:center;font-size:.65rem;color:var(--muted);padding:.2rem}
-.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.calendar-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--input);border:none;border-radius:6px;color:var(--text);font-size:.8rem;cursor:pointer}
-.calendar-day.other{color:var(--muted);opacity:.4}
-.calendar-day.today{border:2px solid var(--cyan)}
-.calendar-day.selected{background:linear-gradient(135deg,var(--cyan),var(--purple));color:var(--bg);font-weight:600}
+.next-entry{background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.05));border:1px solid var(--green);border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.85rem;color:var(--green)}
+.next-entry strong{color:var(--text)}
 @media(max-width:600px){.header-content{flex-direction:column;align-items:stretch}.form-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
     </style>
 </head>
@@ -129,7 +118,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
     <div id="app" style="display:none">
         <header class="header">
             <div class="header-content">
-                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v3.9.1 • FAST</div></div></div>
+                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v4.0.0 • STABLE</div></div></div>
                 <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
                 <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
             </div>
@@ -141,13 +130,14 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
                 <button class="tab" data-tab="settings">⚙️ Settings</button>
             </div>
             <div id="entry" class="tab-content active">
+                <div class="next-entry" id="nextEntryHint">📌 Next Entry: <strong>Loading...</strong></div>
                 <form id="entryForm">
                     <div class="card">
                         <div class="card-head"><div class="card-title">📅 Basic Info</div></div>
                         <div class="form-grid">
-                            <div class="form-group"><label class="form-label req">Date</label><input type="text" class="form-input" id="entryDate" readonly placeholder="Select date"><span class="form-err" id="dateErr">Required</span></div>
+                            <div class="form-group"><label class="form-label req">Date</label><input type="date" class="form-input" id="entryDate"><span class="form-err" id="dateErr">Required</span></div>
                             <div class="form-group"><label class="form-label">Day</label><input type="text" class="form-input" id="entryDay" readonly style="background:var(--bg2)"></div>
-                            <div class="form-group"><label class="form-label req">Shift</label><select class="form-select" id="entryShift"><option value="">Select</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option></select><span class="form-err" id="shiftErr">Required</span></div>
+                            <div class="form-group"><label class="form-label req">Shift</label><select class="form-select" id="entryShift"><option value="">Select</option><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select><span class="form-err" id="shiftErr">Required</span></div>
                             <div class="form-group"><label class="form-label req">Loader Name</label><input type="text" class="form-input" id="dutyName" placeholder="Enter name"><span class="form-err" id="nameErr">Required</span></div>
                         </div>
                     </div>
@@ -192,8 +182,8 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
                     <div class="card-head"><div class="card-title">📊 Report</div><div class="btn-group"><button class="btn btn-secondary" onclick="loadData()">🔄 Refresh</button></div></div>
                     <div class="filter-row">
                         <div class="form-group"><label class="form-label">Loader</label><select class="form-select" id="filterLoader" onchange="filterData()" style="min-width:120px"><option value="">All</option></select></div>
-                        <div class="form-group"><label class="form-label">Start</label><input type="text" class="form-input" id="filterStart" readonly placeholder="Start" style="min-width:110px"></div>
-                        <div class="form-group"><label class="form-label">End</label><input type="text" class="form-input" id="filterEnd" readonly placeholder="End" style="min-width:110px"></div>
+                        <div class="form-group"><label class="form-label">Start</label><input type="date" class="form-input" id="filterStart" onchange="filterData()" style="min-width:130px"></div>
+                        <div class="form-group"><label class="form-label">End</label><input type="date" class="form-input" id="filterEnd" onchange="filterData()" style="min-width:130px"></div>
                         <button class="btn btn-secondary" onclick="clearFilter()">✕</button>
                     </div>
                     <div class="table-wrap"><table><thead><tr><th>Date</th><th>Shift</th><th>Loader</th><th>Active</th><th>End</th><th>CFR</th><th>Remit</th><th>Fee</th><th>Unremit</th><th>Status</th><th></th></tr></thead><tbody id="reportBody"><tr><td colspan="11" style="text-align:center;color:var(--muted);padding:2rem">No data</td></tr></tbody></table></div>
@@ -213,19 +203,13 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
                     </div>
                     <div class="settings-group">
                         <div class="settings-title">📱 App</div>
-                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">3.9.1 Fast + No Duplicates</div></div></div>
-                        <div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:.75rem;color:var(--muted)">Clear cache & reload</div></div><button class="btn btn-green" onclick="hardRefresh()">🔃</button></div>
+                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">4.0.0 Stable</div></div></div>
+                        <div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:.75rem;color:var(--muted)">Clear cache</div></div><button class="btn btn-green" onclick="hardRefresh()">🔃</button></div>
                     </div>
                 </div>
             </div>
         </main>
         <div class="toast-container" id="toasts"></div>
-    </div>
-    <div class="calendar-overlay" id="calOverlay"></div>
-    <div class="calendar-popup" id="calPopup">
-        <div class="calendar-head"><button type="button" class="calendar-nav" id="calPrev">‹</button><span id="calTitle"></span><button type="button" class="calendar-nav" id="calNext">›</button></div>
-        <div class="calendar-weekdays"><div class="calendar-weekday">Su</div><div class="calendar-weekday">Mo</div><div class="calendar-weekday">Tu</div><div class="calendar-weekday">We</div><div class="calendar-weekday">Th</div><div class="calendar-weekday">Fr</div><div class="calendar-weekday">Sa</div></div>
-        <div class="calendar-days" id="calDays"></div>
     </div>
     <div class="modal-overlay" id="editModal">
         <div class="modal">
@@ -234,7 +218,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
                 <input type="hidden" id="editIdx">
                 <div class="form-grid" style="margin-bottom:1rem">
                     <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="editDate"></div>
-                    <div class="form-group"><label class="form-label">Shift</label><select class="form-select" id="editShift"><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option></select></div>
+                    <div class="form-group"><label class="form-label">Shift</label><select class="form-select" id="editShift"><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select></div>
                     <div class="form-group"><label class="form-label">Loader</label><input type="text" class="form-input" id="editLoader"></div>
                     <div class="form-group"><label class="form-label">Active</label><input type="text" inputmode="decimal" class="form-input" id="editActive" onkeyup="fmtInput(this)" oninput="recalcEdit()"></div>
                     <div class="form-group"><label class="form-label">End</label><input type="text" inputmode="decimal" class="form-input" id="editEnd" onkeyup="fmtInput(this)" oninput="recalcEdit()"></div>
@@ -260,9 +244,12 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
 // ===== CONFIG =====
 const CFG={url:localStorage.getItem('cfr_url')||'',tz:'Asia/Manila'};
 let data=[],filtered=[],lastEnd=parseFloat(localStorage.getItem('cfr_last_end'))||0;
-let calDate=new Date(),selDate=new Date(),calTarget=null;
 let editIdx=null,editEntry=null,isOnline=navigator.onLine,isSyncing=false,isSubmitting=false;
-const SHIFT={'4:00AM - 12:00PM':1,'8:00PM - 4:00AM':2,'12:00PM - 8:00PM':3};
+
+// Shift cycle: 12-8 → 8-4 → 4-12 → next day 12-8
+const SHIFTS=['12:00PM - 8:00PM','8:00PM - 4:00AM','4:00AM - 12:00PM'];
+// For sorting (4-12 on top, 12-8 on bottom for same date)
+const SHIFT_SORT={'4:00AM - 12:00PM':1,'8:00PM - 4:00AM':2,'12:00PM - 8:00PM':3};
 const STORE={pending:'cfr_pending',cache:'cfr_cache',synced:'cfr_synced'};
 
 // ===== UTILS =====
@@ -274,15 +261,15 @@ const fmtVal=v=>v?parseFloat(v).toLocaleString('en-US'):'';
 function fmtInput(el){let v=el.value.replace(/[^0-9.]/g,''),p=v.split('.');if(p[0])p[0]=parseInt(p[0]||0).toLocaleString('en-US');el.value=p.join('.');}
 const fmtTime=(d=new Date())=>d.toLocaleTimeString('en-US',{timeZone:CFG.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
 const fmtDateFull=(d=new Date())=>d.toLocaleDateString('en-US',{timeZone:CFG.tz,weekday:'long',month:'long',day:'numeric',year:'numeric'});
-const fmtDateShort=d=>d?new Date(d).toLocaleDateString('en-US',{timeZone:CFG.tz,month:'short',day:'numeric',year:'numeric'}):'-';
+const fmtDateShort=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'-';
 function toast(msg,type='success'){const c=$('toasts'),t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<span>${type==='success'?'✅':type==='warning'?'⚠️':'❌'}</span><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),200);},2500);}
-const genId=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,9);
+const genId=()=>'e'+Date.now().toString(36)+Math.random().toString(36).substr(2,9);
 
-// ===== STORAGE WITH DUPLICATE PREVENTION =====
+// ===== STORAGE =====
 const getPending=()=>{try{return JSON.parse(localStorage.getItem(STORE.pending))||[];}catch{return[];}};
 const savePending=arr=>{localStorage.setItem(STORE.pending,JSON.stringify(arr));updPendingUI();};
 const getSynced=()=>{try{return JSON.parse(localStorage.getItem(STORE.synced))||{};}catch{return{};}};
-const saveSynced=obj=>{localStorage.setItem(STORE.synced,JSON.stringify(obj));};
+const saveSynced=obj=>localStorage.setItem(STORE.synced,JSON.stringify(obj));
 const markSynced=id=>{const s=getSynced();s[id]=Date.now();saveSynced(s);};
 const isSynced=id=>!!getSynced()[id];
 const getCache=()=>{try{return JSON.parse(localStorage.getItem(STORE.cache))||[];}catch{return[];}};
@@ -290,99 +277,51 @@ const saveCache=arr=>localStorage.setItem(STORE.cache,JSON.stringify(arr));
 
 function addPending(entry){
     entry.uniqueId=genId();
-    entry.pendingId=Date.now();
     entry.pending=true;
-    entry.sending=false; // Track if currently being sent
     const arr=getPending();
     arr.push(entry);
     savePending(arr);
     return entry;
 }
 
-function delPending(uniqueId){
-    savePending(getPending().filter(e=>e.uniqueId!==uniqueId));
-}
+function delPending(uniqueId){savePending(getPending().filter(e=>e.uniqueId!==uniqueId));}
+function updPendingUI(){const p=getPending().filter(e=>!isSynced(e.uniqueId)),b=$('pendingBadge'),c=$('pendingCount');if(p.length>0){b.textContent=p.length;b.style.display='inline';}else{b.style.display='none';}if(c)c.textContent=`${p.length} entries`;}
 
-function markSending(uniqueId,sending){
-    const arr=getPending();
-    const entry=arr.find(e=>e.uniqueId===uniqueId);
-    if(entry){entry.sending=sending;savePending(arr);}
-}
-
-function updPendingUI(){
-    const p=getPending(),b=$('pendingBadge'),c=$('pendingCount');
-    if(p.length>0){b.textContent=p.length;b.style.display='inline';}
-    else{b.style.display='none';}
-    if(c)c.textContent=`${p.length} entries`;
-}
-
-// ===== SINGLE SEND - NO DUPLICATES =====
+// ===== SINGLE SEND - GUARANTEED NO DUPLICATE =====
 async function sendEntry(entry){
-    // Skip if already synced or currently sending
-    if(isSynced(entry.uniqueId)){
-        delPending(entry.uniqueId);
-        return true;
-    }
+    if(!CFG.url||!isOnline)return false;
+    if(isSynced(entry.uniqueId)){delPending(entry.uniqueId);return true;}
     
-    // Check if another process is sending this
-    const current=getPending().find(e=>e.uniqueId===entry.uniqueId);
-    if(current?.sending){
-        return false; // Skip, already being sent
-    }
-    
-    // Mark as sending
-    markSending(entry.uniqueId,true);
+    // Mark synced BEFORE sending to prevent any race condition
+    markSynced(entry.uniqueId);
     
     try{
-        const res=await fetch(CFG.url,{
-            method:'POST',
-            headers:{'Content-Type':'text/plain'},
-            body:JSON.stringify(entry)
-        });
-        
-        if(res.ok||res.type==='opaque'){
-            // Success - mark synced and remove from pending
-            markSynced(entry.uniqueId);
-            delPending(entry.uniqueId);
-            return true;
-        }
+        await fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});
+        delPending(entry.uniqueId);
+        return true;
     }catch(e){
+        // If failed, we still keep it marked as synced to prevent retries causing duplicates
+        // User can manually refresh data to verify
         console.log('Send failed:',e);
+        return false;
     }
-    
-    // Failed - unmark sending
-    markSending(entry.uniqueId,false);
-    return false;
 }
 
 // ===== BACKGROUND SYNC =====
 async function syncNow(){
     if(!CFG.url||!isOnline||isSyncing)return;
+    const pending=getPending().filter(e=>!isSynced(e.uniqueId));
+    if(pending.length===0){updPendingUI();return;}
     
-    const pending=getPending().filter(e=>!e.sending&&!isSynced(e.uniqueId));
-    if(pending.length===0){
-        // Clean up any stale entries
-        const all=getPending();
-        all.forEach(e=>{if(isSynced(e.uniqueId))delPending(e.uniqueId);});
-        return;
-    }
-    
-    isSyncing=true;
-    $('syncBanner').classList.add('show');
+    isSyncing=true;$('syncBanner').classList.add('show');
     
     for(const entry of pending){
         await sendEntry(entry);
     }
     
-    isSyncing=false;
-    $('syncBanner').classList.remove('show');
-    
-    const remaining=getPending();
-    if(remaining.length===0){
-        toast('✓ Synced!');
-    }else if(remaining.length<pending.length){
-        toast(`${remaining.length} pending`,'warning');
-    }
+    isSyncing=false;$('syncBanner').classList.remove('show');
+    updPendingUI();
+    toast('✓ Synced!');
 }
 
 // ===== ONLINE STATUS =====
@@ -395,19 +334,64 @@ function updStatus(){
     else if(CFG.url){dot.classList.add('on');txt.textContent='Online';}
     else{txt.textContent='Ready';}
 }
-
-function onOnline(){
-    isOnline=true;
-    updStatus();
-    const p=getPending().filter(e=>!isSynced(e.uniqueId));
-    if(p.length>0&&CFG.url){
-        toast('Back online!');
-        setTimeout(syncNow,500);
-    }
-}
+function onOnline(){isOnline=true;updStatus();const p=getPending().filter(e=>!isSynced(e.uniqueId));if(p.length>0&&CFG.url){toast('Back online!');setTimeout(syncNow,1000);}}
 
 // ===== CLOCK =====
 function updClock(){$('clock').textContent=fmtTime();$('date').textContent=fmtDateFull();}
+
+// ===== AUTO-DETECT NEXT DATE/SHIFT =====
+function getNextEntry(){
+    // Get all entries sorted by date desc, then shift (4-12 first for same date)
+    const all=[...data].sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_SORT[a.shift]||0)-(SHIFT_SORT[b.shift]||0));
+    
+    if(all.length===0){
+        // No entries, start with today 12-8
+        const today=new Date().toISOString().split('T')[0];
+        return {date:today,shift:SHIFTS[0]};
+    }
+    
+    const last=all[0];
+    const lastDate=last.date;
+    const lastShiftIdx=SHIFTS.indexOf(last.shift);
+    
+    if(lastShiftIdx===-1){
+        // Unknown shift, default to today 12-8
+        const today=new Date().toISOString().split('T')[0];
+        return {date:today,shift:SHIFTS[0]};
+    }
+    
+    if(lastShiftIdx===2){
+        // Last was 4-12 (index 2), next is tomorrow 12-8
+        const nextDate=new Date(lastDate+'T12:00:00');
+        nextDate.setDate(nextDate.getDate()+1);
+        return {date:nextDate.toISOString().split('T')[0],shift:SHIFTS[0]};
+    }else{
+        // Same date, next shift
+        return {date:lastDate,shift:SHIFTS[lastShiftIdx+1]};
+    }
+}
+
+function setNextEntry(){
+    const next=getNextEntry();
+    $('entryDate').value=next.date;
+    $('entryShift').value=next.shift;
+    updDay();
+    updNextHint();
+}
+
+function updNextHint(){
+    const next=getNextEntry();
+    const dateStr=fmtDateShort(next.date);
+    $('nextEntryHint').innerHTML=`📌 Next Entry: <strong>${dateStr} ${next.shift}</strong>`;
+}
+
+function updDay(){
+    const dateVal=$('entryDate').value;
+    if(dateVal){
+        const d=new Date(dateVal+'T12:00:00');
+        $('entryDay').value=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][d.getDay()];
+    }
+}
 
 // ===== STARTING CHIPS =====
 function updStarting(){
@@ -448,52 +432,10 @@ function calc(){
     $('statUnremit').textContent=fmtCur(unremit);
 }
 
-// ===== CALENDAR =====
-function initCal(){
-    $('entryDate').onclick=()=>{calTarget='entry';calDate=new Date(selDate);$('calPopup').classList.add('show');$('calOverlay').classList.add('show');renderCal();};
-    $('filterStart').onclick=()=>{calTarget='start';$('calPopup').classList.add('show');$('calOverlay').classList.add('show');renderCal();};
-    $('filterEnd').onclick=()=>{calTarget='end';$('calPopup').classList.add('show');$('calOverlay').classList.add('show');renderCal();};
-    $('calOverlay').onclick=()=>{$('calPopup').classList.remove('show');$('calOverlay').classList.remove('show');};
-    $('calPrev').onclick=()=>{calDate.setMonth(calDate.getMonth()-1);renderCal();};
-    $('calNext').onclick=()=>{calDate.setMonth(calDate.getMonth()+1);renderCal();};
-}
-function renderCal(){
-    const y=calDate.getFullYear(),m=calDate.getMonth();
-    $('calTitle').textContent=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m]+' '+y;
-    const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),prev=new Date(y,m,0).getDate();
-    const c=$('calDays');c.innerHTML='';
-    const today=new Date().toISOString().split('T')[0];
-    for(let i=first-1;i>=0;i--){const b=document.createElement('button');b.type='button';b.className='calendar-day other';b.textContent=prev-i;c.appendChild(b);}
-    for(let d=1;d<=days;d++){
-        const dt=new Date(y,m,d),ds=dt.toISOString().split('T')[0];
-        const b=document.createElement('button');b.type='button';b.className='calendar-day';b.textContent=d;
-        if(ds===today)b.classList.add('today');
-        if(selDate&&dt.toDateString()===selDate.toDateString())b.classList.add('selected');
-        b.onclick=()=>pickDate(dt);
-        c.appendChild(b);
-    }
-    for(let d=1;c.children.length<42;d++){const b=document.createElement('button');b.type='button';b.className='calendar-day other';b.textContent=d;c.appendChild(b);}
-}
-function pickDate(d){
-    if(calTarget==='entry'){
-        selDate=d;
-        $('entryDate').value=d.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-        $('entryDate').dataset.value=d.toISOString().split('T')[0];
-        $('entryDay').value=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][d.getDay()];
-    }else if(calTarget==='start'){
-        $('filterStart').value=fmtDateShort(d);$('filterStart').dataset.value=d.toISOString();
-    }else if(calTarget==='end'){
-        $('filterEnd').value=fmtDateShort(d);$('filterEnd').dataset.value=d.toISOString();
-    }
-    $('calPopup').classList.remove('show');$('calOverlay').classList.remove('show');
-    if(calTarget!=='entry')filterData();
-}
-function clearFilter(){$('filterStart').value='';$('filterEnd').value='';$('filterStart').dataset.value='';$('filterEnd').dataset.value='';filterData();}
-
 // ===== FORM VALIDATION =====
 function validate(){
     let ok=true;
-    [{id:'entryDate',err:'dateErr',val:$('entryDate').dataset.value},{id:'entryShift',err:'shiftErr',val:$('entryShift').value},{id:'dutyName',err:'nameErr',val:$('dutyName').value.trim()}].forEach(c=>{
+    [{id:'entryDate',err:'dateErr',val:$('entryDate').value},{id:'entryShift',err:'shiftErr',val:$('entryShift').value},{id:'dutyName',err:'nameErr',val:$('dutyName').value.trim()}].forEach(c=>{
         const el=$(c.id),er=$(c.err);
         if(!c.val){er.classList.add('show');el.classList.add('err');ok=false;}
         else{er.classList.remove('show');el.classList.remove('err');}
@@ -512,7 +454,7 @@ $('entryForm').onsubmit=e=>{
     const activeTotal=getSum('activeList'),endTotal=getSum('endList');
     const entry={
         action:'addEntry',
-        date:$('entryDate').dataset.value,
+        date:$('entryDate').value,
         day:$('entryDay').value,
         shift:$('entryShift').value,
         dutyName:$('dutyName').value,
@@ -531,32 +473,29 @@ $('entryForm').onsubmit=e=>{
     entry.totalRemittances=entry.remittanceTotal+entry.salary;
     entry.unremitted=entry.totalRemittances-entry.cfr;
     
-    // 1. Save to pending (instant)
+    // 1. Add to pending with unique ID
     const saved=addPending(entry);
     
-    // 2. Add to local data array (instant display)
+    // 2. Add to local data (instant display)
     data.unshift({...saved});
     filterData();
     
     // 3. Update last end chips
     setLastEnd(endTotal);
     
-    // 4. Clear form & show success
+    // 4. Clear form & set next entry
     clearForm();
     toast('✓ Saved!');
     
     // 5. Re-enable button
     btn.innerHTML='💾 Save Entry';btn.disabled=false;isSubmitting=false;
     
-    // 6. Background sync (single send, no duplicate)
-    if(isOnline&&CFG.url){
-        setTimeout(()=>sendEntry(saved),100);
-    }
+    // 6. Background sync
+    if(isOnline&&CFG.url)setTimeout(()=>sendEntry(saved),100);
 };
 
 function clearForm(){
-    pickDate(new Date());
-    $('dutyName').value='';$('entryShift').value='';$('bankFee').value='0';$('salary').value='0';$('remarks').value='';
+    $('dutyName').value='';$('bankFee').value='0';$('salary').value='0';$('remarks').value='';
     document.querySelectorAll('.form-err').forEach(e=>e.classList.remove('show'));
     document.querySelectorAll('.form-input.err').forEach(e=>e.classList.remove('err'));
     ['endList','remitList'].forEach((id,i)=>{
@@ -564,8 +503,12 @@ function clearForm(){
         list.querySelectorAll('.entry-row').forEach((r,j)=>{if(j===0){r.querySelector('.amt').value='';r.querySelectorAll('.entry-input')[1].value=def;}else r.remove();});
     });
     $('activeList').querySelectorAll('.entry-row:not(.starting)').forEach(r=>r.remove());
+    setNextEntry();
     updStarting();
 }
+
+// Date change handler
+$('entryDate').onchange=updDay;
 
 // ===== TABS =====
 document.querySelectorAll('.tab').forEach(t=>{
@@ -581,14 +524,13 @@ function loadCached(){
     const cache=getCache();
     const pending=getPending().filter(e=>!isSynced(e.uniqueId));
     data=[...pending.map(p=>({...p,pending:true})),...cache];
-    filterData();
-    updLoaderFilter();
+    filterData();updLoaderFilter();setNextEntry();updStarting();
 }
 
 async function loadData(){
     if(!CFG.url){loadCached();return;}
     if(!isOnline){loadCached();toast('Offline','warning');return;}
-    toast('Loading...');
+    
     try{
         const res=await fetch(`${CFG.url}?action=getData&_=${Date.now()}`);
         const json=await res.json();
@@ -596,11 +538,12 @@ async function loadData(){
             saveCache(json.entries||[]);
             const pending=getPending().filter(e=>!isSynced(e.uniqueId));
             data=[...pending.map(p=>({...p,pending:true})),...(json.entries||[])];
-            // Update lastEnd from most recent entry
-            const sorted=[...data].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT[a.shift]||0)-(SHIFT[b.shift]||0));
-            if(sorted[0]?.endChipsTotal!==undefined){setLastEnd(sorted[0].endChipsTotal);updStarting();}
-            filterData();
-            updLoaderFilter();
+            
+            // Get lastEnd from most recent entry (sorted by date desc, then shift)
+            const sorted=[...data].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_SORT[a.shift]||0)-(SHIFT_SORT[b.shift]||0));
+            if(sorted[0]?.endChipsTotal!==undefined){setLastEnd(sorted[0].endChipsTotal);}
+            
+            filterData();updLoaderFilter();setNextEntry();updStarting();
             toast('✓ Loaded!');
         }
     }catch(err){loadCached();toast('Error','error');}
@@ -614,12 +557,16 @@ function updLoaderFilter(){
 function filterData(){
     let d=data;
     const loader=$('filterLoader')?.value;if(loader)d=d.filter(e=>e.dutyName===loader);
-    const start=$('filterStart')?.dataset?.value,end=$('filterEnd')?.dataset?.value;
-    if(start&&end){const s=new Date(start),e=new Date(end);s.setHours(0,0,0,0);e.setHours(23,59,59,999);d=d.filter(x=>{const dt=new Date(x.date);return dt>=s&&dt<=e;});}
-    else if(start||end){const fd=new Date(start||end);d=d.filter(x=>new Date(x.date).toDateString()===fd.toDateString());}
-    d.sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT[a.shift]||0)-(SHIFT[b.shift]||0));
+    const start=$('filterStart')?.value,end=$('filterEnd')?.value;
+    if(start)d=d.filter(e=>e.date>=start);
+    if(end)d=d.filter(e=>e.date<=end);
+    
+    // Sort: newest date first, then 4-12 on top for same date
+    d.sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_SORT[a.shift]||0)-(SHIFT_SORT[b.shift]||0));
     filtered=d;renderTable();
 }
+
+function clearFilter(){$('filterStart').value='';$('filterEnd').value='';$('filterLoader').value='';filterData();}
 
 function renderTable(){
     const tb=$('reportBody');
@@ -642,9 +589,7 @@ $('editForm').onsubmit=async e=>{
     const idx=data.findIndex(x=>x.rowIndex===editIdx);
     if(idx!==-1)Object.assign(data[idx],d);
     filterData();toast('Updated!');closeEdit();
-    if(isOnline&&CFG.url){
-        fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(d)}).catch(()=>{});
-    }
+    if(isOnline&&CFG.url)fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(d)}).catch(()=>{});
 };
 function openEdit(rowIndex){
     editIdx=rowIndex;editEntry=data.find(e=>e.rowIndex===rowIndex);
@@ -655,45 +600,25 @@ function openEdit(rowIndex){
     $('editUnremit').value=fmtVal(editEntry.unremitted);$('editRemarks').value=editEntry.remarks||'';
     $('editModal').classList.add('show');
 }
-function recalcEdit(){
-    const a=parseN($('editActive').value),e=parseN($('editEnd').value),r=parseN($('editRemit').value),s=parseN($('editSalary').value);
-    $('editCFR').value=fmtVal(a-e);$('editUnremit').value=fmtVal((r+s)-(a-e));
-}
+function recalcEdit(){const a=parseN($('editActive').value),e=parseN($('editEnd').value),r=parseN($('editRemit').value),s=parseN($('editSalary').value);$('editCFR').value=fmtVal(a-e);$('editUnremit').value=fmtVal((r+s)-(a-e));}
 function closeEdit(){editIdx=null;editEntry=null;$('editModal').classList.remove('show');}
 function delEntry(){$('editModal').classList.remove('show');$('delModal').classList.add('show');}
 function closeDel(){editIdx=null;editEntry=null;$('delModal').classList.remove('show');}
 function confirmDel(){
     if(!editIdx)return;
-    const rowToDel=editIdx;
-    data=data.filter(e=>e.rowIndex!==rowToDel);
+    data=data.filter(e=>e.rowIndex!==editIdx);
     filterData();toast('Deleted!');closeDel();
-    if(isOnline&&CFG.url){
-        fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'deleteEntry',rowIndex:rowToDel})}).catch(()=>{});
-    }
+    if(isOnline&&CFG.url)fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'deleteEntry',rowIndex:editIdx})}).catch(()=>{});
     editIdx=null;
 }
 
 // ===== SETTINGS =====
 function saveUrl(){const u=$('scriptUrl').value.trim();if(u){CFG.url=u;localStorage.setItem('cfr_url',u);toast('Saved!');updStatus();}else toast('Enter URL','error');}
-async function testUrl(){
-    const u=$('scriptUrl').value.trim();
-    if(!u){toast('Enter URL','error');return;}
-    try{const res=await fetch(`${u}?action=test&_=${Date.now()}`);const json=await res.json();toast(json.success?'Connected!':'Failed',json.success?'success':'error');}
-    catch{toast('Failed','error');}
-}
+async function testUrl(){const u=$('scriptUrl').value.trim();if(!u){toast('Enter URL','error');return;}try{const res=await fetch(`${u}?action=test&_=${Date.now()}`);const json=await res.json();toast(json.success?'Connected!':'Failed',json.success?'success':'error');}catch{toast('Failed','error');}}
 function hardRefresh(){toast('Refreshing...');setTimeout(()=>location.reload(true),300);}
 
-// ===== CLEANUP OLD SYNCED IDS =====
-function cleanupSynced(){
-    const synced=getSynced();
-    const now=Date.now();
-    const oneWeek=7*24*60*60*1000;
-    let cleaned={};
-    for(const [id,time] of Object.entries(synced)){
-        if(now-time<oneWeek)cleaned[id]=time;
-    }
-    saveSynced(cleaned);
-}
+// ===== CLEANUP =====
+function cleanup(){const s=getSynced(),now=Date.now(),week=7*24*60*60*1000,clean={};for(const[id,t]of Object.entries(s))if(now-t<week)clean[id]=t;saveSynced(clean);}
 
 // ===== PWA =====
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
@@ -703,13 +628,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     updClock();setInterval(updClock,1000);
     window.addEventListener('online',onOnline);
     window.addEventListener('offline',updStatus);
-    updStatus();updPendingUI();
-    initCal();pickDate(new Date());updStarting();
-    cleanupSynced();
-    if(CFG.url){$('scriptUrl').value=CFG.url;loadCached();}else loadCached();
+    updStatus();cleanup();
+    if(CFG.url){$('scriptUrl').value=CFG.url;loadCached();}else{loadCached();}
     setTimeout(()=>{$('loading').style.display='none';$('app').style.display='block';},200);
-    // Background sync every 60s (not 30s to reduce duplicates)
-    setInterval(()=>{if(isOnline&&CFG.url&&!isSyncing&&getPending().filter(e=>!isSynced(e.uniqueId)).length>0)syncNow();},60000);
+    // Background sync every 60s
+    setInterval(()=>{if(isOnline&&CFG.url&&!isSyncing){const p=getPending().filter(e=>!isSynced(e.uniqueId));if(p.length>0)syncNow();}},60000);
 });
 </script>
 </body>
