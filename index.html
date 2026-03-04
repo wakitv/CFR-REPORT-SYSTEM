@@ -115,7 +115,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
 <div id="app" style="display:none">
 <header class="header">
 <div class="header-content">
-<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.1.0 FINAL</div></div></div>
+<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.2.0 FIXED</div></div></div>
 <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
 <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
 </div>
@@ -200,7 +200,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
 </div>
 <div class="settings-group">
 <div class="settings-title">App</div>
-<div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">5.1.0 Final</div></div></div>
+<div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">5.2.0 Fixed</div></div></div>
 <div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:.75rem;color:var(--muted)">Clear cache</div></div><button class="btn btn-green" onclick="hardRefresh()">Refresh</button></div>
 <div class="settings-item"><div><strong>Clear All Data</strong><div style="font-size:.75rem;color:var(--muted)">Reset storage</div></div><button class="btn btn-danger" onclick="clearAllData()">Clear</button></div>
 </div>
@@ -238,7 +238,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
 </div>
 </div>
 <script>
-// WACKYBUDS CFR v5.1.0 FINAL - ALL FIXES APPLIED
+// WACKYBUDS CFR v5.2.0 FIXED - ALL FIXES APPLIED
 const CFG={url:localStorage.getItem('cfr_url')||'',tz:'Asia/Manila'};
 let allData=[],filtered=[],lastEnd=parseFloat(localStorage.getItem('cfr_last_end'))||0,editRow=null,online=navigator.onLine,submitting=false;
 const SHIFT_ORD={'4:00AM - 12:00PM':1,'8:00PM - 4:00AM':2,'12:00PM - 8:00PM':3};
