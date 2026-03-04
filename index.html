@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <meta name="theme-color" content="#0a0f1a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>WackyBuds CFR</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0a0f1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>WackyBuds CFR</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
 :root{--bg:#0a0f1a;--bg2:#111827;--card:#141c2b;--input:#0d1320;--cyan:#00d4ff;--purple:#a855f7;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--text:#f1f5f9;--muted:#64748b;--border:#1e293b}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;-webkit-tap-highlight-color:transparent}
@@ -107,1013 +107,239 @@ tr.pending{background:rgba(245,158,11,.1);border-left:3px solid var(--yellow)}
 .next-entry{background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.05));border:1px solid var(--green);border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.85rem;color:var(--green)}
 .next-entry strong{color:var(--text)}
 @media(max-width:600px){.header-content{flex-direction:column;align-items:stretch}.form-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
-    </style>
+</style>
 </head>
 <body>
-    <div class="offline-banner" id="offlineBanner">📴 Offline Mode - Entries saved locally</div>
-    <div class="loading" id="loading"><div class="loading-logo">WB</div><div style="color:var(--muted)">Loading...</div></div>
-    <div id="app" style="display:none">
-        <header class="header">
-            <div class="header-content">
-                <div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.0.1 • STABLE</div></div></div>
-                <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
-                <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
-            </div>
-        </header>
-        <main class="main">
-            <div class="tabs">
-                <button class="tab active" data-tab="entry">📝 Entry</button>
-                <button class="tab" data-tab="report">📊 Report</button>
-                <button class="tab" data-tab="settings">⚙️ Settings</button>
-            </div>
-            <div id="entry" class="tab-content active">
-                <div class="next-entry" id="nextEntryHint">📌 Next Entry: <strong>Loading...</strong></div>
-                <form id="entryForm" onkeydown="return handleEnterKey(event)">
-                    <div class="card">
-                        <div class="card-head"><div class="card-title">📅 Basic Info</div></div>
-                        <div class="form-grid">
-                            <div class="form-group"><label class="form-label req">Date</label><input type="date" class="form-input" id="entryDate" onchange="updateDay()"><span class="form-err" id="dateErr">Required</span></div>
-                            <div class="form-group"><label class="form-label">Day</label><input type="text" class="form-input" id="entryDay" readonly style="background:var(--bg2)"></div>
-                            <div class="form-group"><label class="form-label req">Shift</label><select class="form-select" id="entryShift"><option value="">Select</option><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select><span class="form-err" id="shiftErr">Required</span></div>
-                            <div class="form-group"><label class="form-label req">Loader Name</label><input type="text" class="form-input" id="dutyName" placeholder="Enter name"><span class="form-err" id="nameErr">Required</span></div>
-                        </div>
-                    </div>
-                    <div class="stats">
-                        <div class="stat"><div class="stat-label">CFR</div><div class="stat-val" id="statCFR">₱0.00</div></div>
-                        <div class="stat"><div class="stat-label">Remit</div><div class="stat-val green" id="statRemit">₱0.00</div></div>
-                        <div class="stat"><div class="stat-label">Unremit</div><div class="stat-val yellow" id="statUnremit">₱0.00</div></div>
-                    </div>
-                    <div class="card">
-                        <div class="card-head"><div class="card-title">💰 Active Chips</div><div class="card-total" id="activeTotal">₱0.00</div></div>
-                        <div class="entry-list" id="activeList"></div>
-                        <button type="button" class="btn-add" onclick="addRow('active')">+ Add</button>
-                    </div>
-                    <div class="card">
-                        <div class="card-head"><div class="card-title">🎰 End Chips</div><div class="card-total" id="endTotal">₱0.00</div></div>
-                        <div class="entry-list" id="endList"><div class="entry-row"><input type="text" inputmode="decimal" placeholder="Amount" class="entry-input amt" onkeyup="formatInput(this)" oninput="calculate()"><input type="text" class="entry-input" value="End Chips"><button type="button" class="btn-remove" onclick="removeRow(this)">×</button></div></div>
-                        <button type="button" class="btn-add" onclick="addRow('end')">+ Add</button>
-                    </div>
-                    <div class="card">
-                        <div class="card-head"><div class="card-title">💸 Remittances</div><div class="card-total" id="remitTotal">₱0.00</div></div>
-                        <div class="entry-list" id="remitList"><div class="entry-row"><input type="text" inputmode="decimal" placeholder="Amount" class="entry-input amt" onkeyup="formatInput(this)" oninput="calculate()"><input type="text" class="entry-input" value="Remittance"><button type="button" class="btn-remove" onclick="removeRow(this)">×</button></div></div>
-                        <button type="button" class="btn-add" onclick="addRow('remit')">+ Add</button>
-                    </div>
-                    <div class="card">
-                        <div class="card-head"><div class="card-title">📋 Details</div></div>
-                        <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Bank Fee</label><input type="text" inputmode="decimal" class="form-input" id="bankFee" value="15" onkeyup="formatInput(this)" oninput="calculate()"></div>
-                            <div class="form-group"><label class="form-label">Salary</label><input type="text" inputmode="decimal" class="form-input" id="salary" value="0" onkeyup="formatInput(this)" oninput="calculate()"></div>
-                            <div class="form-group" style="grid-column:span 2"><label class="form-label">Remarks</label><input type="text" class="form-input" id="remarks" value="DONE"></div>
-                        </div>
-                        <div class="calc-card">
-                            <div class="calc-row"><span class="calc-label">CFR (Active - End)</span><span class="calc-val" id="calcCFR">₱0.00</span></div>
-                            <div class="calc-row"><span class="calc-label">Total Remit + Salary</span><span class="calc-val" id="calcRemit">₱0.00</span></div>
-                            <div class="calc-row"><span class="calc-label">Unremitted</span><span class="calc-val big" id="calcUnremit">₱0.00</span></div>
-                        </div>
-                    </div>
-                    <div class="btn-group" style="margin-top:1rem"><button type="submit" class="btn btn-primary" id="submitBtn">💾 Save Entry</button><button type="button" class="btn btn-secondary" onclick="clearForm()">🗑️ Clear</button></div>
-                </form>
-            </div>
-            <div id="report" class="tab-content">
-                <div class="card">
-                    <div class="card-head"><div class="card-title">📊 Report</div><div class="btn-group"><button class="btn btn-secondary" onclick="loadData()">🔄 Refresh</button></div></div>
-                    <div class="filter-row">
-                        <div class="form-group"><label class="form-label">Loader</label><select class="form-select" id="filterLoader" onchange="filterData()" style="min-width:120px"><option value="">All</option></select></div>
-                        <div class="form-group"><label class="form-label">Start</label><input type="date" class="form-input" id="filterStart" onchange="filterData()" style="min-width:130px"></div>
-                        <div class="form-group"><label class="form-label">End</label><input type="date" class="form-input" id="filterEnd" onchange="filterData()" style="min-width:130px"></div>
-                        <button class="btn btn-secondary" onclick="clearFilter()">✕</button>
-                    </div>
-                    <div class="table-wrap"><table><thead><tr><th>Date</th><th>Shift</th><th>Loader</th><th>Active</th><th>End</th><th>CFR</th><th>Remit</th><th>Fee</th><th>Unremit</th><th>Status</th><th></th></tr></thead><tbody id="reportBody"><tr><td colspan="11" style="text-align:center;color:var(--muted);padding:2rem">No data</td></tr></tbody></table></div>
-                </div>
-            </div>
-            <div id="settings" class="tab-content">
-                <div class="card">
-                    <div class="card-head"><div class="card-title">⚙️ Settings</div></div>
-                    <div class="settings-group">
-                        <div class="settings-title">🔗 Google Sheets</div>
-                        <div class="form-group"><label class="form-label">Script URL</label><input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/..."></div>
-                        <div class="btn-group" style="margin-top:.75rem"><button class="btn btn-primary" onclick="saveUrl()">💾 Save</button><button class="btn btn-secondary" onclick="testConnection()">🔗 Test</button></div>
-                    </div>
-                    <div class="settings-group">
-                        <div class="settings-title">📴 Offline Data</div>
-                        <div class="settings-item"><div><strong>Pending Entries</strong><div style="font-size:.75rem;color:var(--muted)" id="pendingCount">0 entries</div></div><button class="btn btn-warning" onclick="syncPending()">🔄 Sync Now</button></div>
-                    </div>
-                    <div class="settings-group">
-                        <div class="settings-title">📱 App</div>
-                        <div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">5.0.1 Stable</div></div></div>
-                        <div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:.75rem;color:var(--muted)">Clear cache & reload</div></div><button class="btn btn-green" onclick="hardRefresh()">🔃</button></div>
-                        <div class="settings-item"><div><strong>Clear All Data</strong><div style="font-size:.75rem;color:var(--muted)">Reset local storage</div></div><button class="btn btn-danger" onclick="clearAllData()">🗑️</button></div>
-                    </div>
-                </div>
-            </div>
-        </main>
-        <div class="toast-container" id="toasts"></div>
-    </div>
-    <div class="modal-overlay" id="editModal">
-        <div class="modal">
-            <div class="modal-head"><div class="modal-title">✏️ Edit Entry</div><button class="modal-close" onclick="closeEditModal()">×</button></div>
-            <form id="editForm" onsubmit="saveEdit(event)">
-                <input type="hidden" id="editRowIndex">
-                <div class="form-grid" style="margin-bottom:1rem">
-                    <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="editDate"></div>
-                    <div class="form-group"><label class="form-label">Shift</label><select class="form-select" id="editShift"><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select></div>
-                    <div class="form-group"><label class="form-label">Loader</label><input type="text" class="form-input" id="editLoader"></div>
-                    <div class="form-group"><label class="form-label">Active</label><input type="text" inputmode="decimal" class="form-input" id="editActive" onkeyup="formatInput(this)" oninput="recalcEdit()"></div>
-                    <div class="form-group"><label class="form-label">End</label><input type="text" inputmode="decimal" class="form-input" id="editEnd" onkeyup="formatInput(this)" oninput="recalcEdit()"></div>
-                    <div class="form-group"><label class="form-label">CFR</label><input type="text" class="form-input" id="editCFR" readonly style="color:var(--cyan)"></div>
-                    <div class="form-group"><label class="form-label">Remit</label><input type="text" inputmode="decimal" class="form-input" id="editRemit" onkeyup="formatInput(this)" oninput="recalcEdit()"></div>
-                    <div class="form-group"><label class="form-label">Fee</label><input type="text" inputmode="decimal" class="form-input" id="editFee" onkeyup="formatInput(this)"></div>
-                    <div class="form-group"><label class="form-label">Salary</label><input type="text" inputmode="decimal" class="form-input" id="editSalary" onkeyup="formatInput(this)" oninput="recalcEdit()"></div>
-                    <div class="form-group"><label class="form-label">Unremit</label><input type="text" class="form-input" id="editUnremit" readonly style="color:var(--yellow)"></div>
-                    <div class="form-group" style="grid-column:span 2"><label class="form-label">Remarks</label><input type="text" class="form-input" id="editRemarks"></div>
-                </div>
-                <div class="btn-group"><button type="submit" class="btn btn-primary">💾 Save</button><button type="button" class="btn btn-danger" onclick="deleteEntry()">🗑️ Delete</button></div>
-            </form>
-        </div>
-    </div>
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal">
-            <div class="modal-head"><div class="modal-title">⚠️ Delete Entry?</div><button class="modal-close" onclick="closeDeleteModal()">×</button></div>
-            <p style="margin-bottom:1rem;color:var(--muted)">This action cannot be undone.</p>
-            <div class="btn-group"><button class="btn btn-danger" onclick="confirmDelete()">🗑️ Delete</button><button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button></div>
-        </div>
-    </div>
+<div class="offline-banner" id="offlineBanner">Offline Mode</div>
+<div class="loading" id="loading"><div class="loading-logo">WB</div><div style="color:var(--muted)">Loading...</div></div>
+<div id="app" style="display:none">
+<header class="header">
+<div class="header-content">
+<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.1.0 FINAL</div></div></div>
+<div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
+<div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
+</div>
+</header>
+<main class="main">
+<div class="tabs">
+<button class="tab active" data-tab="entry">Entry</button>
+<button class="tab" data-tab="report">Report</button>
+<button class="tab" data-tab="settings">Settings</button>
+</div>
+<div id="entry" class="tab-content active">
+<div class="next-entry" id="nextEntryHint">Next Entry: <strong>Loading...</strong></div>
+<form id="entryForm" onkeydown="return handleEnterKey(event)">
+<div class="card">
+<div class="card-head"><div class="card-title">Basic Info</div></div>
+<div class="form-grid">
+<div class="form-group"><label class="form-label req">Date</label><input type="date" class="form-input" id="entryDate" onchange="updateDay()"><span class="form-err" id="dateErr">Required</span></div>
+<div class="form-group"><label class="form-label">Day</label><input type="text" class="form-input" id="entryDay" readonly style="background:var(--bg2)"></div>
+<div class="form-group"><label class="form-label req">Shift</label><select class="form-select" id="entryShift"><option value="">Select</option><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select><span class="form-err" id="shiftErr">Required</span></div>
+<div class="form-group"><label class="form-label req">Loader Name</label><input type="text" class="form-input" id="dutyName" placeholder="Enter name"><span class="form-err" id="nameErr">Required</span></div>
+</div>
+</div>
+<div class="stats">
+<div class="stat"><div class="stat-label">CFR</div><div class="stat-val" id="statCFR">P0.00</div></div>
+<div class="stat"><div class="stat-label">Remit</div><div class="stat-val green" id="statRemit">P0.00</div></div>
+<div class="stat"><div class="stat-label">Unremit</div><div class="stat-val yellow" id="statUnremit">P0.00</div></div>
+</div>
+<div class="card">
+<div class="card-head"><div class="card-title">Active Chips</div><div class="card-total" id="activeTotal">P0.00</div></div>
+<div class="entry-list" id="activeList"></div>
+<button type="button" class="btn-add" onclick="addRow('active')">+ Add</button>
+</div>
+<div class="card">
+<div class="card-head"><div class="card-title">End Chips</div><div class="card-total" id="endTotal">P0.00</div></div>
+<div class="entry-list" id="endList"><div class="entry-row"><input type="text" inputmode="decimal" placeholder="Amount" class="entry-input amt" onkeyup="formatInput(this)" oninput="calc()"><input type="text" class="entry-input" value="End Chips"><button type="button" class="btn-remove" onclick="removeRow(this)">x</button></div></div>
+<button type="button" class="btn-add" onclick="addRow('end')">+ Add</button>
+</div>
+<div class="card">
+<div class="card-head"><div class="card-title">Remittances</div><div class="card-total" id="remitTotal">P0.00</div></div>
+<div class="entry-list" id="remitList"><div class="entry-row"><input type="text" inputmode="decimal" placeholder="Amount" class="entry-input amt" onkeyup="formatInput(this)" oninput="calc()"><input type="text" class="entry-input" value="Remittance"><button type="button" class="btn-remove" onclick="removeRow(this)">x</button></div></div>
+<button type="button" class="btn-add" onclick="addRow('remit')">+ Add</button>
+</div>
+<div class="card">
+<div class="card-head"><div class="card-title">Details</div></div>
+<div class="form-grid">
+<div class="form-group"><label class="form-label">Bank Fee</label><input type="text" inputmode="decimal" class="form-input" id="bankFee" value="15" onkeyup="formatInput(this)" oninput="calc()"></div>
+<div class="form-group"><label class="form-label">Salary</label><input type="text" inputmode="decimal" class="form-input" id="salary" value="0" onkeyup="formatInput(this)" oninput="calc()"></div>
+<div class="form-group" style="grid-column:span 2"><label class="form-label">Remarks</label><input type="text" class="form-input" id="remarks" value="DONE"></div>
+</div>
+<div class="calc-card">
+<div class="calc-row"><span class="calc-label">CFR (Active - End)</span><span class="calc-val" id="calcCFR">P0.00</span></div>
+<div class="calc-row"><span class="calc-label">Total Remit + Salary</span><span class="calc-val" id="calcRemit">P0.00</span></div>
+<div class="calc-row"><span class="calc-label">Unremitted</span><span class="calc-val big" id="calcUnremit">P0.00</span></div>
+</div>
+</div>
+<div class="btn-group" style="margin-top:1rem"><button type="submit" class="btn btn-primary" id="submitBtn">Save Entry</button><button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button></div>
+</form>
+</div>
+<div id="report" class="tab-content">
+<div class="card">
+<div class="card-head"><div class="card-title">Report</div><div class="btn-group"><button class="btn btn-secondary" id="refreshBtn" onclick="loadData()">Refresh</button></div></div>
+<div class="filter-row">
+<div class="form-group"><label class="form-label">Loader</label><select class="form-select" id="filterLoader" onchange="filterData()" style="min-width:120px"><option value="">All</option></select></div>
+<div class="form-group"><label class="form-label">Start</label><input type="date" class="form-input" id="filterStart" onchange="filterData()" style="min-width:130px"></div>
+<div class="form-group"><label class="form-label">End</label><input type="date" class="form-input" id="filterEnd" onchange="filterData()" style="min-width:130px"></div>
+<button class="btn btn-secondary" onclick="clearFilter()">X</button>
+</div>
+<div class="table-wrap"><table><thead><tr><th>Date</th><th>Shift</th><th>Loader</th><th>Active</th><th>End</th><th>CFR</th><th>Remit</th><th>Fee</th><th>Unremit</th><th>Status</th><th></th></tr></thead><tbody id="reportBody"><tr><td colspan="11" style="text-align:center;color:var(--muted);padding:2rem">No data</td></tr></tbody></table></div>
+</div>
+</div>
+<div id="settings" class="tab-content">
+<div class="card">
+<div class="card-head"><div class="card-title">Settings</div></div>
+<div class="settings-group">
+<div class="settings-title">Google Sheets</div>
+<div class="form-group"><label class="form-label">Script URL</label><input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/..."></div>
+<div class="btn-group" style="margin-top:.75rem"><button class="btn btn-primary" onclick="saveUrl()">Save</button><button class="btn btn-secondary" onclick="testConn()">Test</button></div>
+</div>
+<div class="settings-group">
+<div class="settings-title">Offline Data</div>
+<div class="settings-item"><div><strong>Pending Entries</strong><div style="font-size:.75rem;color:var(--muted)" id="pendingCount">0 entries</div></div><button class="btn btn-warning" onclick="syncPending()">Sync Now</button></div>
+</div>
+<div class="settings-group">
+<div class="settings-title">App</div>
+<div class="settings-item"><div><strong>Version</strong><div style="font-size:.75rem;color:var(--muted)">5.1.0 Final</div></div></div>
+<div class="settings-item"><div><strong>Hard Refresh</strong><div style="font-size:.75rem;color:var(--muted)">Clear cache</div></div><button class="btn btn-green" onclick="hardRefresh()">Refresh</button></div>
+<div class="settings-item"><div><strong>Clear All Data</strong><div style="font-size:.75rem;color:var(--muted)">Reset storage</div></div><button class="btn btn-danger" onclick="clearAllData()">Clear</button></div>
+</div>
+</div>
+</div>
+</main>
+<div class="toast-container" id="toasts"></div>
+</div>
+<div class="modal-overlay" id="editModal">
+<div class="modal">
+<div class="modal-head"><div class="modal-title">Edit Entry</div><button class="modal-close" onclick="closeEdit()">x</button></div>
+<form id="editForm" onsubmit="saveEdit(event)">
+<div class="form-grid" style="margin-bottom:1rem">
+<div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="editDate"></div>
+<div class="form-group"><label class="form-label">Shift</label><select class="form-select" id="editShift"><option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option><option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option><option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option></select></div>
+<div class="form-group"><label class="form-label">Loader</label><input type="text" class="form-input" id="editLoader"></div>
+<div class="form-group"><label class="form-label">Active</label><input type="text" inputmode="decimal" class="form-input" id="editActive" onkeyup="formatInput(this)" oninput="recalcEdit()"></div>
+<div class="form-group"><label class="form-label">End</label><input type="text" inputmode="decimal" class="form-input" id="editEnd" onkeyup="formatInput(this)" oninput="recalcEdit()"></div>
+<div class="form-group"><label class="form-label">CFR</label><input type="text" class="form-input" id="editCFR" readonly style="color:var(--cyan)"></div>
+<div class="form-group"><label class="form-label">Remit</label><input type="text" inputmode="decimal" class="form-input" id="editRemit" onkeyup="formatInput(this)" oninput="recalcEdit()"></div>
+<div class="form-group"><label class="form-label">Fee</label><input type="text" inputmode="decimal" class="form-input" id="editFee" onkeyup="formatInput(this)"></div>
+<div class="form-group"><label class="form-label">Salary</label><input type="text" inputmode="decimal" class="form-input" id="editSalary" onkeyup="formatInput(this)" oninput="recalcEdit()"></div>
+<div class="form-group"><label class="form-label">Unremit</label><input type="text" class="form-input" id="editUnremit" readonly style="color:var(--yellow)"></div>
+<div class="form-group" style="grid-column:span 2"><label class="form-label">Remarks</label><input type="text" class="form-input" id="editRemarks"></div>
+</div>
+<div class="btn-group"><button type="submit" class="btn btn-primary">Save</button><button type="button" class="btn btn-danger" onclick="deleteEntry()">Delete</button></div>
+</form>
+</div>
+</div>
+<div class="modal-overlay" id="deleteModal">
+<div class="modal">
+<div class="modal-head"><div class="modal-title">Delete Entry?</div><button class="modal-close" onclick="closeDelete()">x</button></div>
+<p style="margin-bottom:1rem;color:var(--muted)">This cannot be undone.</p>
+<div class="btn-group"><button class="btn btn-danger" onclick="confirmDelete()">Delete</button><button class="btn btn-secondary" onclick="closeDelete()">Cancel</button></div>
+</div>
+</div>
 <script>
-// ===============================================
-// WACKYBUDS CFR v5.0.1 - COMPLETE REWRITE
-// ===============================================
-// Features:
-// - No duplicate entries (uniqueId tracking)
-// - Instant save (< 1 second)
-// - Auto-detect next date/shift
-// - Enter key moves to next field
-// - Background sync
-// ===============================================
+// WACKYBUDS CFR v5.1.0 FINAL - ALL FIXES APPLIED
+const CFG={url:localStorage.getItem('cfr_url')||'',tz:'Asia/Manila'};
+let allData=[],filtered=[],lastEnd=parseFloat(localStorage.getItem('cfr_last_end'))||0,editRow=null,online=navigator.onLine,submitting=false;
+const SHIFT_ORD={'4:00AM - 12:00PM':1,'8:00PM - 4:00AM':2,'12:00PM - 8:00PM':3};
+const SHIFT_CYC=['12:00PM - 8:00PM','8:00PM - 4:00AM','4:00AM - 12:00PM'];
+const STR={pend:'cfr_pend_v5',sent:'cfr_sent_v5',cache:'cfr_cache_v5'};
+const $=id=>document.getElementById(id);
+const fN=(v,d=2)=>(parseFloat(v)||0).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fC=(v,d=2)=>'P'+fN(v,d);
+const pN=v=>parseFloat(String(v).replace(/,/g,''))||0;
+const fV=v=>v?parseFloat(v).toLocaleString('en-US'):'';
+function formatInput(el){let v=el.value.replace(/[^0-9.]/g,''),p=v.split('.');if(p[0])p[0]=parseInt(p[0]||0).toLocaleString('en-US');el.value=p.join('.');}
+const fTime=(d=new Date())=>d.toLocaleTimeString('en-US',{timeZone:CFG.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+const fDateFull=(d=new Date())=>d.toLocaleDateString('en-US',{timeZone:CFG.tz,weekday:'long',month:'long',day:'numeric',year:'numeric'});
+const fDateShort=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'-';
+function toast(msg,type='success'){const c=$('toasts'),t=document.createElement('div');t.className='toast '+type;t.innerHTML='<span>'+(type==='success'?'OK':type==='warning'?'!':'X')+'</span><span>'+msg+'</span>';c.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),200);},2500);}
+const genId=()=>Date.now()+'-'+Math.random().toString(36).substr(2,9);
 
-// Configuration
-const CONFIG = {
-    url: localStorage.getItem('cfr_url') || '',
-    timezone: 'Asia/Manila'
-};
+// ENTER KEY = NEXT FIELD (NOT SUBMIT)
+function handleEnterKey(e){if(e.key==='Enter'&&e.target.tagName!=='BUTTON'){e.preventDefault();const inputs=[...$('entryForm').querySelectorAll('input:not([readonly]),select')];const idx=inputs.indexOf(e.target);if(idx>-1&&idx<inputs.length-1)inputs[idx+1].focus();return false;}return true;}
 
-// State
-let allData = [];
-let filteredData = [];
-let lastEndChips = parseFloat(localStorage.getItem('cfr_last_end')) || 0;
-let currentEditRow = null;
-let isOnline = navigator.onLine;
-let isSubmitting = false;
+// STORAGE
+const getPend=()=>{try{return JSON.parse(localStorage.getItem(STR.pend))||[];}catch{return[];}};
+const savePend=a=>localStorage.setItem(STR.pend,JSON.stringify(a));
+const getSent=()=>{try{return JSON.parse(localStorage.getItem(STR.sent))||[];}catch{return[];}};
+const saveSent=a=>localStorage.setItem(STR.sent,JSON.stringify(a.slice(-500)));
+const wasSent=id=>getSent().includes(id);
+const markSent=id=>{const a=getSent();if(!a.includes(id)){a.push(id);saveSent(a);}};
+const getCache=()=>{try{return JSON.parse(localStorage.getItem(STR.cache))||[];}catch{return[];}};
+const saveCache=a=>localStorage.setItem(STR.cache,JSON.stringify(a));
 
-// Shift order for display (4-12 on TOP for same date)
-const SHIFT_DISPLAY_ORDER = {
-    '4:00AM - 12:00PM': 1,
-    '8:00PM - 4:00AM': 2,
-    '12:00PM - 8:00PM': 3
-};
+function updatePendUI(){const p=getPend().filter(e=>!wasSent(e.uniqueId));$('pendingBadge').style.display=p.length>0?'inline':'none';$('pendingBadge').textContent=p.length;$('pendingCount').textContent=p.length+' entries';}
 
-// Shift cycle for auto-detect (12-8 → 8-4 → 4-12 → next day)
-const SHIFT_CYCLE = ['12:00PM - 8:00PM', '8:00PM - 4:00AM', '4:00AM - 12:00PM'];
+// SEND TO SERVER (NO DUPLICATES)
+async function sendToServer(entry){if(!CFG.url||!online)return false;if(wasSent(entry.uniqueId)){savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();return true;}try{const res=await fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});if(res.ok){markSent(entry.uniqueId);savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();return true;}}catch(err){console.log('Send error:',err);}return false;}
 
-// Storage keys
-const STORAGE = {
-    pending: 'cfr_pending_v5',
-    sent: 'cfr_sent_v5',
-    cache: 'cfr_cache_v5'
-};
+async function syncPending(){if(!CFG.url){toast('Set URL first','error');return;}if(!online){toast('Offline','warning');return;}const pend=getPend().filter(e=>!wasSent(e.uniqueId));if(pend.length===0){toast('Nothing to sync');return;}toast('Syncing '+pend.length+'...');let ok=0;for(const e of pend){if(await sendToServer(e))ok++;}toast(ok===pend.length?'All synced!':ok+'/'+pend.length+' synced',ok===pend.length?'success':'warning');}
 
-// ===============================================
-// UTILITY FUNCTIONS
-// ===============================================
-const $ = id => document.getElementById(id);
-const formatNumber = (v, d = 2) => (parseFloat(v) || 0).toLocaleString('en-US', {minimumFractionDigits: d, maximumFractionDigits: d});
-const formatCurrency = (v, d = 2) => '₱' + formatNumber(v, d);
-const parseNumber = v => parseFloat(String(v).replace(/,/g, '')) || 0;
-const formatValue = v => v ? parseFloat(v).toLocaleString('en-US') : '';
+// STATUS & CLOCK
+function updateStatus(){online=navigator.onLine;$('offlineBanner').classList.toggle('show',!online);const dot=$('statusDot'),txt=$('statusText');dot.className='status-dot';if(!online){dot.classList.add('off');txt.textContent='Offline';}else if(CFG.url){dot.classList.add('on');txt.textContent='Online';}else{txt.textContent='No URL';}}
+function updateClock(){$('clock').textContent=fTime();$('date').textContent=fDateFull();}
 
-function formatInput(el) {
-    let v = el.value.replace(/[^0-9.]/g, '');
-    let parts = v.split('.');
-    if (parts[0]) parts[0] = parseInt(parts[0] || 0).toLocaleString('en-US');
-    el.value = parts.join('.');
-}
-
-const formatTime = (d = new Date()) => d.toLocaleTimeString('en-US', {timeZone: CONFIG.timezone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true});
-const formatDateFull = (d = new Date()) => d.toLocaleDateString('en-US', {timeZone: CONFIG.timezone, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'});
-const formatDateShort = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) : '-';
-
-function showToast(msg, type = 'success') {
-    const container = $('toasts');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌'}</span><span>${msg}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 200);
-    }, 2500);
-}
-
-// Generate unique ID
-const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-// ===============================================
-// ENTER KEY HANDLER - Move to next field
-// ===============================================
-function handleEnterKey(e) {
-    if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') {
-        e.preventDefault();
-        const form = $('entryForm');
-        const inputs = [...form.querySelectorAll('input:not([readonly]), select')];
-        const currentIndex = inputs.indexOf(e.target);
-        if (currentIndex > -1 && currentIndex < inputs.length - 1) {
-            inputs[currentIndex + 1].focus();
-        }
-        return false;
-    }
-    return true;
-}
-
-// ===============================================
-// LOCAL STORAGE - Pending & Sent Tracking
-// ===============================================
-const getPending = () => { try { return JSON.parse(localStorage.getItem(STORAGE.pending)) || []; } catch { return []; } };
-const savePending = arr => localStorage.setItem(STORAGE.pending, JSON.stringify(arr));
-const getSentIds = () => { try { return JSON.parse(localStorage.getItem(STORAGE.sent)) || []; } catch { return []; } };
-const saveSentIds = arr => localStorage.setItem(STORAGE.sent, JSON.stringify(arr.slice(-500)));
-const wasSent = id => getSentIds().includes(id);
-const markAsSent = id => { const arr = getSentIds(); if (!arr.includes(id)) { arr.push(id); saveSentIds(arr); } };
-const getCache = () => { try { return JSON.parse(localStorage.getItem(STORAGE.cache)) || []; } catch { return []; } };
-const saveCache = arr => localStorage.setItem(STORAGE.cache, JSON.stringify(arr));
-
-function updatePendingUI() {
-    const pending = getPending().filter(e => !wasSent(e.uniqueId));
-    const badge = $('pendingBadge');
-    const count = $('pendingCount');
-    badge.style.display = pending.length > 0 ? 'inline' : 'none';
-    badge.textContent = pending.length;
-    if (count) count.textContent = `${pending.length} entries`;
-}
-
-// ===============================================
-// SEND TO SERVER - Single send, no duplicates
-// ===============================================
-async function sendToServer(entry) {
-    if (!CONFIG.url || !isOnline) return false;
-    
-    // Already sent? Skip and remove from pending
-    if (wasSent(entry.uniqueId)) {
-        savePending(getPending().filter(e => e.uniqueId !== entry.uniqueId));
-        updatePendingUI();
-        return true;
-    }
-    
-    try {
-        const response = await fetch(CONFIG.url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(entry)
-        });
-        
-        if (response.ok) {
-            // Mark as sent FIRST to prevent duplicates
-            markAsSent(entry.uniqueId);
-            // Remove from pending
-            savePending(getPending().filter(e => e.uniqueId !== entry.uniqueId));
-            updatePendingUI();
-            return true;
-        }
-    } catch (err) {
-        console.log('Send error:', err);
-    }
-    return false;
-}
-
-// Manual sync
-async function syncPending() {
-    if (!CONFIG.url) { showToast('Set URL first', 'error'); return; }
-    if (!isOnline) { showToast('Offline', 'warning'); return; }
-    
-    const pending = getPending().filter(e => !wasSent(e.uniqueId));
-    if (pending.length === 0) { showToast('Nothing to sync'); return; }
-    
-    showToast(`Syncing ${pending.length}...`);
-    let success = 0;
-    
-    for (const entry of pending) {
-        if (await sendToServer(entry)) success++;
-    }
-    
-    showToast(success === pending.length ? '✓ All synced!' : `${success}/${pending.length} synced`, success === pending.length ? 'success' : 'warning');
-}
-
-// ===============================================
-// ONLINE STATUS
-// ===============================================
-function updateStatus() {
-    isOnline = navigator.onLine;
-    $('offlineBanner').classList.toggle('show', !isOnline);
-    const dot = $('statusDot');
-    const txt = $('statusText');
-    dot.className = 'status-dot';
-    if (!isOnline) { dot.classList.add('off'); txt.textContent = 'Offline'; }
-    else if (CONFIG.url) { dot.classList.add('on'); txt.textContent = 'Online'; }
-    else { txt.textContent = 'No URL'; }
-}
-
-// ===============================================
-// CLOCK
-// ===============================================
-function updateClock() {
-    $('clock').textContent = formatTime();
-    $('date').textContent = formatDateFull();
-}
-
-// ===============================================
 // AUTO-DETECT NEXT DATE/SHIFT
-// ===============================================
-function getNextEntry() {
-    // Sort: newest first, then by shift (4-12 first for same date)
-    const sorted = [...allData].sort((a, b) => 
-        new Date(b.date) - new Date(a.date) || 
-        (SHIFT_DISPLAY_ORDER[a.shift] || 0) - (SHIFT_DISPLAY_ORDER[b.shift] || 0)
-    );
-    
-    if (sorted.length === 0) {
-        // No entries - start with today, first shift (12-8)
-        return { date: new Date().toISOString().split('T')[0], shift: SHIFT_CYCLE[0] };
-    }
-    
-    const last = sorted[0];
-    const lastShiftIndex = SHIFT_CYCLE.indexOf(last.shift);
-    
-    if (lastShiftIndex === -1) {
-        return { date: new Date().toISOString().split('T')[0], shift: SHIFT_CYCLE[0] };
-    }
-    
-    // If last was 4-12 (index 2), next is tomorrow 12-8
-    if (lastShiftIndex === 2) {
-        const nextDate = new Date(last.date + 'T12:00:00');
-        nextDate.setDate(nextDate.getDate() + 1);
-        return { date: nextDate.toISOString().split('T')[0], shift: SHIFT_CYCLE[0] };
-    }
-    
-    // Same date, next shift
-    return { date: last.date, shift: SHIFT_CYCLE[lastShiftIndex + 1] };
-}
+function getNext(){const sorted=[...allData].sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted.length===0)return{date:new Date().toISOString().split('T')[0],shift:SHIFT_CYC[0]};const last=sorted[0];const idx=SHIFT_CYC.indexOf(last.shift);if(idx===-1)return{date:new Date().toISOString().split('T')[0],shift:SHIFT_CYC[0]};if(idx===2){const d=new Date(last.date+'T12:00:00');d.setDate(d.getDate()+1);return{date:d.toISOString().split('T')[0],shift:SHIFT_CYC[0]};}return{date:last.date,shift:SHIFT_CYC[idx+1]};}
+function setNext(){const n=getNext();$('entryDate').value=n.date;$('entryShift').value=n.shift;updateDay();$('nextEntryHint').innerHTML='Next Entry: <strong>'+fDateShort(n.date)+' '+n.shift+'</strong>';}
+function updateDay(){const v=$('entryDate').value;if(v){const d=new Date(v+'T12:00:00');$('entryDay').value=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][d.getDay()];}}
 
-function setNextEntry() {
-    const next = getNextEntry();
-    $('entryDate').value = next.date;
-    $('entryShift').value = next.shift;
-    updateDay();
-    updateNextHint();
-}
+// STARTING CHIPS
+function updateStarting(){const list=$('activeList');const ex=list.querySelector('.starting');if(lastEnd>0){if(ex){ex.querySelector('.amt').value=fV(lastEnd);}else{const row=document.createElement('div');row.className='entry-row starting';row.innerHTML='<input type="text" inputmode="decimal" class="entry-input amt" value="'+fV(lastEnd)+'" onkeyup="formatInput(this)" oninput="calc()"><input type="text" class="entry-input" value="Starting (Prev End)"><button type="button" class="btn-remove" onclick="removeRow(this)">x</button>';list.insertBefore(row,list.firstChild);}}calc();}
+const setLastEnd=v=>{lastEnd=parseFloat(v)||0;localStorage.setItem('cfr_last_end',lastEnd);};
 
-function updateNextHint() {
-    const next = getNextEntry();
-    $('nextEntryHint').innerHTML = `📌 Next Entry: <strong>${formatDateShort(next.date)} ${next.shift}</strong>`;
-}
-
-function updateDay() {
-    const dateVal = $('entryDate').value;
-    if (dateVal) {
-        const d = new Date(dateVal + 'T12:00:00');
-        $('entryDay').value = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][d.getDay()];
-    }
-}
-
-// ===============================================
-// STARTING CHIPS (Previous End)
-// ===============================================
-function updateStartingChips() {
-    const list = $('activeList');
-    const existing = list.querySelector('.starting');
-    
-    if (lastEndChips > 0) {
-        if (existing) {
-            existing.querySelector('.amt').value = formatValue(lastEndChips);
-        } else {
-            const row = document.createElement('div');
-            row.className = 'entry-row starting';
-            row.innerHTML = `<input type="text" inputmode="decimal" class="entry-input amt" value="${formatValue(lastEndChips)}" onkeyup="formatInput(this)" oninput="calculate()"><input type="text" class="entry-input" value="Starting (Prev End)"><button type="button" class="btn-remove" onclick="removeRow(this)">×</button>`;
-            list.insertBefore(row, list.firstChild);
-        }
-    }
-    calculate();
-}
-
-const setLastEndChips = v => { lastEndChips = parseFloat(v) || 0; localStorage.setItem('cfr_last_end', lastEndChips); };
-
-// ===============================================
 // ROW MANAGEMENT
-// ===============================================
-function addRow(type) {
-    const listId = type === 'active' ? 'activeList' : type === 'end' ? 'endList' : 'remitList';
-    const defaultRemark = type === 'end' ? 'End Chips' : type === 'remit' ? 'Remittance' : '';
-    const list = $(listId);
-    const row = document.createElement('div');
-    row.className = 'entry-row';
-    row.innerHTML = `<input type="text" inputmode="decimal" placeholder="Amount" class="entry-input amt" onkeyup="formatInput(this)" oninput="calculate()"><input type="text" class="entry-input" value="${defaultRemark}"><button type="button" class="btn-remove" onclick="removeRow(this)">×</button>`;
-    list.appendChild(row);
-    row.querySelector('.amt').focus();
-}
+function addRow(type){const listId=type==='active'?'activeList':type==='end'?'endList':'remitList';const def=type==='end'?'End Chips':type==='remit'?'Remittance':'';const list=$(listId);const row=document.createElement('div');row.className='entry-row';row.innerHTML='<input type="text" inputmode="decimal" placeholder="Amount" class="entry-input amt" onkeyup="formatInput(this)" oninput="calc()"><input type="text" class="entry-input" value="'+def+'"><button type="button" class="btn-remove" onclick="removeRow(this)">x</button>';list.appendChild(row);row.querySelector('.amt').focus();}
+function removeRow(btn){btn.closest('.entry-row').remove();calc();}
+const getSum=id=>{let s=0;$(id).querySelectorAll('.amt').forEach(i=>s+=pN(i.value));return s;};
+const getDetails=id=>{const arr=[];$(id).querySelectorAll('.entry-row').forEach(row=>{const a=pN(row.querySelector('.amt')?.value);const r=row.querySelectorAll('.entry-input')[1]?.value||'';if(a>0||r)arr.push({amount:a,remarks:r});});return arr;};
 
-function removeRow(btn) { btn.closest('.entry-row').remove(); calculate(); }
-
-const getSum = id => {
-    let sum = 0;
-    $(id).querySelectorAll('.amt').forEach(input => sum += parseNumber(input.value));
-    return sum;
-};
-
-const getDetails = id => {
-    const arr = [];
-    $(id).querySelectorAll('.entry-row').forEach(row => {
-        const amount = parseNumber(row.querySelector('.amt')?.value);
-        const remarks = row.querySelectorAll('.entry-input')[1]?.value || '';
-        if (amount > 0 || remarks) arr.push({ amount, remarks });
-    });
-    return arr;
-};
-
-// ===============================================
 // CALCULATIONS
-// ===============================================
-function calculate() {
-    const active = getSum('activeList');
-    const end = getSum('endList');
-    const remit = getSum('remitList');
-    const salary = parseNumber($('salary').value);
-    
-    const cfr = active - end;
-    const totalRemit = remit + salary;
-    const unremit = totalRemit - cfr;
-    
-    $('activeTotal').textContent = formatCurrency(active);
-    $('endTotal').textContent = formatCurrency(end);
-    $('remitTotal').textContent = formatCurrency(remit);
-    $('calcCFR').textContent = formatCurrency(cfr);
-    $('calcRemit').textContent = formatCurrency(totalRemit);
-    
-    const unremitEl = $('calcUnremit');
-    unremitEl.textContent = formatCurrency(unremit);
-    unremitEl.classList.toggle('neg', unremit < 0);
-    
-    $('statCFR').textContent = formatCurrency(cfr);
-    $('statRemit').textContent = formatCurrency(totalRemit);
-    $('statUnremit').textContent = formatCurrency(unremit);
-}
+function calc(){const active=getSum('activeList'),end=getSum('endList'),remit=getSum('remitList'),sal=pN($('salary').value);const cfr=active-end,totalRemit=remit+sal,unremit=totalRemit-cfr;$('activeTotal').textContent=fC(active);$('endTotal').textContent=fC(end);$('remitTotal').textContent=fC(remit);$('calcCFR').textContent=fC(cfr);$('calcRemit').textContent=fC(totalRemit);const u=$('calcUnremit');u.textContent=fC(unremit);u.classList.toggle('neg',unremit<0);$('statCFR').textContent=fC(cfr);$('statRemit').textContent=fC(totalRemit);$('statUnremit').textContent=fC(unremit);}
 
-// ===============================================
-// FORM VALIDATION
-// ===============================================
-function validateForm() {
-    let valid = true;
-    const checks = [
-        { id: 'entryDate', err: 'dateErr', val: $('entryDate').value },
-        { id: 'entryShift', err: 'shiftErr', val: $('entryShift').value },
-        { id: 'dutyName', err: 'nameErr', val: $('dutyName').value.trim() }
-    ];
-    
-    checks.forEach(check => {
-        const el = $(check.id);
-        const errEl = $(check.err);
-        if (!check.val) {
-            errEl.classList.add('show');
-            el.classList.add('err');
-            valid = false;
-        } else {
-            errEl.classList.remove('show');
-            el.classList.remove('err');
-        }
-    });
-    
-    return valid;
-}
+// FORM VALIDATION & SUBMIT
+function validate(){let ok=true;[{id:'entryDate',err:'dateErr',val:$('entryDate').value},{id:'entryShift',err:'shiftErr',val:$('entryShift').value},{id:'dutyName',err:'nameErr',val:$('dutyName').value.trim()}].forEach(c=>{const el=$(c.id),er=$(c.err);if(!c.val){er.classList.add('show');el.classList.add('err');ok=false;}else{er.classList.remove('show');el.classList.remove('err');}});return ok;}
 
-// ===============================================
-// FORM SUBMIT - INSTANT SAVE
-// ===============================================
-$('entryForm').onsubmit = e => {
-    e.preventDefault();
-    if (!validateForm()) { showToast('Fill required fields', 'error'); return; }
-    
-    const btn = $('submitBtn');
-    if (btn.disabled || isSubmitting) return;
-    
-    isSubmitting = true;
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div>';
-    
-    // Build entry
-    const activeTotal = getSum('activeList');
-    const endTotal = getSum('endList');
-    
-    const entry = {
-        action: 'addEntry',
-        uniqueId: generateId(),
-        date: $('entryDate').value,
-        day: $('entryDay').value,
-        shift: $('entryShift').value,
-        dutyName: $('dutyName').value.trim().toUpperCase(),
-        activeChips: getDetails('activeList'),
-        activeChipsTotal: activeTotal,
-        endChips: getDetails('endList'),
-        endChipsTotal: endTotal,
-        remittances: getDetails('remitList'),
-        remittanceTotal: getSum('remitList'),
-        bankFee: parseNumber($('bankFee').value),
-        salary: parseNumber($('salary').value),
-        remarks: $('remarks').value || 'DONE',
-        timestamp: new Date().toISOString()
-    };
-    
-    entry.cfr = activeTotal - endTotal;
-    entry.totalRemittances = entry.remittanceTotal + entry.salary;
-    entry.unremitted = entry.totalRemittances - entry.cfr;
-    
-    // 1. Add to pending
-    const pending = getPending();
-    pending.push(entry);
-    savePending(pending);
-    
-    // 2. Add to local data for INSTANT display
-    allData.unshift({ ...entry, pending: true });
-    filterData();
-    
-    // 3. Update last end chips
-    setLastEndChips(endTotal);
-    
-    // 4. Clear form and show success
-    clearForm();
-    showToast('✓ Saved!');
-    
-    // 5. Re-enable button
-    btn.innerHTML = '💾 Save Entry';
-    btn.disabled = false;
-    isSubmitting = false;
-    
-    // 6. Send to server in background (no waiting!)
-    if (isOnline && CONFIG.url) {
-        setTimeout(() => sendToServer(entry), 100);
-    }
-};
+$('entryForm').onsubmit=e=>{e.preventDefault();if(!validate()){toast('Fill required fields','error');return;}const btn=$('submitBtn');if(btn.disabled||submitting)return;submitting=true;btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';const activeTotal=getSum('activeList'),endTotal=getSum('endList');const entry={action:'addEntry',uniqueId:genId(),date:$('entryDate').value,day:$('entryDay').value,shift:$('entryShift').value,dutyName:$('dutyName').value.trim().toUpperCase(),activeChips:getDetails('activeList'),activeChipsTotal:activeTotal,endChips:getDetails('endList'),endChipsTotal:endTotal,remittances:getDetails('remitList'),remittanceTotal:getSum('remitList'),bankFee:pN($('bankFee').value),salary:pN($('salary').value),remarks:$('remarks').value||'DONE',timestamp:new Date().toISOString()};entry.cfr=activeTotal-endTotal;entry.totalRemittances=entry.remittanceTotal+entry.salary;entry.unremitted=entry.totalRemittances-entry.cfr;const pend=getPend();pend.push(entry);savePend(pend);allData.unshift({...entry,pending:true});filterData();setLastEnd(endTotal);clearForm();toast('Saved!');btn.innerHTML='Save Entry';btn.disabled=false;submitting=false;if(online&&CFG.url)setTimeout(()=>sendToServer(entry),100);};
 
-function clearForm() {
-    $('dutyName').value = '';
-    $('bankFee').value = '15';
-    $('salary').value = '0';
-    $('remarks').value = 'DONE';
-    
-    document.querySelectorAll('.form-err').forEach(e => e.classList.remove('show'));
-    document.querySelectorAll('.form-input.err').forEach(e => e.classList.remove('err'));
-    
-    ['endList', 'remitList'].forEach((id, i) => {
-        const list = $(id);
-        const defaultRemark = i === 0 ? 'End Chips' : 'Remittance';
-        list.querySelectorAll('.entry-row').forEach((row, j) => {
-            if (j === 0) {
-                row.querySelector('.amt').value = '';
-                row.querySelectorAll('.entry-input')[1].value = defaultRemark;
-            } else {
-                row.remove();
-            }
-        });
-    });
-    
-    $('activeList').querySelectorAll('.entry-row:not(.starting)').forEach(r => r.remove());
-    setNextEntry();
-    updateStartingChips();
-}
+function clearForm(){$('dutyName').value='';$('bankFee').value='15';$('salary').value='0';$('remarks').value='DONE';document.querySelectorAll('.form-err').forEach(e=>e.classList.remove('show'));document.querySelectorAll('.form-input.err').forEach(e=>e.classList.remove('err'));['endList','remitList'].forEach((id,i)=>{const list=$(id),def=i===0?'End Chips':'Remittance';list.querySelectorAll('.entry-row').forEach((r,j)=>{if(j===0){r.querySelector('.amt').value='';r.querySelectorAll('.entry-input')[1].value=def;}else r.remove();});});$('activeList').querySelectorAll('.entry-row:not(.starting)').forEach(r=>r.remove());setNext();updateStarting();}
 
-// ===============================================
 // TABS
-// ===============================================
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.onclick = () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        $(tab.dataset.tab).classList.add('active');
-    };
-});
+document.querySelectorAll('.tab').forEach(tab=>{tab.onclick=()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));tab.classList.add('active');$(tab.dataset.tab).classList.add('active');};});
 
-// ===============================================
-// DATA LOADING
-// ===============================================
-function loadLocalData() {
-    const cache = getCache();
-    const pending = getPending().filter(e => !wasSent(e.uniqueId));
-    allData = [...pending.map(p => ({ ...p, pending: true })), ...cache];
-    filterData();
-    updateLoaderFilter();
-    
-    // Get last end from most recent server entry
-    const sorted = [...allData].filter(e => !e.pending).sort((a, b) => 
-        new Date(b.date) - new Date(a.date) || 
-        (SHIFT_DISPLAY_ORDER[a.shift] || 0) - (SHIFT_DISPLAY_ORDER[b.shift] || 0)
-    );
-    if (sorted[0]?.endChipsTotal !== undefined) setLastEndChips(sorted[0].endChipsTotal);
-    
-    setNextEntry();
-    updateStartingChips();
-    updatePendingUI();
-}
+// DATA LOADING - FIXED REFRESH
+function loadLocal(){const cache=getCache();const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...cache];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();}
 
-async function loadData() {
-    if (!CONFIG.url) { 
-        showToast('Set URL in Settings', 'warning'); 
-        loadLocalData(); 
-        return; 
-    }
-    if (!isOnline) { 
-        showToast('Offline - showing cached data', 'warning'); 
-        loadLocalData(); 
-        return; 
-    }
-    
-    // Show loading feedback
-    showToast('Loading...');
-    
-    try {
-        const response = await fetch(`${CONFIG.url}?action=getData&_=${Date.now()}`, {
-            method: 'GET',
-            mode: 'cors'
-        });
-        
-        if (!response.ok) {
-            throw new Error('Server returned ' + response.status);
-        }
-        
-        const text = await response.text();
-        
-        let json;
-        try {
-            json = JSON.parse(text);
-        } catch (parseErr) {
-            console.log('Parse error:', parseErr, 'Response:', text.substring(0, 500));
-            showToast('Invalid server response', 'error');
-            loadLocalData();
-            return;
-        }
-        
-        if (json.success && json.entries) {
-            // Normalize server entries
-            const serverEntries = json.entries.map(e => ({
-                rowIndex: e.rowIndex,
-                date: e.date || '',
-                day: e.day || '',
-                shift: e.shift || '',
-                dutyName: String(e.dutyName || '').toUpperCase(),
-                activeChipsTotal: parseFloat(e.activeChipsTotal) || 0,
-                endChipsTotal: parseFloat(e.endChipsTotal) || 0,
-                cfr: parseFloat(e.cfr) || 0,
-                remittanceTotal: parseFloat(e.remittanceTotal) || 0,
-                totalRemittances: parseFloat(e.totalRemittances) || 0,
-                bankFee: parseFloat(e.bankFee) || 0,
-                salary: parseFloat(e.salary) || 0,
-                unremitted: parseFloat(e.unremitted) || 0,
-                remarks: e.remarks || '',
-                uniqueId: e.uniqueId || ''
-            }));
-            
-            // Save to cache
-            saveCache(serverEntries);
-            
-            // Merge with pending entries
-            const pending = getPending().filter(e => !wasSent(e.uniqueId));
-            allData = [...pending.map(p => ({ ...p, pending: true })), ...serverEntries];
-            
-            // Update UI
-            filterData();
-            updateLoaderFilter();
-            
-            // Get last end chips from most recent entry
-            const sorted = [...allData].filter(e => !e.pending).sort((a, b) => 
-                new Date(b.date) - new Date(a.date) || 
-                (SHIFT_DISPLAY_ORDER[a.shift] || 0) - (SHIFT_DISPLAY_ORDER[b.shift] || 0)
-            );
-            if (sorted[0]?.endChipsTotal !== undefined) {
-                setLastEndChips(sorted[0].endChipsTotal);
-            }
-            
-            setNextEntry();
-            updateStartingChips();
-            updatePendingUI();
-            showToast(`✓ Loaded ${serverEntries.length} entries!`);
-        } else if (json.success && !json.entries) {
-            // No entries yet
-            saveCache([]);
-            allData = getPending().filter(e => !wasSent(e.uniqueId)).map(p => ({ ...p, pending: true }));
-            filterData();
-            updateLoaderFilter();
-            showToast('No entries found');
-        } else {
-            console.log('Server response:', json);
-            showToast(json.message || json.error || 'Load failed', 'error');
-            loadLocalData();
-        }
-    } catch (err) {
-        console.log('Load error:', err);
-        showToast('Connection error: ' + err.message, 'error');
-        loadLocalData();
-    }
-}
+async function loadData(){if(!CFG.url){toast('Set URL in Settings','warning');loadLocal();return;}if(!online){toast('Offline','warning');loadLocal();return;}const btn=$('refreshBtn');btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';toast('Loading...');try{const res=await fetch(CFG.url+'?action=getData&_='+Date.now());if(!res.ok)throw new Error('Server error');const text=await res.text();let json;try{json=JSON.parse(text);}catch{toast('Invalid response','error');loadLocal();btn.disabled=false;btn.innerHTML='Refresh';return;}if(json.success){const entries=(json.entries||[]).map(e=>({rowIndex:e.rowIndex,date:e.date||'',day:e.day||'',shift:e.shift||'',dutyName:String(e.dutyName||'').toUpperCase(),activeChipsTotal:parseFloat(e.activeChipsTotal)||0,endChipsTotal:parseFloat(e.endChipsTotal)||0,cfr:parseFloat(e.cfr)||0,remittanceTotal:parseFloat(e.remittanceTotal)||0,totalRemittances:parseFloat(e.totalRemittances)||0,bankFee:parseFloat(e.bankFee)||0,salary:parseFloat(e.salary)||0,unremitted:parseFloat(e.unremitted)||0,remarks:e.remarks||'',uniqueId:e.uniqueId||''}));saveCache(entries);const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...entries];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();toast('Loaded '+entries.length+' entries!');}else{toast(json.message||json.error||'Failed','error');loadLocal();}}catch(err){console.log('Error:',err);toast('Connection error','error');loadLocal();}btn.disabled=false;btn.innerHTML='Refresh';}
 
-function updateLoaderFilter() {
-    const select = $('filterLoader');
-    const loaders = [...new Set(allData.map(e => e.dutyName).filter(Boolean))];
-    select.innerHTML = '<option value="">All</option>' + loaders.map(l => `<option value="${l}">${l}</option>`).join('');
-}
+function updateLoaderFilter(){const sel=$('filterLoader');const loaders=[...new Set(allData.map(e=>e.dutyName).filter(Boolean))];sel.innerHTML='<option value="">All</option>'+loaders.map(l=>'<option value="'+l+'">'+l+'</option>').join('');}
+function filterData(){let d=allData;const loader=$('filterLoader')?.value;if(loader)d=d.filter(e=>e.dutyName===loader);const start=$('filterStart')?.value,end=$('filterEnd')?.value;if(start)d=d.filter(e=>e.date>=start);if(end)d=d.filter(e=>e.date<=end);d.sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));filtered=d;renderTable();}
+function clearFilter(){$('filterStart').value='';$('filterEnd').value='';$('filterLoader').value='';filterData();}
 
-function filterData() {
-    let data = allData;
-    
-    const loader = $('filterLoader')?.value;
-    if (loader) data = data.filter(e => e.dutyName === loader);
-    
-    const start = $('filterStart')?.value;
-    const end = $('filterEnd')?.value;
-    if (start) data = data.filter(e => e.date >= start);
-    if (end) data = data.filter(e => e.date <= end);
-    
-    // Sort: newest date first, then 4-12 on top for same date
-    data.sort((a, b) => new Date(b.date) - new Date(a.date) || (SHIFT_DISPLAY_ORDER[a.shift] || 0) - (SHIFT_DISPLAY_ORDER[b.shift] || 0));
-    
-    filteredData = data;
-    renderTable();
-}
+function renderTable(){const tbody=$('reportBody');if(filtered.length===0){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:2rem">No data</td></tr>';return;}let html='',tot={active:0,end:0,cfr:0,remit:0,unremit:0};filtered.forEach(e=>{tot.active+=e.activeChipsTotal||0;tot.end+=e.endChipsTotal||0;tot.cfr+=e.cfr||0;tot.remit+=e.totalRemittances||0;tot.unremit+=e.unremitted||0;const pend=e.pending&&!wasSent(e.uniqueId);html+='<tr class="'+(pend?'pending':'')+'"><td>'+fDateShort(e.date)+(pend?' ...':'')+'</td><td style="font-size:.7rem">'+(e.shift||'-')+'</td><td>'+(e.dutyName||'-')+'</td><td>'+fC(e.activeChipsTotal)+'</td><td>'+fC(e.endChipsTotal)+'</td><td>'+fC(e.cfr)+'</td><td>'+fC(e.totalRemittances)+'</td><td>'+fC(e.bankFee)+'</td><td style="color:'+((e.unremitted||0)<0?'var(--red)':'var(--yellow)')+'">'+fC(e.unremitted)+'</td><td>'+(pend?'...':(e.remarks||'-'))+'</td><td>'+(!pend&&e.rowIndex?'<button class="btn btn-secondary" style="padding:.4rem;font-size:.7rem" onclick="openEdit('+e.rowIndex+')">Edit</button>':'')+'</td></tr>';});html+='<tr class="table-foot"><td colspan="3" style="text-align:right">TOTAL:</td><td>'+fC(tot.active)+'</td><td>'+fC(tot.end)+'</td><td>'+fC(tot.cfr)+'</td><td>'+fC(tot.remit)+'</td><td>-</td><td style="color:'+(tot.unremit<0?'var(--red)':'var(--cyan)')+'">'+fC(tot.unremit)+'</td><td colspan="2"></td></tr>';tbody.innerHTML=html;}
 
-function clearFilter() {
-    $('filterStart').value = '';
-    $('filterEnd').value = '';
-    $('filterLoader').value = '';
-    filterData();
-}
+// EDIT - FIXED (updates cache)
+function openEdit(rowIndex){editRow=rowIndex;const entry=allData.find(e=>e.rowIndex===rowIndex);if(!entry){toast('Not found','error');return;}$('editDate').value=entry.date;$('editShift').value=entry.shift||'';$('editLoader').value=entry.dutyName||'';$('editActive').value=fV(entry.activeChipsTotal);$('editEnd').value=fV(entry.endChipsTotal);$('editCFR').value=fV(entry.cfr);$('editRemit').value=fV(entry.remittanceTotal);$('editFee').value=fV(entry.bankFee);$('editSalary').value=fV(entry.salary);$('editUnremit').value=fV(entry.unremitted);$('editRemarks').value=entry.remarks||'';$('editModal').classList.add('show');}
+function recalcEdit(){const a=pN($('editActive').value),e=pN($('editEnd').value),r=pN($('editRemit').value),s=pN($('editSalary').value);$('editCFR').value=fV(a-e);$('editUnremit').value=fV((r+s)-(a-e));}
+function closeEdit(){editRow=null;$('editModal').classList.remove('show');}
 
-function renderTable() {
-    const tbody = $('reportBody');
-    
-    if (filteredData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:2rem">No data</td></tr>';
-        return;
-    }
-    
-    let html = '';
-    let totals = { active: 0, end: 0, cfr: 0, remit: 0, unremit: 0 };
-    
-    filteredData.forEach(e => {
-        totals.active += e.activeChipsTotal || 0;
-        totals.end += e.endChipsTotal || 0;
-        totals.cfr += e.cfr || 0;
-        totals.remit += e.totalRemittances || 0;
-        totals.unremit += e.unremitted || 0;
-        
-        const isPending = e.pending && !wasSent(e.uniqueId);
-        
-        html += `<tr class="${isPending ? 'pending' : ''}">
-            <td>${formatDateShort(e.date)}${isPending ? ' ⏳' : ''}</td>
-            <td style="font-size:.7rem">${e.shift || '-'}</td>
-            <td>${e.dutyName || '-'}</td>
-            <td>${formatCurrency(e.activeChipsTotal)}</td>
-            <td>${formatCurrency(e.endChipsTotal)}</td>
-            <td>${formatCurrency(e.cfr)}</td>
-            <td>${formatCurrency(e.totalRemittances)}</td>
-            <td>${formatCurrency(e.bankFee)}</td>
-            <td style="color:${(e.unremitted || 0) < 0 ? 'var(--red)' : 'var(--yellow)'}">${formatCurrency(e.unremitted)}</td>
-            <td>${isPending ? '⏳' : (e.remarks || '-')}</td>
-            <td>${!isPending && e.rowIndex ? `<button class="btn btn-secondary" style="padding:.4rem;font-size:.7rem" onclick="openEditModal(${e.rowIndex})">✏️</button>` : ''}</td>
-        </tr>`;
-    });
-    
-    html += `<tr class="table-foot">
-        <td colspan="3" style="text-align:right">TOTAL:</td>
-        <td>${formatCurrency(totals.active)}</td>
-        <td>${formatCurrency(totals.end)}</td>
-        <td>${formatCurrency(totals.cfr)}</td>
-        <td>${formatCurrency(totals.remit)}</td>
-        <td>-</td>
-        <td style="color:${totals.unremit < 0 ? 'var(--red)' : 'var(--cyan)'}">${formatCurrency(totals.unremit)}</td>
-        <td colspan="2"></td>
-    </tr>`;
-    
-    tbody.innerHTML = html;
-}
+function saveEdit(e){e.preventDefault();if(!editRow)return;const data={action:'updateEntry',rowIndex:editRow,date:$('editDate').value,shift:$('editShift').value,dutyName:$('editLoader').value.toUpperCase(),activeChipsTotal:pN($('editActive').value),endChipsTotal:pN($('editEnd').value),cfr:pN($('editCFR').value),remittanceTotal:pN($('editRemit').value),bankFee:pN($('editFee').value),salary:pN($('editSalary').value),totalRemittances:pN($('editRemit').value)+pN($('editSalary').value),unremitted:pN($('editUnremit').value),remarks:$('editRemarks').value};const idx=allData.findIndex(entry=>entry.rowIndex===editRow);if(idx!==-1)Object.assign(allData[idx],data);const cache=getCache();const cIdx=cache.findIndex(entry=>entry.rowIndex===editRow);if(cIdx!==-1){Object.assign(cache[cIdx],data);saveCache(cache);}filterData();toast('Updated!');closeEdit();if(online&&CFG.url){fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)}).then(r=>r.json()).then(j=>{if(!j.success)toast('Server error','warning');}).catch(()=>toast('Sync failed','warning'));}}
 
-// ===============================================
-// EDIT MODAL
-// ===============================================
-function openEditModal(rowIndex) {
-    currentEditRow = rowIndex;
-    const entry = allData.find(e => e.rowIndex === rowIndex);
-    
-    if (!entry) { showToast('Entry not found', 'error'); return; }
-    
-    $('editRowIndex').value = rowIndex;
-    $('editDate').value = entry.date;
-    $('editShift').value = entry.shift || '';
-    $('editLoader').value = entry.dutyName || '';
-    $('editActive').value = formatValue(entry.activeChipsTotal);
-    $('editEnd').value = formatValue(entry.endChipsTotal);
-    $('editCFR').value = formatValue(entry.cfr);
-    $('editRemit').value = formatValue(entry.remittanceTotal);
-    $('editFee').value = formatValue(entry.bankFee);
-    $('editSalary').value = formatValue(entry.salary);
-    $('editUnremit').value = formatValue(entry.unremitted);
-    $('editRemarks').value = entry.remarks || '';
-    
-    $('editModal').classList.add('show');
-}
+// DELETE - FIXED (removes from cache + reloads)
+function deleteEntry(){$('editModal').classList.remove('show');$('deleteModal').classList.add('show');}
+function closeDelete(){$('deleteModal').classList.remove('show');}
+function confirmDelete(){if(!editRow)return;const row=editRow;allData=allData.filter(e=>e.rowIndex!==row);const cache=getCache();saveCache(cache.filter(e=>e.rowIndex!==row));filterData();toast('Deleted!');closeDelete();editRow=null;if(online&&CFG.url){fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'deleteEntry',rowIndex:row})}).then(r=>r.json()).then(j=>{if(j.success)setTimeout(()=>loadData(),500);else toast('Server error','error');}).catch(()=>toast('Sync failed','warning'));}}
 
-function recalcEdit() {
-    const active = parseNumber($('editActive').value);
-    const end = parseNumber($('editEnd').value);
-    const remit = parseNumber($('editRemit').value);
-    const salary = parseNumber($('editSalary').value);
-    
-    $('editCFR').value = formatValue(active - end);
-    $('editUnremit').value = formatValue((remit + salary) - (active - end));
-}
+// SETTINGS
+function saveUrl(){const url=$('scriptUrl').value.trim();if(url){CFG.url=url;localStorage.setItem('cfr_url',url);toast('Saved!');updateStatus();}else toast('Enter URL','error');}
+async function testConn(){const url=$('scriptUrl').value.trim();if(!url){toast('Enter URL','error');return;}try{const res=await fetch(url+'?action=test&_='+Date.now());const json=await res.json();toast(json.success?'Connected!':'Failed',json.success?'success':'error');}catch{toast('Failed','error');}}
+function hardRefresh(){if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(reg=>reg.unregister()));caches.keys().then(names=>names.forEach(n=>caches.delete(n)));toast('Refreshing...');setTimeout(()=>location.reload(true),500);}
+function clearAllData(){if(!confirm('Clear ALL data?'))return;localStorage.clear();toast('Cleared!');setTimeout(()=>location.reload(),500);}
 
-function closeEditModal() {
-    currentEditRow = null;
-    $('editModal').classList.remove('show');
-}
-
-function saveEdit(e) {
-    e.preventDefault();
-    if (!currentEditRow) return;
-    
-    const updatedData = {
-        action: 'updateEntry',
-        rowIndex: currentEditRow,
-        date: $('editDate').value,
-        shift: $('editShift').value,
-        dutyName: $('editLoader').value.toUpperCase(),
-        activeChipsTotal: parseNumber($('editActive').value),
-        endChipsTotal: parseNumber($('editEnd').value),
-        cfr: parseNumber($('editCFR').value),
-        remittanceTotal: parseNumber($('editRemit').value),
-        bankFee: parseNumber($('editFee').value),
-        salary: parseNumber($('editSalary').value),
-        totalRemittances: parseNumber($('editRemit').value) + parseNumber($('editSalary').value),
-        unremitted: parseNumber($('editUnremit').value),
-        remarks: $('editRemarks').value
-    };
-    
-    // Update local allData
-    const idx = allData.findIndex(entry => entry.rowIndex === currentEditRow);
-    if (idx !== -1) {
-        Object.assign(allData[idx], updatedData);
-    }
-    
-    // Update cache as well
-    const cache = getCache();
-    const cacheIdx = cache.findIndex(entry => entry.rowIndex === currentEditRow);
-    if (cacheIdx !== -1) {
-        Object.assign(cache[cacheIdx], updatedData);
-        saveCache(cache);
-    }
-    
-    filterData();
-    showToast('Updated!');
-    closeEditModal();
-    
-    // Send to server
-    if (isOnline && CONFIG.url) {
-        fetch(CONFIG.url, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain' }, 
-            body: JSON.stringify(updatedData) 
-        })
-        .then(res => res.json())
-        .then(json => {
-            if (!json.success) {
-                showToast('Server error', 'error');
-            }
-        })
-        .catch(() => showToast('Sync failed', 'warning'));
-    }
-}
-
-function deleteEntry() {
-    $('editModal').classList.remove('show');
-    $('deleteModal').classList.add('show');
-}
-
-function closeDeleteModal() {
-    $('deleteModal').classList.remove('show');
-}
-
-function confirmDelete() {
-    if (!currentEditRow) return;
-    
-    const rowToDelete = currentEditRow;
-    
-    // Remove from local allData
-    allData = allData.filter(entry => entry.rowIndex !== rowToDelete);
-    
-    // Remove from cache
-    const cache = getCache();
-    const updatedCache = cache.filter(entry => entry.rowIndex !== rowToDelete);
-    saveCache(updatedCache);
-    
-    filterData();
-    showToast('Deleted!');
-    closeDeleteModal();
-    currentEditRow = null;
-    
-    // Send to server and reload data to get fresh row indices
-    if (isOnline && CONFIG.url) {
-        fetch(CONFIG.url, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain' }, 
-            body: JSON.stringify({ action: 'deleteEntry', rowIndex: rowToDelete }) 
-        })
-        .then(res => res.json())
-        .then(json => {
-            if (json.success) {
-                // Reload data from server to get updated row indices
-                // (because deleting a row shifts all subsequent row numbers)
-                setTimeout(() => loadData(), 500);
-            } else {
-                showToast('Server error', 'error');
-            }
-        })
-        .catch(() => showToast('Sync failed', 'warning'));
-    }
-}
-        localStorage.setItem('cfr_url', url);
-        showToast('Saved!');
-        updateStatus();
-    } else {
-        showToast('Enter URL', 'error');
-    }
-}
-
-async function testConnection() {
-    const url = $('scriptUrl').value.trim();
-    if (!url) { showToast('Enter URL', 'error'); return; }
-    
-    try {
-        const response = await fetch(`${url}?action=test&_=${Date.now()}`);
-        const json = await response.json();
-        showToast(json.success ? 'Connected!' : 'Failed', json.success ? 'success' : 'error');
-    } catch {
-        showToast('Connection failed', 'error');
-    }
-}
-
-function hardRefresh() {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-            regs.forEach(r => r.unregister());
-        });
-    }
-    caches.keys().then(names => names.forEach(n => caches.delete(n)));
-    showToast('Refreshing...');
-    setTimeout(() => location.reload(true), 500);
-}
-
-function clearAllData() {
-    if (!confirm('Clear ALL local data? This cannot be undone.')) return;
-    localStorage.clear();
-    showToast('Cleared!');
-    setTimeout(() => location.reload(), 500);
-}
-
-// ===============================================
-// PWA REGISTRATION
-// ===============================================
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-}
-
-// ===============================================
-// INITIALIZATION
-// ===============================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Clock
-    updateClock();
-    setInterval(updateClock, 1000);
-    
-    // Online status
-    window.addEventListener('online', () => { isOnline = true; updateStatus(); });
-    window.addEventListener('offline', () => { isOnline = false; updateStatus(); });
-    updateStatus();
-    
-    // Load URL
-    if (CONFIG.url) $('scriptUrl').value = CONFIG.url;
-    
-    // Load local data first (instant)
-    loadLocalData();
-    
-    // Show app
-    setTimeout(() => {
-        $('loading').style.display = 'none';
-        $('app').style.display = 'block';
-    }, 200);
-});
+// INIT
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+document.addEventListener('DOMContentLoaded',()=>{updateClock();setInterval(updateClock,1000);window.addEventListener('online',()=>{online=true;updateStatus();});window.addEventListener('offline',()=>{online=false;updateStatus();});updateStatus();if(CFG.url)$('scriptUrl').value=CFG.url;loadLocal();setTimeout(()=>{$('loading').style.display='none';$('app').style.display='block';},200);});
 </script>
 </body>
 </html>
