@@ -112,6 +112,10 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 .coh-status{display:flex;align-items:center;gap:.3rem;font-size:.7rem;margin-top:.3rem}
 .coh-status.connected{color:var(--green)}
 .coh-status.disconnected{color:var(--red)}
+.sync-progress{background:var(--input);border-radius:8px;padding:.5rem;margin-top:.5rem;font-size:.75rem;display:none}
+.sync-progress.show{display:block}
+.sync-bar{height:6px;background:var(--border);border-radius:3px;margin-top:.3rem;overflow:hidden}
+.sync-bar-fill{height:100%;background:linear-gradient(135deg,var(--green),var(--cyan));border-radius:3px;transition:width .3s}
 @media(max-width:600px){.header-content{flex-direction:column;align-items:stretch}.form-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -121,7 +125,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 <div id="app" style="display:none">
 <header class="header">
 <div class="header-content">
-<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.5.1</div></div></div>
+<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.5.3 COH SYNC</div></div></div>
 <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
 <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
 </div>
@@ -206,6 +210,14 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 <div class="form-group"><label class="form-label">COH Script URL</label><input type="url" class="form-input" id="cohUrl" placeholder="https://script.google.com/..."></div>
 <div class="coh-status" id="cohStatus"><span>○</span> Not configured</div>
 <div class="btn-group" style="margin-top:.5rem"><button class="btn btn-green" onclick="saveCohUrl()">Save</button><button class="btn btn-secondary" onclick="testCoh()">Test</button></div>
+<div class="settings-item" style="margin-top:.5rem;border-top:1px solid var(--border);padding-top:.5rem">
+<div><strong>Sync All to COH</strong><div style="font-size:.7rem;color:var(--muted)" id="cohSyncCount">0 entries synced</div></div>
+<button class="btn btn-warning" id="syncAllCohBtn" onclick="syncAllToCOH()">Sync All</button>
+</div>
+<div class="sync-progress" id="syncProgress">
+<div id="syncProgressText">Syncing...</div>
+<div class="sync-bar"><div class="sync-bar-fill" id="syncBarFill" style="width:0%"></div></div>
+</div>
 </div>
 <div class="settings-group">
 <div class="settings-title">📴 Offline</div>
@@ -213,7 +225,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 </div>
 <div class="settings-group">
 <div class="settings-title">📱 App</div>
-<div class="settings-item"><div><strong>Version</strong><div style="font-size:.7rem;color:var(--muted)">5.5.1</div></div></div>
+<div class="settings-item"><div><strong>Version</strong><div style="font-size:.7rem;color:var(--muted)">5.5.3</div></div></div>
 <div class="settings-item"><div><strong>Hard Refresh</strong></div><button class="btn btn-green" onclick="hardRefresh()">Refresh</button></div>
 <div class="settings-item"><div><strong>Clear Data</strong></div><button class="btn btn-danger" onclick="clearAllData()">Clear</button></div>
 </div>
@@ -255,8 +267,12 @@ const CFG={url:localStorage.getItem('cfr_url')||'',cohUrl:localStorage.getItem('
 let allData=[],filtered=[],lastEnd=parseFloat(localStorage.getItem('cfr_last_end'))||0,editRow=null,online=navigator.onLine,submitting=false;
 const SHIFT_ORD={'4:00AM - 12:00PM':1,'8:00PM - 4:00AM':2,'12:00PM - 8:00PM':3};
 const SHIFT_CYC=['12:00PM - 8:00PM','8:00PM - 4:00AM','4:00AM - 12:00PM'];
-const SHIFT_TO_COH={'12:00PM - 8:00PM':'12NN - 8PM (Afternoon)','8:00PM - 4:00AM':'8PM - 4AM (Graveyard)','4:00AM - 12:00PM':'4AM - 12NN (Morning)'};
-const STR={pend:'cfr_pend_v5',sent:'cfr_sent_v5',cache:'cfr_cache_v5'};
+const SHIFT_TO_COH={
+    '12:00PM - 8:00PM':'12NN - 8PM (Afternoon)',
+    '8:00PM - 4:00AM':'8PM - 4AM (Graveyard)',
+    '4:00AM - 12:00PM':'4AM - 12NN (Morning)'
+};
+const STR={pend:'cfr_pend_v5',sent:'cfr_sent_v5',cache:'cfr_cache_v5',cohSent:'coh_sent_v1'};
 const $=id=>document.getElementById(id);
 function fmtNum(v){if(v===null||v===undefined||v==='')return'0';const num=parseFloat(String(v).replace(/,/g,''));if(isNaN(num))return'0';const parts=num.toString().split('.');parts[0]=parseInt(parts[0]).toLocaleString('en-US');return parts.length>1?parts[0]+'.'+parts[1]:parts[0];}
 const fC=v=>'P'+fmtNum(v);
@@ -266,6 +282,7 @@ function formatInput(el){let v=el.value.replace(/[^0-9.]/g,'');const parts=v.spl
 const fTime=(d=new Date())=>d.toLocaleTimeString('en-US',{timeZone:CFG.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
 const fDateFull=(d=new Date())=>d.toLocaleDateString('en-US',{timeZone:CFG.tz,weekday:'short',month:'short',day:'numeric'});
 const fDateShort=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'-';
+const getTimeNow=()=>{const d=new Date();return d.toLocaleTimeString('en-US',{timeZone:CFG.tz,hour:'2-digit',minute:'2-digit',hour12:false});};
 function toast(msg,type='success'){const c=$('toasts'),t=document.createElement('div');t.className='toast '+type;t.innerHTML='<span>'+(type==='success'?'✓':type==='warning'?'!':'✗')+'</span><span>'+msg+'</span>';c.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),200);},2500);}
 const genId=()=>Date.now()+'-'+Math.random().toString(36).substr(2,9);
 function handleEnterKey(e){if(e.key==='Enter'&&e.target.tagName!=='BUTTON'){e.preventDefault();const inputs=[...$('entryForm').querySelectorAll('input:not([readonly]),select')];const idx=inputs.indexOf(e.target);if(idx>-1&&idx<inputs.length-1)inputs[idx+1].focus();return false;}return true;}
@@ -277,34 +294,120 @@ const wasSent=id=>getSent().includes(id);
 const markSent=id=>{const a=getSent();if(!a.includes(id)){a.push(id);saveSent(a);}};
 const getCache=()=>{try{return JSON.parse(localStorage.getItem(STR.cache))||[];}catch{return[];}};
 const saveCache=a=>localStorage.setItem(STR.cache,JSON.stringify(a));
-function updatePendUI(){const p=getPend().filter(e=>!wasSent(e.uniqueId));$('pendingBadge').style.display=p.length>0?'inline':'none';$('pendingBadge').textContent=p.length;$('pendingCount').textContent=p.length+' entries';}
+const getCohSent=()=>{try{return JSON.parse(localStorage.getItem(STR.cohSent))||[];}catch{return[];}};
+const saveCohSent=a=>localStorage.setItem(STR.cohSent,JSON.stringify(a.slice(-500)));
+const wasCohSent=id=>getCohSent().includes(id);
+const markCohSent=id=>{const a=getCohSent();if(!a.includes(id)){a.push(id);saveCohSent(a);}};
 
-async function sendToCOH(entry){
+function updatePendUI(){const p=getPend().filter(e=>!wasSent(e.uniqueId));$('pendingBadge').style.display=p.length>0?'inline':'none';$('pendingBadge').textContent=p.length;$('pendingCount').textContent=p.length+' entries';}
+function updateCohSyncCount(){const sent=getCohSent().length;$('cohSyncCount').textContent=sent+' entries synced';}
+
+// Generate COH rowId from CFR entry
+function getCohRowId(entry){
+    // Use uniqueId if available, otherwise create from date+shift+loader
+    if(entry.uniqueId)return 'CFR-'+entry.uniqueId;
+    return 'CFR-'+entry.date+'-'+entry.shift+'-'+(entry.dutyName||'').substring(0,3);
+}
+
+// Send single entry to COH
+async function sendToCOH(entry,showToast=true){
     if(!CFG.cohUrl||!online)return false;
+    
+    const cohRowId=getCohRowId(entry);
+    if(wasCohSent(cohRowId)){
+        console.log('Already sent to COH:',cohRowId);
+        return true;
+    }
+    
     try{
         const cohData={
-            action:'addFundIn',
+            action:'ADD',
+            type:'IN',
             date:entry.date,
+            time:getTimeNow(),
             shift:SHIFT_TO_COH[entry.shift]||entry.shift,
             category:'CFR',
-            remarks:'CFR '+entry.dutyName,
+            remarks:'CFR '+entry.dutyName+' - '+entry.shift,
             amount:entry.cfr,
-            fee:entry.bankFee
+            fee:entry.bankFee,
+            rowId:cohRowId
         };
-        const res=await fetch(CFG.cohUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(cohData)});
+        
+        console.log('Sending to COH:',cohData);
+        
+        const res=await fetch(CFG.cohUrl,{
+            method:'POST',
+            headers:{'Content-Type':'text/plain'},
+            body:JSON.stringify(cohData)
+        });
+        
         if(res.ok){
             const json=await res.json();
+            console.log('COH response:',json);
             if(json.success){
-                console.log('COH sync OK');
+                markCohSent(cohRowId);
+                if(showToast)toast('COH synced!');
                 return true;
             }
         }
-    }catch(err){console.log('COH sync error:',err);}
+    }catch(err){
+        console.log('COH sync error:',err);
+    }
     return false;
 }
 
+// Sync ALL CFR entries to COH
+async function syncAllToCOH(){
+    if(!CFG.cohUrl){toast('Set COH URL first','error');return;}
+    if(!online){toast('Offline','warning');return;}
+    
+    // Get all entries (from cache, not pending)
+    const entries=getCache().filter(e=>e.date&&e.cfr);
+    if(entries.length===0){toast('No entries to sync','warning');return;}
+    
+    // Filter out already synced
+    const toSync=entries.filter(e=>!wasCohSent(getCohRowId(e)));
+    if(toSync.length===0){toast('All entries already synced!');updateCohSyncCount();return;}
+    
+    // Show progress
+    const btn=$('syncAllCohBtn');
+    btn.disabled=true;
+    btn.innerHTML='<div class="spinner"></div>';
+    const progress=$('syncProgress');
+    const progressText=$('syncProgressText');
+    const progressBar=$('syncBarFill');
+    progress.classList.add('show');
+    
+    let synced=0,failed=0;
+    
+    for(let i=0;i<toSync.length;i++){
+        const entry=toSync[i];
+        progressText.textContent=`Syncing ${i+1}/${toSync.length}...`;
+        progressBar.style.width=((i+1)/toSync.length*100)+'%';
+        
+        const ok=await sendToCOH(entry,false);
+        if(ok)synced++;
+        else failed++;
+        
+        // Small delay to avoid rate limiting
+        await new Promise(r=>setTimeout(r,300));
+    }
+    
+    // Done
+    btn.disabled=false;
+    btn.textContent='Sync All';
+    progress.classList.remove('show');
+    updateCohSyncCount();
+    
+    if(failed===0){
+        toast(`All ${synced} entries synced to COH!`);
+    }else{
+        toast(`${synced} synced, ${failed} failed`,'warning');
+    }
+}
+
 async function sendToServer(entry){if(!CFG.url||!online)return false;if(wasSent(entry.uniqueId)){savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();return true;}try{const res=await fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});if(res.ok){markSent(entry.uniqueId);savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();
-if(CFG.cohUrl)sendToCOH(entry);
+if(CFG.cohUrl)setTimeout(()=>sendToCOH(entry),500);
 return true;}}catch(err){console.log('Send error:',err);}return false;}
 async function syncPending(){if(!CFG.url){toast('Set URL first','error');return;}if(!online){toast('Offline','warning');return;}const pend=getPend().filter(e=>!wasSent(e.uniqueId));if(pend.length===0){toast('Nothing to sync');return;}toast('Syncing '+pend.length+'...');let ok=0;for(const e of pend){if(await sendToServer(e))ok++;}toast(ok===pend.length?'All synced!':ok+'/'+pend.length+' synced',ok===pend.length?'success':'warning');}
 function updateStatus(){online=navigator.onLine;$('offlineBanner').classList.toggle('show',!online);const dot=$('statusDot'),txt=$('statusText');dot.className='status-dot';if(!online){dot.classList.add('off');txt.textContent='Offline';}else if(CFG.url){dot.classList.add('on');txt.textContent='Online';}else{txt.textContent='No URL';}}
@@ -323,8 +426,8 @@ function validate(){let ok=true;[{id:'entryDate',err:'dateErr',val:$('entryDate'
 $('entryForm').onsubmit=e=>{e.preventDefault();if(!validate()){toast('Fill required','error');return;}const btn=$('submitBtn');if(btn.disabled||submitting)return;submitting=true;btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';const activeTotal=getSum('activeList'),endTotal=getSum('endList');const entry={action:'addEntry',uniqueId:genId(),date:$('entryDate').value,day:$('entryDay').value,shift:$('entryShift').value,dutyName:$('dutyName').value.trim().toUpperCase(),activeChips:getDetails('activeList'),activeChipsTotal:activeTotal,endChips:getDetails('endList'),endChipsTotal:endTotal,remittances:getDetails('remitList'),remittanceTotal:getSum('remitList'),bankFee:pN($('bankFee').value),salary:pN($('salary').value),remarks:$('remarks').value||'DONE',timestamp:new Date().toISOString()};entry.cfr=activeTotal-endTotal;entry.totalRemittances=entry.remittanceTotal+entry.salary;entry.unremitted=entry.totalRemittances-entry.cfr;const pend=getPend();pend.push(entry);savePend(pend);allData.unshift({...entry,pending:true});filterData();setLastEnd(endTotal);clearForm();toast('Saved!');btn.innerHTML='Save';btn.disabled=false;submitting=false;if(online&&CFG.url)setTimeout(()=>sendToServer(entry),100);};
 function clearForm(){$('dutyName').value='';$('bankFee').value='15';$('salary').value='0';$('remarks').value='DONE';document.querySelectorAll('.form-err').forEach(e=>e.classList.remove('show'));document.querySelectorAll('.form-input.err').forEach(e=>e.classList.remove('err'));['endList','remitList'].forEach((id,i)=>{const list=$(id),def=i===0?'End Chips':'Remittance';list.querySelectorAll('.entry-row').forEach((r,j)=>{if(j===0){r.querySelector('.amt').value='';r.querySelectorAll('.entry-input')[1].value=def;}else r.remove();});});$('activeList').querySelectorAll('.entry-row:not(.starting)').forEach(r=>r.remove());setNext();updateStarting();}
 document.querySelectorAll('.tab').forEach(tab=>{tab.onclick=()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));tab.classList.add('active');$(tab.dataset.tab).classList.add('active');};});
-function loadLocal(){const cache=getCache();const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...cache];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();}
-async function loadData(){if(!CFG.url){toast('Set URL','warning');loadLocal();return;}if(!online){toast('Offline','warning');loadLocal();return;}const btn=$('refreshBtn');btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';try{const res=await fetch(CFG.url+'?action=getData&_='+Date.now());if(!res.ok)throw new Error('Server error');const text=await res.text();let json;try{json=JSON.parse(text);}catch{toast('Invalid response','error');loadLocal();btn.disabled=false;btn.innerHTML='Refresh';return;}if(json.success){const entries=(json.entries||[]).map(e=>({rowIndex:e.rowIndex,date:e.date||'',day:e.day||'',shift:e.shift||'',dutyName:String(e.dutyName||'').toUpperCase(),activeChipsTotal:pN(e.activeChipsTotal),endChipsTotal:pN(e.endChipsTotal),cfr:pN(e.cfr),remittanceTotal:pN(e.remittanceTotal),totalRemittances:pN(e.totalRemittances),bankFee:pN(e.bankFee),salary:pN(e.salary),unremitted:pN(e.unremitted),remarks:e.remarks||'',uniqueId:e.uniqueId||''}));saveCache(entries);const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...entries];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();toast('Loaded '+entries.length);}else{toast(json.message||'Failed','error');loadLocal();}}catch(err){console.log('Error:',err);toast('Connection error','error');loadLocal();}btn.disabled=false;btn.innerHTML='Refresh';}
+function loadLocal(){const cache=getCache();const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...cache];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();updateCohSyncCount();}
+async function loadData(){if(!CFG.url){toast('Set URL','warning');loadLocal();return;}if(!online){toast('Offline','warning');loadLocal();return;}const btn=$('refreshBtn');btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';try{const res=await fetch(CFG.url+'?action=getData&_='+Date.now());if(!res.ok)throw new Error('Server error');const text=await res.text();let json;try{json=JSON.parse(text);}catch{toast('Invalid response','error');loadLocal();btn.disabled=false;btn.innerHTML='Refresh';return;}if(json.success){const entries=(json.entries||[]).map(e=>({rowIndex:e.rowIndex,date:e.date||'',day:e.day||'',shift:e.shift||'',dutyName:String(e.dutyName||'').toUpperCase(),activeChipsTotal:pN(e.activeChipsTotal),endChipsTotal:pN(e.endChipsTotal),cfr:pN(e.cfr),remittanceTotal:pN(e.remittanceTotal),totalRemittances:pN(e.totalRemittances),bankFee:pN(e.bankFee),salary:pN(e.salary),unremitted:pN(e.unremitted),remarks:e.remarks||'',uniqueId:e.uniqueId||''}));saveCache(entries);const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...entries];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();updateCohSyncCount();toast('Loaded '+entries.length);}else{toast(json.message||'Failed','error');loadLocal();}}catch(err){console.log('Error:',err);toast('Connection error','error');loadLocal();}btn.disabled=false;btn.innerHTML='Refresh';}
 function updateLoaderFilter(){const sel=$('filterLoader');const loaders=[...new Set(allData.map(e=>e.dutyName).filter(Boolean))];sel.innerHTML='<option value="">All Loaders</option>'+loaders.map(l=>'<option value="'+l+'">'+l+'</option>').join('');}
 function filterData(){let d=allData;const loader=$('filterLoader')?.value;if(loader)d=d.filter(e=>e.dutyName===loader);const start=$('filterStart')?.value,end=$('filterEnd')?.value;if(start)d=d.filter(e=>e.date>=start);if(end)d=d.filter(e=>e.date<=end);d.sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));filtered=d;renderTable();}
 function clearFilter(){$('filterStart').value='';$('filterEnd').value='';$('filterLoader').value='';filterData();}
@@ -332,9 +435,7 @@ function renderTable(){const tbody=$('reportBody');if(filtered.length===0){tbody
 function openEdit(rowIndex){editRow=rowIndex;const entry=allData.find(e=>e.rowIndex===rowIndex);if(!entry){toast('Not found','error');return;}$('editDate').value=entry.date;$('editShift').value=entry.shift||'';$('editLoader').value=entry.dutyName||'';$('editActive').value=fV(entry.activeChipsTotal);$('editEnd').value=fV(entry.endChipsTotal);$('editCFR').value=fV(entry.cfr);$('editRemit').value=fV(entry.remittanceTotal);$('editFee').value=fV(entry.bankFee);$('editSalary').value=fV(entry.salary);$('editUnremit').value=fV(entry.unremitted);$('editRemarks').value=entry.remarks||'';$('editModal').classList.add('show');}
 function recalcEdit(){const a=pN($('editActive').value),e=pN($('editEnd').value),r=pN($('editRemit').value),s=pN($('editSalary').value);$('editCFR').value=fV(a-e);$('editUnremit').value=fV((r+s)-(a-e));}
 function closeEdit(){editRow=null;$('editModal').classList.remove('show');}
-function saveEdit(e){e.preventDefault();if(!editRow)return;const data={action:'updateEntry',rowIndex:editRow,date:$('editDate').value,shift:$('editShift').value,dutyName:$('editLoader').value.toUpperCase(),activeChipsTotal:pN($('editActive').value),endChipsTotal:pN($('editEnd').value),cfr:pN($('editCFR').value),remittanceTotal:pN($('editRemit').value),bankFee:pN($('editFee').value),salary:pN($('editSalary').value),totalRemittances:pN($('editRemit').value)+pN($('editSalary').value),unremitted:pN($('editUnremit').value),remarks:$('editRemarks').value};const idx=allData.findIndex(entry=>entry.rowIndex===editRow);if(idx!==-1)Object.assign(allData[idx],data);const cache=getCache();const cIdx=cache.findIndex(entry=>entry.rowIndex===editRow);if(cIdx!==-1){Object.assign(cache[cIdx],data);saveCache(cache);}filterData();toast('Updated!');closeEdit();if(online&&CFG.url){fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)}).then(r=>r.json()).then(j=>{if(!j.success)toast('Server error','warning');
-if(CFG.cohUrl)sendToCOH(data);
-}).catch(()=>toast('Sync failed','warning'));}}
+function saveEdit(e){e.preventDefault();if(!editRow)return;const data={action:'updateEntry',rowIndex:editRow,date:$('editDate').value,shift:$('editShift').value,dutyName:$('editLoader').value.toUpperCase(),activeChipsTotal:pN($('editActive').value),endChipsTotal:pN($('editEnd').value),cfr:pN($('editCFR').value),remittanceTotal:pN($('editRemit').value),bankFee:pN($('editFee').value),salary:pN($('editSalary').value),totalRemittances:pN($('editRemit').value)+pN($('editSalary').value),unremitted:pN($('editUnremit').value),remarks:$('editRemarks').value};const idx=allData.findIndex(entry=>entry.rowIndex===editRow);if(idx!==-1)Object.assign(allData[idx],data);const cache=getCache();const cIdx=cache.findIndex(entry=>entry.rowIndex===editRow);if(cIdx!==-1){Object.assign(cache[cIdx],data);saveCache(cache);}filterData();toast('Updated!');closeEdit();if(online&&CFG.url){fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)}).then(r=>r.json()).then(j=>{if(!j.success)toast('Server error','warning');}).catch(()=>toast('Sync failed','warning'));}}
 function deleteEntry(){$('editModal').classList.remove('show');$('deleteModal').classList.add('show');}
 function closeDelete(){$('deleteModal').classList.remove('show');}
 function confirmDelete(){if(!editRow)return;const row=editRow;allData=allData.filter(e=>e.rowIndex!==row);const cache=getCache();saveCache(cache.filter(e=>e.rowIndex!==row));filterData();toast('Deleted!');closeDelete();editRow=null;if(online&&CFG.url){fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'deleteEntry',rowIndex:row})}).then(r=>r.json()).then(j=>{if(j.success)setTimeout(()=>loadData(),500);else toast('Server error','error');}).catch(()=>toast('Sync failed','warning'));}}
