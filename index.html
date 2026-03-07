@@ -126,7 +126,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 <div id="app" style="display:none">
 <header class="header">
 <div class="header-content">
-<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.6.1 AUTO-SYNC</div></div></div>
+<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.6.2 AUTO-SYNC</div></div></div>
 <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
 <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
 </div>
@@ -360,7 +360,7 @@ async function sendToCOH(entry,showToast=true){
             remarks:entry.dutyName,
             amount:entry.cfr,
             fee:entry.bankFee,
-            rowId:genId()
+            rowId:'CFR-'+entry.date+'-'+(SHIFT_TO_COH[entry.shift]||entry.shift).replace(/[^a-zA-Z0-9]/g,'')+'-'+entry.dutyName
         };
         
         console.log('Sending to COH:',cohData);
