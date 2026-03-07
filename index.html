@@ -116,6 +116,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 .sync-progress.show{display:block}
 .sync-bar{height:6px;background:var(--border);border-radius:3px;margin-top:.3rem;overflow:hidden}
 .sync-bar-fill{height:100%;background:linear-gradient(135deg,var(--green),var(--cyan));border-radius:3px;transition:width .3s}
+.auto-sync-badge{display:inline-block;background:var(--green);color:#000;font-size:.6rem;padding:.1rem .3rem;border-radius:4px;margin-left:.3rem}
 @media(max-width:600px){.header-content{flex-direction:column;align-items:stretch}.form-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -125,7 +126,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 <div id="app" style="display:none">
 <header class="header">
 <div class="header-content">
-<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.5.5</div></div></div>
+<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.6.0 AUTO-SYNC</div></div></div>
 <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
 <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
 </div>
@@ -205,13 +206,13 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 <div class="btn-group" style="margin-top:.5rem"><button class="btn btn-primary" onclick="saveUrl()">Save</button><button class="btn btn-secondary" onclick="testConn()">Test</button></div>
 </div>
 <div class="settings-group">
-<div class="settings-title">💰 Cash on Hand Integration</div>
-<div style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem">Auto-sync CFR to COH Tracker as Fund In</div>
+<div class="settings-title">💰 Cash on Hand Integration <span class="auto-sync-badge">AUTO-SYNC</span></div>
+<div style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem">New entries auto-sync to COH as Fund In</div>
 <div class="form-group"><label class="form-label">COH Script URL</label><input type="url" class="form-input" id="cohUrl" placeholder="https://script.google.com/..."></div>
 <div class="coh-status" id="cohStatus"><span>○</span> Not configured</div>
 <div class="btn-group" style="margin-top:.5rem"><button class="btn btn-green" onclick="saveCohUrl()">Save</button><button class="btn btn-secondary" onclick="testCoh()">Test</button></div>
 <div class="settings-item" style="margin-top:.5rem;border-top:1px solid var(--border);padding-top:.5rem">
-<div><strong>Sync All to COH</strong><div style="font-size:.7rem;color:var(--muted)" id="cohSyncCount">0 entries synced</div></div>
+<div><strong>Sync Missing to COH</strong><div style="font-size:.7rem;color:var(--muted)" id="cohSyncCount">Checks COH for missing entries</div></div>
 <button class="btn btn-warning" id="syncAllCohBtn" onclick="syncAllToCOH()">Sync All</button>
 </div>
 <div class="sync-progress" id="syncProgress">
@@ -225,7 +226,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 </div>
 <div class="settings-group">
 <div class="settings-title">📱 App</div>
-<div class="settings-item"><div><strong>Version</strong><div style="font-size:.7rem;color:var(--muted)">5.5.4</div></div></div>
+<div class="settings-item"><div><strong>Version</strong><div style="font-size:.7rem;color:var(--muted)">5.6.0</div></div></div>
 <div class="settings-item"><div><strong>Hard Refresh</strong></div><button class="btn btn-green" onclick="hardRefresh()">Refresh</button></div>
 <div class="settings-item"><div><strong>Clear Data</strong></div><button class="btn btn-danger" onclick="clearAllData()">Clear</button></div>
 </div>
@@ -265,6 +266,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 <script>
 const CFG={url:localStorage.getItem('cfr_url')||'',cohUrl:localStorage.getItem('coh_url')||'',tz:'Asia/Manila'};
 let allData=[],filtered=[],lastEnd=parseFloat(localStorage.getItem('cfr_last_end'))||0,editRow=null,online=navigator.onLine,submitting=false;
+let cohExistingKeys=new Set(); // Track what's already in COH
 const SHIFT_ORD={'4:00AM - 12:00PM':1,'8:00PM - 4:00AM':2,'12:00PM - 8:00PM':3};
 const SHIFT_CYC=['12:00PM - 8:00PM','8:00PM - 4:00AM','4:00AM - 12:00PM'];
 const SHIFT_TO_COH={
@@ -272,7 +274,12 @@ const SHIFT_TO_COH={
     '8:00PM - 4:00AM':'8PM - 4AM (Graveyard)',
     '4:00AM - 12:00PM':'4AM - 12NN (Morning)'
 };
-const STR={pend:'cfr_pend_v5',sent:'cfr_sent_v5',cache:'cfr_cache_v5',cohSent:'coh_sent_v1'};
+const COH_TO_SHIFT={
+    '12NN - 8PM (Afternoon)':'12:00PM - 8:00PM',
+    '8PM - 4AM (Graveyard)':'8:00PM - 4:00AM',
+    '4AM - 12NN (Morning)':'4:00AM - 12:00PM'
+};
+const STR={pend:'cfr_pend_v5',sent:'cfr_sent_v5',cache:'cfr_cache_v5'};
 const $=id=>document.getElementById(id);
 function fmtNum(v){if(v===null||v===undefined||v==='')return'0';const num=parseFloat(String(v).replace(/,/g,''));if(isNaN(num))return'0';const parts=num.toString().split('.');parts[0]=parseInt(parts[0]).toLocaleString('en-US');return parts.length>1?parts[0]+'.'+parts[1]:parts[0];}
 const fC=v=>'P'+fmtNum(v);
@@ -293,31 +300,57 @@ const wasSent=id=>getSent().includes(id);
 const markSent=id=>{const a=getSent();if(!a.includes(id)){a.push(id);saveSent(a);}};
 const getCache=()=>{try{return JSON.parse(localStorage.getItem(STR.cache))||[];}catch{return[];}};
 const saveCache=a=>localStorage.setItem(STR.cache,JSON.stringify(a));
-const getCohSent=()=>{try{return JSON.parse(localStorage.getItem(STR.cohSent))||[];}catch{return[];}};
-const saveCohSent=a=>localStorage.setItem(STR.cohSent,JSON.stringify(a.slice(-500)));
-const wasCohSent=id=>getCohSent().includes(id);
-const markCohSent=id=>{const a=getCohSent();if(!a.includes(id)){a.push(id);saveCohSent(a);}};
 
 function updatePendUI(){const p=getPend().filter(e=>!wasSent(e.uniqueId));$('pendingBadge').style.display=p.length>0?'inline':'none';$('pendingBadge').textContent=p.length;$('pendingCount').textContent=p.length+' entries';}
-function updateCohSyncCount(){const sent=getCohSent().length;$('cohSyncCount').textContent=sent+' entries synced';}
 
-function getCohRowId(entry){
-    if(entry.uniqueId)return 'CFR-'+entry.uniqueId;
-    return 'CFR-'+entry.date+'-'+entry.shift+'-'+(entry.dutyName||'').substring(0,3);
+// Create unique key for matching CFR entry in COH
+function getCohKey(entry){
+    const shift=SHIFT_TO_COH[entry.shift]||entry.shift;
+    return `${entry.date}|${shift}|${entry.dutyName}`;
+}
+
+// Fetch existing COH entries to check what's already synced
+async function fetchCohData(){
+    if(!CFG.cohUrl||!online)return[];
+    try{
+        const res=await fetch(CFG.cohUrl+'?type=IN&_='+Date.now());
+        if(res.ok){
+            const json=await res.json();
+            if(json.success&&json.records){
+                // Build set of existing keys (date|shift|remarks where category=Remittance)
+                cohExistingKeys.clear();
+                json.records.forEach(r=>{
+                    if(r.category==='Remittance'){
+                        const key=`${r.date}|${r.shift}|${r.remarks}`;
+                        cohExistingKeys.add(key);
+                    }
+                });
+                console.log('COH has',cohExistingKeys.size,'Remittance entries');
+                return json.records;
+            }
+        }
+    }catch(err){console.log('Fetch COH error:',err);}
+    return[];
+}
+
+// Check if entry already exists in COH
+function isInCOH(entry){
+    const key=getCohKey(entry);
+    return cohExistingKeys.has(key);
 }
 
 // Send single entry to COH (NO TIME field)
 async function sendToCOH(entry,showToast=true){
     if(!CFG.cohUrl||!online)return false;
     
-    const cohRowId=getCohRowId(entry);
-    if(wasCohSent(cohRowId)){
-        console.log('Already sent to COH:',cohRowId);
+    // Check if already in COH
+    if(isInCOH(entry)){
+        console.log('Already in COH:',getCohKey(entry));
+        if(showToast)toast('Already in COH');
         return true;
     }
     
     try{
-        // NO time field - removed as requested
         const cohData={
             action:'ADD',
             type:'IN',
@@ -327,7 +360,7 @@ async function sendToCOH(entry,showToast=true){
             remarks:entry.dutyName,
             amount:entry.cfr,
             fee:entry.bankFee,
-            rowId:cohRowId
+            rowId:'CFR-'+entry.date+'-'+entry.shift+'-'+entry.dutyName
         };
         
         console.log('Sending to COH:',cohData);
@@ -342,7 +375,8 @@ async function sendToCOH(entry,showToast=true){
             const json=await res.json();
             console.log('COH response:',json);
             if(json.success){
-                markCohSent(cohRowId);
+                // Add to local tracking
+                cohExistingKeys.add(getCohKey(entry));
                 if(showToast)toast('COH synced!');
                 return true;
             }
@@ -353,16 +387,10 @@ async function sendToCOH(entry,showToast=true){
     return false;
 }
 
-// Sync ALL CFR entries to COH
+// Sync ALL missing CFR entries to COH
 async function syncAllToCOH(){
     if(!CFG.cohUrl){toast('Set COH URL first','error');return;}
     if(!online){toast('Offline','warning');return;}
-    
-    const entries=getCache().filter(e=>e.date&&e.cfr);
-    if(entries.length===0){toast('No entries to sync','warning');return;}
-    
-    const toSync=entries.filter(e=>!wasCohSent(getCohRowId(e)));
-    if(toSync.length===0){toast('All entries already synced!');updateCohSyncCount();return;}
     
     const btn=$('syncAllCohBtn');
     btn.disabled=true;
@@ -371,6 +399,34 @@ async function syncAllToCOH(){
     const progressText=$('syncProgressText');
     const progressBar=$('syncBarFill');
     progress.classList.add('show');
+    progressText.textContent='Checking COH data...';
+    progressBar.style.width='0%';
+    
+    // First fetch existing COH data
+    await fetchCohData();
+    
+    const entries=getCache().filter(e=>e.date&&e.cfr);
+    if(entries.length===0){
+        toast('No CFR entries','warning');
+        btn.disabled=false;
+        btn.textContent='Sync All';
+        progress.classList.remove('show');
+        return;
+    }
+    
+    // Filter to only missing entries
+    const toSync=entries.filter(e=>!isInCOH(e));
+    
+    if(toSync.length===0){
+        toast('All entries already in COH!');
+        btn.disabled=false;
+        btn.textContent='Sync All';
+        progress.classList.remove('show');
+        $('cohSyncCount').textContent='All '+entries.length+' synced ✓';
+        return;
+    }
+    
+    progressText.textContent=`Found ${toSync.length} missing entries...`;
     
     let synced=0,failed=0;
     
@@ -389,7 +445,7 @@ async function syncAllToCOH(){
     btn.disabled=false;
     btn.textContent='Sync All';
     progress.classList.remove('show');
-    updateCohSyncCount();
+    $('cohSyncCount').textContent=synced+' synced just now';
     
     if(failed===0){
         toast(`All ${synced} entries synced to COH!`);
@@ -398,9 +454,33 @@ async function syncAllToCOH(){
     }
 }
 
-async function sendToServer(entry){if(!CFG.url||!online)return false;if(wasSent(entry.uniqueId)){savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();return true;}try{const res=await fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});if(res.ok){markSent(entry.uniqueId);savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();
-if(CFG.cohUrl)setTimeout(()=>sendToCOH(entry),500);
-return true;}}catch(err){console.log('Send error:',err);}return false;}
+async function sendToServer(entry){
+    if(!CFG.url||!online)return false;
+    if(wasSent(entry.uniqueId)){
+        savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));
+        updatePendUI();
+        return true;
+    }
+    try{
+        const res=await fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});
+        if(res.ok){
+            markSent(entry.uniqueId);
+            savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));
+            updatePendUI();
+            
+            // AUTO-SYNC to COH after successful CFR save
+            if(CFG.cohUrl){
+                setTimeout(async()=>{
+                    const ok=await sendToCOH(entry,true);
+                    if(!ok)toast('COH sync failed','warning');
+                },500);
+            }
+            return true;
+        }
+    }catch(err){console.log('Send error:',err);}
+    return false;
+}
+
 async function syncPending(){if(!CFG.url){toast('Set URL first','error');return;}if(!online){toast('Offline','warning');return;}const pend=getPend().filter(e=>!wasSent(e.uniqueId));if(pend.length===0){toast('Nothing to sync');return;}toast('Syncing '+pend.length+'...');let ok=0;for(const e of pend){if(await sendToServer(e))ok++;}toast(ok===pend.length?'All synced!':ok+'/'+pend.length+' synced',ok===pend.length?'success':'warning');}
 function updateStatus(){online=navigator.onLine;$('offlineBanner').classList.toggle('show',!online);const dot=$('statusDot'),txt=$('statusText');dot.className='status-dot';if(!online){dot.classList.add('off');txt.textContent='Offline';}else if(CFG.url){dot.classList.add('on');txt.textContent='Online';}else{txt.textContent='No URL';}}
 function updateClock(){$('clock').textContent=fTime();$('date').textContent=fDateFull();}
@@ -418,8 +498,8 @@ function validate(){let ok=true;[{id:'entryDate',err:'dateErr',val:$('entryDate'
 $('entryForm').onsubmit=e=>{e.preventDefault();if(!validate()){toast('Fill required','error');return;}const btn=$('submitBtn');if(btn.disabled||submitting)return;submitting=true;btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';const activeTotal=getSum('activeList'),endTotal=getSum('endList');const entry={action:'addEntry',uniqueId:genId(),date:$('entryDate').value,day:$('entryDay').value,shift:$('entryShift').value,dutyName:$('dutyName').value.trim().toUpperCase(),activeChips:getDetails('activeList'),activeChipsTotal:activeTotal,endChips:getDetails('endList'),endChipsTotal:endTotal,remittances:getDetails('remitList'),remittanceTotal:getSum('remitList'),bankFee:pN($('bankFee').value),salary:pN($('salary').value),remarks:$('remarks').value||'DONE',timestamp:new Date().toISOString()};entry.cfr=activeTotal-endTotal;entry.totalRemittances=entry.remittanceTotal+entry.salary;entry.unremitted=entry.totalRemittances-entry.cfr;const pend=getPend();pend.push(entry);savePend(pend);allData.unshift({...entry,pending:true});filterData();setLastEnd(endTotal);clearForm();toast('Saved!');btn.innerHTML='Save';btn.disabled=false;submitting=false;if(online&&CFG.url)setTimeout(()=>sendToServer(entry),100);};
 function clearForm(){$('dutyName').value='';$('bankFee').value='15';$('salary').value='0';$('remarks').value='DONE';document.querySelectorAll('.form-err').forEach(e=>e.classList.remove('show'));document.querySelectorAll('.form-input.err').forEach(e=>e.classList.remove('err'));['endList','remitList'].forEach((id,i)=>{const list=$(id),def=i===0?'End Chips':'Remittance';list.querySelectorAll('.entry-row').forEach((r,j)=>{if(j===0){r.querySelector('.amt').value='';r.querySelectorAll('.entry-input')[1].value=def;}else r.remove();});});$('activeList').querySelectorAll('.entry-row:not(.starting)').forEach(r=>r.remove());setNext();updateStarting();}
 document.querySelectorAll('.tab').forEach(tab=>{tab.onclick=()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));tab.classList.add('active');$(tab.dataset.tab).classList.add('active');};});
-function loadLocal(){const cache=getCache();const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...cache];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();updateCohSyncCount();}
-async function loadData(){if(!CFG.url){toast('Set URL','warning');loadLocal();return;}if(!online){toast('Offline','warning');loadLocal();return;}const btn=$('refreshBtn');btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';try{const res=await fetch(CFG.url+'?action=getData&_='+Date.now());if(!res.ok)throw new Error('Server error');const text=await res.text();let json;try{json=JSON.parse(text);}catch{toast('Invalid response','error');loadLocal();btn.disabled=false;btn.innerHTML='Refresh';return;}if(json.success){const entries=(json.entries||[]).map(e=>({rowIndex:e.rowIndex,date:e.date||'',day:e.day||'',shift:e.shift||'',dutyName:String(e.dutyName||'').toUpperCase(),activeChipsTotal:pN(e.activeChipsTotal),endChipsTotal:pN(e.endChipsTotal),cfr:pN(e.cfr),remittanceTotal:pN(e.remittanceTotal),totalRemittances:pN(e.totalRemittances),bankFee:pN(e.bankFee),salary:pN(e.salary),unremitted:pN(e.unremitted),remarks:e.remarks||'',uniqueId:e.uniqueId||''}));saveCache(entries);const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...entries];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();updateCohSyncCount();toast('Loaded '+entries.length);}else{toast(json.message||'Failed','error');loadLocal();}}catch(err){console.log('Error:',err);toast('Connection error','error');loadLocal();}btn.disabled=false;btn.innerHTML='Refresh';}
+function loadLocal(){const cache=getCache();const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...cache];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();}
+async function loadData(){if(!CFG.url){toast('Set URL','warning');loadLocal();return;}if(!online){toast('Offline','warning');loadLocal();return;}const btn=$('refreshBtn');btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';try{const res=await fetch(CFG.url+'?action=getData&_='+Date.now());if(!res.ok)throw new Error('Server error');const text=await res.text();let json;try{json=JSON.parse(text);}catch{toast('Invalid response','error');loadLocal();btn.disabled=false;btn.innerHTML='Refresh';return;}if(json.success){const entries=(json.entries||[]).map(e=>({rowIndex:e.rowIndex,date:e.date||'',day:e.day||'',shift:e.shift||'',dutyName:String(e.dutyName||'').toUpperCase(),activeChipsTotal:pN(e.activeChipsTotal),endChipsTotal:pN(e.endChipsTotal),cfr:pN(e.cfr),remittanceTotal:pN(e.remittanceTotal),totalRemittances:pN(e.totalRemittances),bankFee:pN(e.bankFee),salary:pN(e.salary),unremitted:pN(e.unremitted),remarks:e.remarks||'',uniqueId:e.uniqueId||''}));saveCache(entries);const pend=getPend().filter(e=>!wasSent(e.uniqueId));allData=[...pend.map(p=>({...p,pending:true})),...entries];filterData();updateLoaderFilter();const sorted=[...allData].filter(e=>!e.pending).sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));if(sorted[0]?.endChipsTotal!==undefined)setLastEnd(sorted[0].endChipsTotal);setNext();updateStarting();updatePendUI();toast('Loaded '+entries.length);}else{toast(json.message||'Failed','error');loadLocal();}}catch(err){console.log('Error:',err);toast('Connection error','error');loadLocal();}btn.disabled=false;btn.innerHTML='Refresh';}
 function updateLoaderFilter(){const sel=$('filterLoader');const loaders=[...new Set(allData.map(e=>e.dutyName).filter(Boolean))];sel.innerHTML='<option value="">All Loaders</option>'+loaders.map(l=>'<option value="'+l+'">'+l+'</option>').join('');}
 function filterData(){let d=allData;const loader=$('filterLoader')?.value;if(loader)d=d.filter(e=>e.dutyName===loader);const start=$('filterStart')?.value,end=$('filterEnd')?.value;if(start)d=d.filter(e=>e.date>=start);if(end)d=d.filter(e=>e.date<=end);d.sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));filtered=d;renderTable();}
 function clearFilter(){$('filterStart').value='';$('filterEnd').value='';$('filterLoader').value='';filterData();}
@@ -435,7 +515,7 @@ function saveUrl(){const url=$('scriptUrl').value.trim();if(url){CFG.url=url;loc
 async function testConn(){const url=$('scriptUrl').value.trim();if(!url){toast('Enter URL','error');return;}try{const res=await fetch(url+'?action=test&_='+Date.now());const json=await res.json();toast(json.success?'Connected!':'Failed',json.success?'success':'error');}catch{toast('Failed','error');}}
 
 function saveCohUrl(){const url=$('cohUrl').value.trim();if(url){CFG.cohUrl=url;localStorage.setItem('coh_url',url);toast('COH URL Saved!');updateCohStatus();}else toast('Enter URL','error');}
-function updateCohStatus(){const st=$('cohStatus');if(CFG.cohUrl){st.className='coh-status connected';st.innerHTML='<span>●</span> Connected to COH';}else{st.className='coh-status disconnected';st.innerHTML='<span>○</span> Not configured';}}
+function updateCohStatus(){const st=$('cohStatus');if(CFG.cohUrl){st.className='coh-status connected';st.innerHTML='<span>●</span> Connected - Auto-sync ON';}else{st.className='coh-status disconnected';st.innerHTML='<span>○</span> Not configured';}}
 async function testCoh(){const url=$('cohUrl').value.trim()||CFG.cohUrl;if(!url){toast('Set COH URL first','error');return;}try{const res=await fetch(url+'?action=test&_='+Date.now());const json=await res.json();toast(json.success?'COH Connected!':'COH Failed',json.success?'success':'error');}catch{toast('COH Connection Failed','error');}}
 
 function hardRefresh(){if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(reg=>reg.unregister()));caches.keys().then(names=>names.forEach(n=>caches.delete(n)));toast('Refreshing...');setTimeout(()=>location.reload(true),500);}
