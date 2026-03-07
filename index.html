@@ -109,6 +109,9 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 .settings-item:last-child{border-bottom:none}
 .next-entry{background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.05));border:1px solid var(--green);border-radius:8px;padding:.5rem;margin-bottom:.75rem;font-size:.8rem;color:var(--green)}
 .next-entry strong{color:var(--text)}
+.coh-status{display:flex;align-items:center;gap:.3rem;font-size:.7rem;margin-top:.3rem}
+.coh-status.connected{color:var(--green)}
+.coh-status.disconnected{color:var(--red)}
 @media(max-width:600px){.header-content{flex-direction:column;align-items:stretch}.form-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -118,7 +121,7 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 <div id="app" style="display:none">
 <header class="header">
 <div class="header-content">
-<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.3.3 PRECISE</div></div></div>
+<div class="logo"><div class="logo-icon">WB</div><div><div class="logo-text">WackyBuds CFR</div><div class="logo-sub">v5.5.1</div></div></div>
 <div class="clock"><div class="clock-time" id="clock">--:--:--</div><div class="clock-date" id="date">Loading...</div></div>
 <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span><span class="badge" id="pendingBadge" style="display:none">0</span></div>
 </div>
@@ -193,17 +196,24 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 <div class="card">
 <div class="card-head"><div class="card-title">Settings</div></div>
 <div class="settings-group">
-<div class="settings-title">Google Sheets</div>
+<div class="settings-title">🔗 Google Sheets (CFR)</div>
 <div class="form-group"><label class="form-label">Script URL</label><input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/..."></div>
 <div class="btn-group" style="margin-top:.5rem"><button class="btn btn-primary" onclick="saveUrl()">Save</button><button class="btn btn-secondary" onclick="testConn()">Test</button></div>
 </div>
 <div class="settings-group">
-<div class="settings-title">Offline</div>
+<div class="settings-title">💰 Cash on Hand Integration</div>
+<div style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem">Auto-sync CFR to COH Tracker as Fund In</div>
+<div class="form-group"><label class="form-label">COH Script URL</label><input type="url" class="form-input" id="cohUrl" placeholder="https://script.google.com/..."></div>
+<div class="coh-status" id="cohStatus"><span>○</span> Not configured</div>
+<div class="btn-group" style="margin-top:.5rem"><button class="btn btn-green" onclick="saveCohUrl()">Save</button><button class="btn btn-secondary" onclick="testCoh()">Test</button></div>
+</div>
+<div class="settings-group">
+<div class="settings-title">📴 Offline</div>
 <div class="settings-item"><div><strong>Pending</strong><div style="font-size:.7rem;color:var(--muted)" id="pendingCount">0</div></div><button class="btn btn-warning" onclick="syncPending()">Sync</button></div>
 </div>
 <div class="settings-group">
-<div class="settings-title">App</div>
-<div class="settings-item"><div><strong>Version</strong><div style="font-size:.7rem;color:var(--muted)">5.3.3</div></div></div>
+<div class="settings-title">📱 App</div>
+<div class="settings-item"><div><strong>Version</strong><div style="font-size:.7rem;color:var(--muted)">5.5.1</div></div></div>
 <div class="settings-item"><div><strong>Hard Refresh</strong></div><button class="btn btn-green" onclick="hardRefresh()">Refresh</button></div>
 <div class="settings-item"><div><strong>Clear Data</strong></div><button class="btn btn-danger" onclick="clearAllData()">Clear</button></div>
 </div>
@@ -241,52 +251,18 @@ tr.pending{background:rgba(245,158,11,.1);border-left:2px solid var(--yellow)}
 </div>
 </div>
 <script>
-const CFG={url:localStorage.getItem('cfr_url')||'',tz:'Asia/Manila'};
+const CFG={url:localStorage.getItem('cfr_url')||'',cohUrl:localStorage.getItem('coh_url')||'',tz:'Asia/Manila'};
 let allData=[],filtered=[],lastEnd=parseFloat(localStorage.getItem('cfr_last_end'))||0,editRow=null,online=navigator.onLine,submitting=false;
 const SHIFT_ORD={'4:00AM - 12:00PM':1,'8:00PM - 4:00AM':2,'12:00PM - 8:00PM':3};
 const SHIFT_CYC=['12:00PM - 8:00PM','8:00PM - 4:00AM','4:00AM - 12:00PM'];
+const SHIFT_TO_COH={'12:00PM - 8:00PM':'12NN - 8PM (Afternoon)','8:00PM - 4:00AM':'8PM - 4AM (Graveyard)','4:00AM - 12:00PM':'4AM - 12NN (Morning)'};
 const STR={pend:'cfr_pend_v5',sent:'cfr_sent_v5',cache:'cfr_cache_v5'};
 const $=id=>document.getElementById(id);
-
-// PRECISE NUMBER FORMATTING - No rounding, keep all decimals
-function fmtNum(v) {
-    if (v === null || v === undefined || v === '') return '0';
-    const num = parseFloat(String(v).replace(/,/g, ''));
-    if (isNaN(num)) return '0';
-    // Split into integer and decimal parts
-    const parts = num.toString().split('.');
-    // Format integer part with commas
-    parts[0] = parseInt(parts[0]).toLocaleString('en-US');
-    // Keep decimal part as-is (no rounding)
-    return parts.length > 1 ? parts[0] + '.' + parts[1] : parts[0];
-}
-
-// Currency format - keeps all decimals
-const fC = v => 'P' + fmtNum(v);
-
-// Parse number from formatted string
-const pN = v => {
-    if (v === null || v === undefined || v === '') return 0;
-    const num = parseFloat(String(v).replace(/,/g, ''));
-    return isNaN(num) ? 0 : num;
-};
-
-// Format for display in inputs - keeps all decimals
-const fV = v => {
-    if (!v && v !== 0) return '';
-    return fmtNum(v);
-};
-
-// Format input while typing - preserve decimals
-function formatInput(el) {
-    let v = el.value.replace(/[^0-9.]/g, '');
-    // Handle multiple decimal points
-    const parts = v.split('.');
-    if (parts[0]) parts[0] = parseInt(parts[0] || 0).toLocaleString('en-US');
-    // Keep ALL decimal places as entered
-    el.value = parts.length > 1 ? parts[0] + '.' + parts.slice(1).join('') : parts[0];
-}
-
+function fmtNum(v){if(v===null||v===undefined||v==='')return'0';const num=parseFloat(String(v).replace(/,/g,''));if(isNaN(num))return'0';const parts=num.toString().split('.');parts[0]=parseInt(parts[0]).toLocaleString('en-US');return parts.length>1?parts[0]+'.'+parts[1]:parts[0];}
+const fC=v=>'P'+fmtNum(v);
+const pN=v=>{if(v===null||v===undefined||v==='')return 0;const num=parseFloat(String(v).replace(/,/g,''));return isNaN(num)?0:num;};
+const fV=v=>{if(!v&&v!==0)return'';return fmtNum(v);};
+function formatInput(el){let v=el.value.replace(/[^0-9.]/g,'');const parts=v.split('.');if(parts[0])parts[0]=parseInt(parts[0]||0).toLocaleString('en-US');el.value=parts.length>1?parts[0]+'.'+parts.slice(1).join(''):parts[0];}
 const fTime=(d=new Date())=>d.toLocaleTimeString('en-US',{timeZone:CFG.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
 const fDateFull=(d=new Date())=>d.toLocaleDateString('en-US',{timeZone:CFG.tz,weekday:'short',month:'short',day:'numeric'});
 const fDateShort=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'-';
@@ -302,7 +278,34 @@ const markSent=id=>{const a=getSent();if(!a.includes(id)){a.push(id);saveSent(a)
 const getCache=()=>{try{return JSON.parse(localStorage.getItem(STR.cache))||[];}catch{return[];}};
 const saveCache=a=>localStorage.setItem(STR.cache,JSON.stringify(a));
 function updatePendUI(){const p=getPend().filter(e=>!wasSent(e.uniqueId));$('pendingBadge').style.display=p.length>0?'inline':'none';$('pendingBadge').textContent=p.length;$('pendingCount').textContent=p.length+' entries';}
-async function sendToServer(entry){if(!CFG.url||!online)return false;if(wasSent(entry.uniqueId)){savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();return true;}try{const res=await fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});if(res.ok){markSent(entry.uniqueId);savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();return true;}}catch(err){console.log('Send error:',err);}return false;}
+
+async function sendToCOH(entry){
+    if(!CFG.cohUrl||!online)return false;
+    try{
+        const cohData={
+            action:'addFundIn',
+            date:entry.date,
+            shift:SHIFT_TO_COH[entry.shift]||entry.shift,
+            category:'CFR',
+            remarks:'CFR '+entry.dutyName,
+            amount:entry.cfr,
+            fee:entry.bankFee
+        };
+        const res=await fetch(CFG.cohUrl,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(cohData)});
+        if(res.ok){
+            const json=await res.json();
+            if(json.success){
+                console.log('COH sync OK');
+                return true;
+            }
+        }
+    }catch(err){console.log('COH sync error:',err);}
+    return false;
+}
+
+async function sendToServer(entry){if(!CFG.url||!online)return false;if(wasSent(entry.uniqueId)){savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();return true;}try{const res=await fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(entry)});if(res.ok){markSent(entry.uniqueId);savePend(getPend().filter(e=>e.uniqueId!==entry.uniqueId));updatePendUI();
+if(CFG.cohUrl)sendToCOH(entry);
+return true;}}catch(err){console.log('Send error:',err);}return false;}
 async function syncPending(){if(!CFG.url){toast('Set URL first','error');return;}if(!online){toast('Offline','warning');return;}const pend=getPend().filter(e=>!wasSent(e.uniqueId));if(pend.length===0){toast('Nothing to sync');return;}toast('Syncing '+pend.length+'...');let ok=0;for(const e of pend){if(await sendToServer(e))ok++;}toast(ok===pend.length?'All synced!':ok+'/'+pend.length+' synced',ok===pend.length?'success':'warning');}
 function updateStatus(){online=navigator.onLine;$('offlineBanner').classList.toggle('show',!online);const dot=$('statusDot'),txt=$('statusText');dot.className='status-dot';if(!online){dot.classList.add('off');txt.textContent='Offline';}else if(CFG.url){dot.classList.add('on');txt.textContent='Online';}else{txt.textContent='No URL';}}
 function updateClock(){$('clock').textContent=fTime();$('date').textContent=fDateFull();}
@@ -315,24 +318,7 @@ function addRow(type){const listId=type==='active'?'activeList':type==='end'?'en
 function removeRow(btn){btn.closest('.entry-row').remove();calc();}
 const getSum=id=>{let s=0;$(id).querySelectorAll('.amt').forEach(i=>s+=pN(i.value));return s;};
 const getDetails=id=>{const arr=[];$(id).querySelectorAll('.entry-row').forEach(row=>{const a=pN(row.querySelector('.amt')?.value);const r=row.querySelectorAll('.entry-input')[1]?.value||'';if(a>0||r)arr.push({amount:a,remarks:r});});return arr;};
-
-// Calculate - use full precision
-function calc(){
-    const active=getSum('activeList'),end=getSum('endList'),remit=getSum('remitList'),sal=pN($('salary').value);
-    const cfr=active-end,totalRemit=remit+sal,unremit=totalRemit-cfr;
-    $('activeTotal').textContent=fC(active);
-    $('endTotal').textContent=fC(end);
-    $('remitTotal').textContent=fC(remit);
-    $('calcCFR').textContent=fC(cfr);
-    $('calcRemit').textContent=fC(totalRemit);
-    const u=$('calcUnremit');
-    u.textContent=fC(unremit);
-    u.classList.toggle('neg',unremit<0);
-    $('statCFR').textContent=fC(cfr);
-    $('statRemit').textContent=fC(totalRemit);
-    $('statUnremit').textContent=fC(unremit);
-}
-
+function calc(){const active=getSum('activeList'),end=getSum('endList'),remit=getSum('remitList'),sal=pN($('salary').value);const cfr=active-end,totalRemit=remit+sal,unremit=totalRemit-cfr;$('activeTotal').textContent=fC(active);$('endTotal').textContent=fC(end);$('remitTotal').textContent=fC(remit);$('calcCFR').textContent=fC(cfr);$('calcRemit').textContent=fC(totalRemit);const u=$('calcUnremit');u.textContent=fC(unremit);u.classList.toggle('neg',unremit<0);$('statCFR').textContent=fC(cfr);$('statRemit').textContent=fC(totalRemit);$('statUnremit').textContent=fC(unremit);}
 function validate(){let ok=true;[{id:'entryDate',err:'dateErr',val:$('entryDate').value},{id:'entryShift',err:'shiftErr',val:$('entryShift').value},{id:'dutyName',err:'nameErr',val:$('dutyName').value.trim()}].forEach(c=>{const el=$(c.id),er=$(c.err);if(!c.val){er.classList.add('show');el.classList.add('err');ok=false;}else{er.classList.remove('show');el.classList.remove('err');}});return ok;}
 $('entryForm').onsubmit=e=>{e.preventDefault();if(!validate()){toast('Fill required','error');return;}const btn=$('submitBtn');if(btn.disabled||submitting)return;submitting=true;btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';const activeTotal=getSum('activeList'),endTotal=getSum('endList');const entry={action:'addEntry',uniqueId:genId(),date:$('entryDate').value,day:$('entryDay').value,shift:$('entryShift').value,dutyName:$('dutyName').value.trim().toUpperCase(),activeChips:getDetails('activeList'),activeChipsTotal:activeTotal,endChips:getDetails('endList'),endChipsTotal:endTotal,remittances:getDetails('remitList'),remittanceTotal:getSum('remitList'),bankFee:pN($('bankFee').value),salary:pN($('salary').value),remarks:$('remarks').value||'DONE',timestamp:new Date().toISOString()};entry.cfr=activeTotal-endTotal;entry.totalRemittances=entry.remittanceTotal+entry.salary;entry.unremitted=entry.totalRemittances-entry.cfr;const pend=getPend();pend.push(entry);savePend(pend);allData.unshift({...entry,pending:true});filterData();setLastEnd(endTotal);clearForm();toast('Saved!');btn.innerHTML='Save';btn.disabled=false;submitting=false;if(online&&CFG.url)setTimeout(()=>sendToServer(entry),100);};
 function clearForm(){$('dutyName').value='';$('bankFee').value='15';$('salary').value='0';$('remarks').value='DONE';document.querySelectorAll('.form-err').forEach(e=>e.classList.remove('show'));document.querySelectorAll('.form-input.err').forEach(e=>e.classList.remove('err'));['endList','remitList'].forEach((id,i)=>{const list=$(id),def=i===0?'End Chips':'Remittance';list.querySelectorAll('.entry-row').forEach((r,j)=>{if(j===0){r.querySelector('.amt').value='';r.querySelectorAll('.entry-input')[1].value=def;}else r.remove();});});$('activeList').querySelectorAll('.entry-row:not(.starting)').forEach(r=>r.remove());setNext();updateStarting();}
@@ -342,38 +328,27 @@ async function loadData(){if(!CFG.url){toast('Set URL','warning');loadLocal();re
 function updateLoaderFilter(){const sel=$('filterLoader');const loaders=[...new Set(allData.map(e=>e.dutyName).filter(Boolean))];sel.innerHTML='<option value="">All Loaders</option>'+loaders.map(l=>'<option value="'+l+'">'+l+'</option>').join('');}
 function filterData(){let d=allData;const loader=$('filterLoader')?.value;if(loader)d=d.filter(e=>e.dutyName===loader);const start=$('filterStart')?.value,end=$('filterEnd')?.value;if(start)d=d.filter(e=>e.date>=start);if(end)d=d.filter(e=>e.date<=end);d.sort((a,b)=>new Date(b.date)-new Date(a.date)||(SHIFT_ORD[a.shift]||0)-(SHIFT_ORD[b.shift]||0));filtered=d;renderTable();}
 function clearFilter(){$('filterStart').value='';$('filterEnd').value='';$('filterLoader').value='';filterData();}
-
-// Render table with FULL decimal precision
-function renderTable(){
-    const tbody=$('reportBody');
-    if(filtered.length===0){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:1.5rem">No data</td></tr>';return;}
-    let html='',tot={active:0,end:0,cfr:0,remit:0,unremit:0};
-    filtered.forEach(e=>{
-        tot.active+=pN(e.activeChipsTotal);
-        tot.end+=pN(e.endChipsTotal);
-        tot.cfr+=pN(e.cfr);
-        tot.remit+=pN(e.totalRemittances);
-        tot.unremit+=pN(e.unremitted);
-        const pend=e.pending&&!wasSent(e.uniqueId);
-        html+='<tr class="'+(pend?'pending':'')+'"><td>'+fDateShort(e.date)+'</td><td style="font-size:.65rem">'+(e.shift?.replace(':00','').replace(' - ','-')||'-')+'</td><td>'+(e.dutyName||'-')+'</td><td>'+fC(e.activeChipsTotal)+'</td><td>'+fC(e.endChipsTotal)+'</td><td>'+fC(e.cfr)+'</td><td>'+fC(e.totalRemittances)+'</td><td>'+fC(e.bankFee)+'</td><td style="color:'+((pN(e.unremitted))<0?'var(--red)':'var(--yellow)')+'">'+fC(e.unremitted)+'</td><td style="font-size:.65rem">'+(pend?'...':((e.remarks||'-').substring(0,8)))+'</td><td>'+(!pend&&e.rowIndex?'<button class="btn btn-secondary" style="padding:.2rem .4rem;font-size:.65rem" onclick="openEdit('+e.rowIndex+')">Edit</button>':'')+'</td></tr>';
-    });
-    html+='<tr class="table-foot"><td colspan="3" style="text-align:right">TOTAL</td><td>'+fC(tot.active)+'</td><td>'+fC(tot.end)+'</td><td>'+fC(tot.cfr)+'</td><td>'+fC(tot.remit)+'</td><td>-</td><td style="color:'+(tot.unremit<0?'var(--red)':'var(--cyan)')+'">'+fC(tot.unremit)+'</td><td colspan="2"></td></tr>';
-    tbody.innerHTML=html;
-}
-
+function renderTable(){const tbody=$('reportBody');if(filtered.length===0){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:1.5rem">No data</td></tr>';return;}let html='',tot={active:0,end:0,cfr:0,remit:0,unremit:0};filtered.forEach(e=>{tot.active+=pN(e.activeChipsTotal);tot.end+=pN(e.endChipsTotal);tot.cfr+=pN(e.cfr);tot.remit+=pN(e.totalRemittances);tot.unremit+=pN(e.unremitted);const pend=e.pending&&!wasSent(e.uniqueId);html+='<tr class="'+(pend?'pending':'')+'"><td>'+fDateShort(e.date)+'</td><td style="font-size:.65rem">'+(e.shift?.replace(':00','').replace(' - ','-')||'-')+'</td><td>'+(e.dutyName||'-')+'</td><td>'+fC(e.activeChipsTotal)+'</td><td>'+fC(e.endChipsTotal)+'</td><td>'+fC(e.cfr)+'</td><td>'+fC(e.totalRemittances)+'</td><td>'+fC(e.bankFee)+'</td><td style="color:'+((pN(e.unremitted))<0?'var(--red)':'var(--yellow)')+'">'+fC(e.unremitted)+'</td><td style="font-size:.65rem">'+(pend?'...':((e.remarks||'-').substring(0,8)))+'</td><td>'+(!pend&&e.rowIndex?'<button class="btn btn-secondary" style="padding:.2rem .4rem;font-size:.65rem" onclick="openEdit('+e.rowIndex+')">Edit</button>':'')+'</td></tr>';});html+='<tr class="table-foot"><td colspan="3" style="text-align:right">TOTAL</td><td>'+fC(tot.active)+'</td><td>'+fC(tot.end)+'</td><td>'+fC(tot.cfr)+'</td><td>'+fC(tot.remit)+'</td><td>-</td><td style="color:'+(tot.unremit<0?'var(--red)':'var(--cyan)')+'">'+fC(tot.unremit)+'</td><td colspan="2"></td></tr>';tbody.innerHTML=html;}
 function openEdit(rowIndex){editRow=rowIndex;const entry=allData.find(e=>e.rowIndex===rowIndex);if(!entry){toast('Not found','error');return;}$('editDate').value=entry.date;$('editShift').value=entry.shift||'';$('editLoader').value=entry.dutyName||'';$('editActive').value=fV(entry.activeChipsTotal);$('editEnd').value=fV(entry.endChipsTotal);$('editCFR').value=fV(entry.cfr);$('editRemit').value=fV(entry.remittanceTotal);$('editFee').value=fV(entry.bankFee);$('editSalary').value=fV(entry.salary);$('editUnremit').value=fV(entry.unremitted);$('editRemarks').value=entry.remarks||'';$('editModal').classList.add('show');}
 function recalcEdit(){const a=pN($('editActive').value),e=pN($('editEnd').value),r=pN($('editRemit').value),s=pN($('editSalary').value);$('editCFR').value=fV(a-e);$('editUnremit').value=fV((r+s)-(a-e));}
 function closeEdit(){editRow=null;$('editModal').classList.remove('show');}
-function saveEdit(e){e.preventDefault();if(!editRow)return;const data={action:'updateEntry',rowIndex:editRow,date:$('editDate').value,shift:$('editShift').value,dutyName:$('editLoader').value.toUpperCase(),activeChipsTotal:pN($('editActive').value),endChipsTotal:pN($('editEnd').value),cfr:pN($('editCFR').value),remittanceTotal:pN($('editRemit').value),bankFee:pN($('editFee').value),salary:pN($('editSalary').value),totalRemittances:pN($('editRemit').value)+pN($('editSalary').value),unremitted:pN($('editUnremit').value),remarks:$('editRemarks').value};const idx=allData.findIndex(entry=>entry.rowIndex===editRow);if(idx!==-1)Object.assign(allData[idx],data);const cache=getCache();const cIdx=cache.findIndex(entry=>entry.rowIndex===editRow);if(cIdx!==-1){Object.assign(cache[cIdx],data);saveCache(cache);}filterData();toast('Updated!');closeEdit();if(online&&CFG.url){fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)}).then(r=>r.json()).then(j=>{if(!j.success)toast('Server error','warning');}).catch(()=>toast('Sync failed','warning'));}}
+function saveEdit(e){e.preventDefault();if(!editRow)return;const data={action:'updateEntry',rowIndex:editRow,date:$('editDate').value,shift:$('editShift').value,dutyName:$('editLoader').value.toUpperCase(),activeChipsTotal:pN($('editActive').value),endChipsTotal:pN($('editEnd').value),cfr:pN($('editCFR').value),remittanceTotal:pN($('editRemit').value),bankFee:pN($('editFee').value),salary:pN($('editSalary').value),totalRemittances:pN($('editRemit').value)+pN($('editSalary').value),unremitted:pN($('editUnremit').value),remarks:$('editRemarks').value};const idx=allData.findIndex(entry=>entry.rowIndex===editRow);if(idx!==-1)Object.assign(allData[idx],data);const cache=getCache();const cIdx=cache.findIndex(entry=>entry.rowIndex===editRow);if(cIdx!==-1){Object.assign(cache[cIdx],data);saveCache(cache);}filterData();toast('Updated!');closeEdit();if(online&&CFG.url){fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)}).then(r=>r.json()).then(j=>{if(!j.success)toast('Server error','warning');
+if(CFG.cohUrl)sendToCOH(data);
+}).catch(()=>toast('Sync failed','warning'));}}
 function deleteEntry(){$('editModal').classList.remove('show');$('deleteModal').classList.add('show');}
 function closeDelete(){$('deleteModal').classList.remove('show');}
 function confirmDelete(){if(!editRow)return;const row=editRow;allData=allData.filter(e=>e.rowIndex!==row);const cache=getCache();saveCache(cache.filter(e=>e.rowIndex!==row));filterData();toast('Deleted!');closeDelete();editRow=null;if(online&&CFG.url){fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'deleteEntry',rowIndex:row})}).then(r=>r.json()).then(j=>{if(j.success)setTimeout(()=>loadData(),500);else toast('Server error','error');}).catch(()=>toast('Sync failed','warning'));}}
 function saveUrl(){const url=$('scriptUrl').value.trim();if(url){CFG.url=url;localStorage.setItem('cfr_url',url);toast('Saved!');updateStatus();}else toast('Enter URL','error');}
 async function testConn(){const url=$('scriptUrl').value.trim();if(!url){toast('Enter URL','error');return;}try{const res=await fetch(url+'?action=test&_='+Date.now());const json=await res.json();toast(json.success?'Connected!':'Failed',json.success?'success':'error');}catch{toast('Failed','error');}}
+
+function saveCohUrl(){const url=$('cohUrl').value.trim();if(url){CFG.cohUrl=url;localStorage.setItem('coh_url',url);toast('COH URL Saved!');updateCohStatus();}else toast('Enter URL','error');}
+function updateCohStatus(){const st=$('cohStatus');if(CFG.cohUrl){st.className='coh-status connected';st.innerHTML='<span>●</span> Connected to COH';}else{st.className='coh-status disconnected';st.innerHTML='<span>○</span> Not configured';}}
+async function testCoh(){const url=$('cohUrl').value.trim()||CFG.cohUrl;if(!url){toast('Set COH URL first','error');return;}try{const res=await fetch(url+'?action=test&_='+Date.now());const json=await res.json();toast(json.success?'COH Connected!':'COH Failed',json.success?'success':'error');}catch{toast('COH Connection Failed','error');}}
+
 function hardRefresh(){if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(reg=>reg.unregister()));caches.keys().then(names=>names.forEach(n=>caches.delete(n)));toast('Refreshing...');setTimeout(()=>location.reload(true),500);}
 function clearAllData(){if(!confirm('Clear ALL data?'))return;localStorage.clear();toast('Cleared!');setTimeout(()=>location.reload(),500);}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-document.addEventListener('DOMContentLoaded',()=>{updateClock();setInterval(updateClock,1000);window.addEventListener('online',()=>{online=true;updateStatus();});window.addEventListener('offline',()=>{online=false;updateStatus();});updateStatus();if(CFG.url)$('scriptUrl').value=CFG.url;loadLocal();setTimeout(()=>{$('loading').style.display='none';$('app').style.display='block';},200);});
+document.addEventListener('DOMContentLoaded',()=>{updateClock();setInterval(updateClock,1000);window.addEventListener('online',()=>{online=true;updateStatus();});window.addEventListener('offline',()=>{online=false;updateStatus();});updateStatus();if(CFG.url)$('scriptUrl').value=CFG.url;if(CFG.cohUrl)$('cohUrl').value=CFG.cohUrl;updateCohStatus();loadLocal();setTimeout(()=>{$('loading').style.display='none';$('app').style.display='block';},200);});
 </script>
 </body>
 </html>
