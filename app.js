@@ -1,5 +1,5 @@
 /**
- * WackyBuds CFR v5.9.3
+ * WackyBuds CFR v5.9.5
  * Based on Original System - All Logic Preserved
  */
 
@@ -72,6 +72,15 @@ function formatInput(el) {
 
 // Date formatting
 const fDateShort = d => {
+  if (!d) return '-';
+  try {
+    const date = new Date(d + 'T12:00:00');
+    if (isNaN(date.getTime())) return '-';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch { return '-'; }
+};
+
+const fDateHint = d => {
   if (!d) return '-';
   try {
     const date = new Date(d + 'T12:00:00');
@@ -452,19 +461,24 @@ function getNext() {
 
 function setNext() {
   const n = getNext();
-  $('entryDate').value = n.date;
-  $('entryShift').value = n.shift;
+  const dateField = document.getElementById('entryDate');
+  const shiftField = document.getElementById('entryShift');
+  const hintField = document.getElementById('nextHint');
+  
+  if (dateField) dateField.value = n.date;
+  if (shiftField) shiftField.value = n.shift;
   updateDay();
   
   const shortShift = n.shift.replace(':00', '').replace(' - ', '-');
-  $('nextHint').textContent = 'Next: ' + fDateShort(n.date) + ' • ' + shortShift;
+  if (hintField) hintField.textContent = 'Next: ' + fDateHint(n.date) + ' • ' + shortShift;
 }
 
 // ===== UPDATE DAY (from old system) =====
 function updateDay() {
-  const v = $('entryDate').value;
-  if (v) {
-    $('entryDay').value = getDayName(v);
+  const dateField = document.getElementById('entryDate');
+  const dayField = document.getElementById('entryDay');
+  if (dateField && dayField && dateField.value) {
+    dayField.value = getDayName(dateField.value);
   }
 }
 
@@ -680,6 +694,15 @@ function clearForm() {
 // ===== LOAD DATA (from old system) =====
 function loadLocal() {
   const cache = getCache();
+  
+  // Auto-detect and clear bad cache (entries without dates)
+  if (cache.length > 0 && cache.every(e => !e.date)) {
+    console.log('Bad cache detected - entries missing dates, clearing...');
+    localStorage.removeItem(STR.cache);
+    toast('Cache cleared - please refresh', 'warning');
+    return;
+  }
+  
   const pend = getPend().filter(e => !wasSent(e.uniqueId));
   allData = [...pend.map(p => ({ ...p, pending: true })), ...cache];
   filterData();
@@ -857,7 +880,7 @@ function renderTable() {
   const tbody = $('reportBody');
   
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="14" class="empty-row">No transactions found</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13" class="empty-row">No transactions found</td></tr>';
     return;
   }
   
@@ -869,7 +892,6 @@ function renderTable() {
     
     html += '<tr class="' + (pend ? 'pending' : '') + '">';
     html += '<td>' + fDateShort(e.date) + '</td>';
-    html += '<td>' + getShortDay(e.date) + '</td>';
     html += '<td style="font-size:.65rem">' + shortShift + '</td>';
     html += '<td>' + (e.dutyName || '-') + '</td>';
     html += '<td>' + fC(e.activeChipsTotal) + '</td>';
