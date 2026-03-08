@@ -30,138 +30,140 @@
       </div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="clock" id="clock">--:--:--</div>
-    <div class="date" id="date">Loading...</div>
-  </div>
 </header>
 
 <!-- Tabs -->
 <nav class="tabs">
-  <button class="tab active" data-tab="entry">✏️ Entry</button>
-  <button class="tab" data-tab="report">📊 Reports</button>
+  <button class="tab active" data-tab="report">📊 Reports</button>
   <button class="tab" data-tab="settings">⚙️ Settings</button>
 </nav>
 
 <!-- Main -->
 <main class="main">
 
-  <!-- Entry Tab -->
-  <section class="tab-panel active" id="tab-entry">
-    <!-- Next Entry Hint -->
-    <div class="hint" id="nextHint">→ Next: <strong>Loading...</strong></div>
-
-    <form id="entryForm">
-      <!-- Basic Info -->
-      <div class="card">
-        <div class="card-head">Basic Info</div>
-        <div class="grid-2">
-          <div class="field">
-            <label>Date <span class="req">*</span></label>
-            <input type="date" id="entryDate" required>
-          </div>
-          <div class="field">
-            <label>Day</label>
-            <input type="text" id="entryDay" readonly>
-          </div>
-          <div class="field">
-            <label>Shift <span class="req">*</span></label>
-            <select id="entryShift" required>
-              <option value="">Select...</option>
-              <option value="4:00AM - 12:00PM">4AM - 12PM</option>
-              <option value="12:00PM - 8:00PM">12PM - 8PM</option>
-              <option value="8:00PM - 4:00AM">8PM - 4AM</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Loader <span class="req">*</span></label>
-            <input type="text" id="entryLoader" placeholder="Name" required>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="stats">
-        <div class="stat cyan"><span>CFR</span><strong id="statCFR">₱0</strong></div>
-        <div class="stat green"><span>Remit</span><strong id="statRemit">₱0</strong></div>
-        <div class="stat yellow"><span>Unremit</span><strong id="statUnremit">₱0</strong></div>
-      </div>
-
-      <!-- Active Chips -->
-      <div class="card">
-        <div class="card-head">Active Chips <span class="total" id="activeTotal">₱0</span></div>
-        <div class="rows" id="activeList"></div>
-        <button type="button" class="btn-add" onclick="addRow('active')">+ Add</button>
-      </div>
-
-      <!-- End Chips -->
-      <div class="card">
-        <div class="card-head">End Chips <span class="total" id="endTotal">₱0</span></div>
-        <div class="rows" id="endList">
-          <div class="row">
-            <input type="text" inputmode="decimal" placeholder="Amount" class="amt" oninput="calc()">
-            <input type="text" value="End Chips" class="desc">
-            <button type="button" class="btn-x" onclick="removeRow(this)">×</button>
-          </div>
-        </div>
-        <button type="button" class="btn-add" onclick="addRow('end')">+ Add</button>
-      </div>
-
-      <!-- Remittances -->
-      <div class="card">
-        <div class="card-head">Remittances <span class="total" id="remitTotal">₱0</span></div>
-        <div class="rows" id="remitList">
-          <div class="row">
-            <input type="text" inputmode="decimal" placeholder="Amount" class="amt" oninput="calc()">
-            <input type="text" value="Remittance" class="desc">
-            <button type="button" class="btn-x" onclick="removeRow(this)">×</button>
-          </div>
-        </div>
-        <button type="button" class="btn-add" onclick="addRow('remit')">+ Add</button>
-      </div>
-
-      <!-- Details -->
-      <div class="card">
-        <div class="card-head">Details</div>
-        <div class="grid-2">
-          <div class="field">
-            <label>Bank Fee</label>
-            <input type="text" inputmode="decimal" id="bankFee" value="15" oninput="calc()">
-          </div>
-          <div class="field">
-            <label>Salary</label>
-            <input type="text" inputmode="decimal" id="salary" value="0" oninput="calc()">
-          </div>
-          <div class="field full">
-            <label>Remarks</label>
-            <input type="text" id="remarks" value="DONE">
-          </div>
-        </div>
-        <!-- Calc Summary -->
-        <div class="calc-box">
-          <div class="calc-row"><span>CFR (Active - End)</span><span id="calcCFR">₱0</span></div>
-          <div class="calc-row"><span>Total Remit + Salary</span><span id="calcRemit">₱0</span></div>
-          <div class="calc-row big"><span>Unremitted</span><span id="calcUnremit">₱0</span></div>
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="actions">
-        <button type="submit" class="btn primary" id="submitBtn">💾 Save Entry</button>
-        <button type="button" class="btn secondary" onclick="clearForm()">Clear</button>
-      </div>
-    </form>
-  </section>
-
   <!-- Report Tab -->
-  <section class="tab-panel" id="tab-report">
+  <section class="tab-panel active" id="tab-report">
+    
+    <!-- Collapsible Entry Form -->
+    <div class="card entry-card">
+      <div class="card-head clickable" onclick="toggleEntry()">
+        <span>✏️ New Entry</span>
+        <span class="toggle-icon" id="toggleIcon">▼</span>
+      </div>
+      <div class="entry-form" id="entryFormWrap">
+        <form id="theForm">
+          <!-- Basic Info with Next hint -->
+          <div class="section">
+            <div class="section-head">
+              <span>Basic Info</span>
+              <span class="next-hint" id="nextHint">Next: Loading...</span>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label>Date <span class="req">*</span></label>
+                <input type="date" id="entryDate" required>
+              </div>
+              <div class="field">
+                <label>Day</label>
+                <input type="text" id="entryDay" readonly>
+              </div>
+              <div class="field">
+                <label>Shift <span class="req">*</span></label>
+                <select id="entryShift" required>
+                  <option value="">Select...</option>
+                  <option value="4:00AM - 12:00PM">4AM - 12PM</option>
+                  <option value="12:00PM - 8:00PM">12PM - 8PM</option>
+                  <option value="8:00PM - 4:00AM">8PM - 4AM</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Loader <span class="req">*</span></label>
+                <input type="text" id="entryLoader" placeholder="Name" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats">
+            <div class="stat cyan"><span>CFR</span><strong id="statCFR">₱0</strong></div>
+            <div class="stat green"><span>Remit</span><strong id="statRemit">₱0</strong></div>
+            <div class="stat yellow"><span>Unremit</span><strong id="statUnremit">₱0</strong></div>
+          </div>
+
+          <!-- Active Chips -->
+          <div class="section">
+            <div class="section-head">Active Chips <span class="total" id="activeTotal">₱0</span></div>
+            <div class="rows" id="activeList"></div>
+            <button type="button" class="btn-add" onclick="addRow('active')">+ Add</button>
+          </div>
+
+          <!-- End Chips -->
+          <div class="section">
+            <div class="section-head">End Chips <span class="total" id="endTotal">₱0</span></div>
+            <div class="rows" id="endList">
+              <div class="row">
+                <input type="text" inputmode="decimal" placeholder="Amount" class="amt" oninput="calc()">
+                <input type="text" value="End Chips" class="desc">
+                <button type="button" class="btn-x" onclick="removeRow(this)">×</button>
+              </div>
+            </div>
+            <button type="button" class="btn-add" onclick="addRow('end')">+ Add</button>
+          </div>
+
+          <!-- Remittances -->
+          <div class="section">
+            <div class="section-head">Remittances <span class="total" id="remitTotal">₱0</span></div>
+            <div class="rows" id="remitList">
+              <div class="row">
+                <input type="text" inputmode="decimal" placeholder="Amount" class="amt" oninput="calc()">
+                <input type="text" value="Remittance" class="desc">
+                <button type="button" class="btn-x" onclick="removeRow(this)">×</button>
+              </div>
+            </div>
+            <button type="button" class="btn-add" onclick="addRow('remit')">+ Add</button>
+          </div>
+
+          <!-- Details -->
+          <div class="section">
+            <div class="section-head">Details</div>
+            <div class="grid-2">
+              <div class="field">
+                <label>Bank Fee</label>
+                <input type="text" inputmode="decimal" id="bankFee" value="15" oninput="calc()">
+              </div>
+              <div class="field">
+                <label>Salary</label>
+                <input type="text" inputmode="decimal" id="salary" value="0" oninput="calc()">
+              </div>
+              <div class="field full">
+                <label>Remarks</label>
+                <input type="text" id="remarks" value="DONE">
+              </div>
+            </div>
+            <div class="calc-box">
+              <div class="calc-row"><span>CFR (Active - End)</span><span id="calcCFR">₱0</span></div>
+              <div class="calc-row"><span>Total Remit + Salary</span><span id="calcRemit">₱0</span></div>
+              <div class="calc-row big"><span>Unremitted</span><span id="calcUnremit">₱0</span></div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="actions">
+            <button type="submit" class="btn primary" id="submitBtn">💾 Save Entry</button>
+            <button type="button" class="btn secondary" onclick="clearForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Records Table -->
     <div class="card">
       <div class="card-head">
-        <span>Reports</span>
-        <button class="btn small" id="refreshBtn" onclick="loadData()">🔄 Refresh</button>
+        <span>Transaction History</span>
+        <button class="btn small" id="refreshBtn" onclick="loadData()">🔄</button>
       </div>
       <div class="filters">
-        <select id="filterLoader" onchange="filterData()"><option value="">All Loaders</option></select>
+        <select id="filterLoader" onchange="filterData()"><option value="">All</option></select>
         <input type="date" id="filterStart" onchange="filterData()">
         <input type="date" id="filterEnd" onchange="filterData()">
         <button class="btn small" onclick="clearFilter()">✕</button>
@@ -171,18 +173,23 @@
           <thead>
             <tr>
               <th>Date</th>
+              <th>Day</th>
               <th>Shift</th>
               <th>Loader</th>
               <th>Active</th>
               <th>End</th>
               <th>CFR</th>
               <th>Remit</th>
+              <th>Salary</th>
+              <th>Total</th>
               <th>Unremit</th>
+              <th>Fee</th>
+              <th>Remarks</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="reportBody">
-            <tr><td colspan="9" class="empty">No data</td></tr>
+            <tr><td colspan="14" class="empty">No data</td></tr>
           </tbody>
         </table>
       </div>
@@ -192,7 +199,7 @@
   <!-- Settings Tab -->
   <section class="tab-panel" id="tab-settings">
     <div class="card">
-      <div class="card-head">CFR Google Sheets <span class="ver">v5.9.0</span></div>
+      <div class="card-head">CFR Google Sheets <span class="ver">v5.9.1</span></div>
       <div class="field">
         <label>Script URL</label>
         <input type="url" id="scriptUrl" placeholder="https://script.google.com/...">
@@ -204,8 +211,8 @@
     </div>
 
     <div class="card">
-      <div class="card-head">COH Tracker <span class="badge green">AUTO-SYNC</span></div>
-      <p class="desc">Entries auto-sync to Cash on Hand as Fund In</p>
+      <div class="card-head">COH Tracker <span class="badge green show">AUTO</span></div>
+      <p class="desc">New entries auto-sync to COH as Fund In</p>
       <div class="field">
         <label>COH Script URL</label>
         <input type="url" id="cohUrl" placeholder="https://script.google.com/...">
@@ -218,10 +225,10 @@
       <div class="divider"></div>
       <div class="setting-row">
         <div>
-          <strong>Sync All to COH</strong>
-          <span class="desc" id="cohSyncCount">Sync missing entries</span>
+          <strong>Sync Missing to COH</strong>
+          <span class="desc" id="cohSyncCount">Only syncs new entries not in COH</span>
         </div>
-        <button class="btn warning" id="syncAllBtn" onclick="syncAllToCOH()">Sync All</button>
+        <button class="btn warning" id="syncAllBtn" onclick="syncAllToCOH()">Sync Missing</button>
       </div>
       <div class="progress" id="syncProgress">
         <span id="syncText">Syncing...</span>
@@ -255,7 +262,7 @@
 
 </main>
 
-<!-- Toast Container -->
+<!-- Toasts -->
 <div class="toasts" id="toasts"></div>
 
 <!-- Edit Modal -->
@@ -280,9 +287,9 @@
         <div class="field"><label>End</label><input type="text" inputmode="decimal" id="editEnd" oninput="recalcEdit()"></div>
         <div class="field"><label>CFR</label><input type="text" id="editCFR" readonly class="readonly"></div>
         <div class="field"><label>Remit</label><input type="text" inputmode="decimal" id="editRemit" oninput="recalcEdit()"></div>
-        <div class="field"><label>Fee</label><input type="text" inputmode="decimal" id="editFee"></div>
         <div class="field"><label>Salary</label><input type="text" inputmode="decimal" id="editSalary" oninput="recalcEdit()"></div>
-        <div class="field"><label>Unremit</label><input type="text" id="editUnremit" readonly class="readonly"></div>
+        <div class="field"><label>Fee</label><input type="text" inputmode="decimal" id="editFee"></div>
+        <div class="field"><label>Unremit</label><input type="text" id="editUnremit" readonly class="readonly yellow"></div>
         <div class="field full"><label>Remarks</label><input type="text" id="editRemarks"></div>
       </div>
       <div class="actions">
@@ -293,10 +300,10 @@
   </div>
 </div>
 
-<!-- Delete Confirm Modal -->
+<!-- Delete Modal -->
 <div class="modal" id="deleteModal">
   <div class="modal-box small">
-    <div class="modal-head"><span>⚠️ Delete Entry?</span></div>
+    <div class="modal-head"><span>⚠️ Delete?</span></div>
     <p>This cannot be undone.</p>
     <div class="actions">
       <button class="btn danger" onclick="confirmDelete()">Delete</button>
