@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#1a1a2e">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0a0a12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>WackyBuds CFR</title>
@@ -14,344 +14,297 @@
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="header-left">
-      <div class="logo">WB</div>
-      <div class="header-info">
-        <h1>WackyBuds CFR</h1>
-        <div class="status">
-          <span class="status-dot" id="statusDot"></span>
-          <span id="statusText">Ready</span>
-          <span class="badge" id="pendingBadge" style="display:none">0</span>
-        </div>
+<!-- Offline Banner -->
+<div class="offline-bar" id="offlineBar">⚡ Offline — Will sync when connected</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">WB</div>
+    <div>
+      <div class="logo-text">WackyBuds CFR</div>
+      <div class="status">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">Ready</span>
+        <span class="badge" id="pendingBadge">0</span>
       </div>
-    </div>
-    <div class="header-right">
-      <div class="clock" id="clock">--:--:--</div>
-      <div class="date" id="date">Loading...</div>
-    </div>
-  </header>
-
-  <!-- Navigation -->
-  <nav class="nav">
-    <button class="nav-btn active" data-tab="entry">✏️ New Entry</button>
-    <button class="nav-btn" data-tab="records">📊 Records</button>
-    <button class="nav-btn" data-tab="settings">⚙️ Settings</button>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="main">
-
-    <!-- Entry Tab -->
-    <section class="tab-content active" id="tab-entry">
-      <!-- Next Entry Hint -->
-      <div class="next-entry" id="nextEntryHint">
-        <span class="next-icon">→</span>
-        <span>Next Entry: <strong>Loading...</strong></span>
-      </div>
-
-      <form id="entryForm">
-        <!-- Basic Info -->
-        <div class="card">
-          <div class="card-header">
-            <h2>Basic Information</h2>
-          </div>
-          <div class="card-body">
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="required">Date</label>
-                <input type="date" id="entryDate" required>
-              </div>
-              <div class="form-group">
-                <label>Day</label>
-                <input type="text" id="entryDay" readonly>
-              </div>
-              <div class="form-group">
-                <label class="required">Shift</label>
-                <select id="entryShift" required>
-                  <option value="">Select shift...</option>
-                  <option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option>
-                  <option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option>
-                  <option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="required">Loader Name</label>
-                <input type="text" id="entryLoader" placeholder="Enter loader name" required>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stats Summary -->
-        <div class="stats-row">
-          <div class="stat cyan">
-            <div class="stat-label">CFR</div>
-            <div class="stat-value" id="statCFR">₱0</div>
-          </div>
-          <div class="stat green">
-            <div class="stat-label">Remittance</div>
-            <div class="stat-value" id="statRemit">₱0</div>
-          </div>
-          <div class="stat yellow">
-            <div class="stat-label">Unremitted</div>
-            <div class="stat-value" id="statUnremit">₱0</div>
-          </div>
-        </div>
-
-        <!-- Active Chips -->
-        <div class="card">
-          <div class="card-header">
-            <h2>Active Chips</h2>
-            <span class="card-total" id="activeTotal">₱0</span>
-          </div>
-          <div class="card-body">
-            <div class="chip-list" id="activeList"></div>
-            <button type="button" class="btn-add" onclick="addRow('active')">+ Add Active Chips</button>
-          </div>
-        </div>
-
-        <!-- End Chips -->
-        <div class="card">
-          <div class="card-header">
-            <h2>End Chips</h2>
-            <span class="card-total" id="endTotal">₱0</span>
-          </div>
-          <div class="card-body">
-            <div class="chip-list" id="endList">
-              <div class="chip-row">
-                <input type="text" inputmode="decimal" placeholder="Amount" class="chip-input amt" onkeyup="formatInput(this)" oninput="calc()">
-                <input type="text" class="chip-input" value="End Chips">
-                <button type="button" class="btn-remove" onclick="removeRow(this)">×</button>
-              </div>
-            </div>
-            <button type="button" class="btn-add" onclick="addRow('end')">+ Add End Chips</button>
-          </div>
-        </div>
-
-        <!-- Remittances -->
-        <div class="card">
-          <div class="card-header">
-            <h2>Remittances</h2>
-            <span class="card-total" id="remitTotal">₱0</span>
-          </div>
-          <div class="card-body">
-            <div class="chip-list" id="remitList">
-              <div class="chip-row">
-                <input type="text" inputmode="decimal" placeholder="Amount" class="chip-input amt" onkeyup="formatInput(this)" oninput="calc()">
-                <input type="text" class="chip-input" value="Remittance">
-                <button type="button" class="btn-remove" onclick="removeRow(this)">×</button>
-              </div>
-            </div>
-            <button type="button" class="btn-add" onclick="addRow('remit')">+ Add Remittance</button>
-          </div>
-        </div>
-
-        <!-- Additional Details -->
-        <div class="card">
-          <div class="card-header">
-            <h2>Additional Details</h2>
-          </div>
-          <div class="card-body">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Bank Fee</label>
-                <input type="text" inputmode="decimal" id="bankFee" value="15" onkeyup="formatInput(this)" oninput="calc()">
-              </div>
-              <div class="form-group">
-                <label>Salary</label>
-                <input type="text" inputmode="decimal" id="salary" value="0" onkeyup="formatInput(this)" oninput="calc()">
-              </div>
-              <div class="form-group full">
-                <label>Remarks</label>
-                <input type="text" id="remarks" value="DONE" placeholder="Enter remarks">
-              </div>
-            </div>
-
-            <!-- Calculation Summary -->
-            <div class="calc-box">
-              <div class="calc-row">
-                <span>Active Chips</span>
-                <span id="calcActive">₱0</span>
-              </div>
-              <div class="calc-row">
-                <span>End Chips</span>
-                <span id="calcEnd">₱0</span>
-              </div>
-              <div class="calc-row highlight">
-                <span>CFR (Active - End)</span>
-                <span id="calcCFR">₱0</span>
-              </div>
-              <div class="calc-row">
-                <span>Total Remittance</span>
-                <span id="calcRemit">₱0</span>
-              </div>
-              <div class="calc-row">
-                <span>Salary</span>
-                <span id="calcSalary">₱0</span>
-              </div>
-              <div class="calc-row">
-                <span>Total (Remit + Salary)</span>
-                <span id="calcTotal">₱0</span>
-              </div>
-              <div class="calc-row">
-                <span>Unremitted</span>
-                <span id="calcUnremit">₱0</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button>
-          <button type="submit" class="btn btn-primary" id="submitBtn">💾 Save Entry</button>
-        </div>
-      </form>
-    </section>
-
-    <!-- Records Tab -->
-    <section class="tab-content" id="tab-records">
-      <div class="card">
-        <div class="card-header">
-          <h2>All Records</h2>
-          <button class="btn btn-sm" id="refreshBtn" onclick="loadData()">🔄 Refresh</button>
-        </div>
-        <div class="card-body">
-          <div class="filter-row">
-            <select id="filterLoader">
-              <option value="">All Loaders</option>
-            </select>
-            <input type="date" id="filterStart">
-            <input type="date" id="filterEnd">
-            <button class="btn btn-sm" onclick="filterData()">Filter</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Day</th>
-                <th>Shift</th>
-                <th>Loader</th>
-                <th>Active</th>
-                <th>End</th>
-                <th>CFR</th>
-                <th>COH</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="recordsBody">
-              <tr><td colspan="9" class="empty">No records</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Settings Tab -->
-    <section class="tab-content" id="tab-settings">
-      <div class="card">
-        <div class="card-header">
-          <h2>Settings</h2>
-          <span class="version">v5.9.0</span>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label>Script URL (CFR)</label>
-            <input type="url" id="scriptUrl" placeholder="https://script.google.com/...">
-          </div>
-          <div class="form-group">
-            <label>COH Script URL</label>
-            <input type="url" id="cohUrl" placeholder="https://script.google.com/...">
-            <div class="coh-status" id="cohStatus">COH: Not configured</div>
-          </div>
-          <div class="form-actions">
-            <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
-            <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2>Data Management</h2>
-        </div>
-        <div class="card-body">
-          <div class="form-actions">
-            <button class="btn btn-secondary" onclick="syncPending()">Sync Pending (<span id="pendingCount">0</span>)</button>
-            <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Toast -->
-  <div class="toast" id="toast"></div>
-
-  <!-- Edit Modal -->
-  <div class="modal" id="editModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Edit Entry</h3>
-        <button class="btn-close" onclick="closeModal()">×</button>
-      </div>
-      <form id="editForm">
-        <input type="hidden" id="editRowIndex">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="editDate" required>
-          </div>
-          <div class="form-group">
-            <label>Shift</label>
-            <select id="editShift" required>
-              <option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option>
-              <option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option>
-              <option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option>
-            </select>
-          </div>
-          <div class="form-group full">
-            <label>Loader</label>
-            <input type="text" id="editLoader" required>
-          </div>
-          <div class="form-group">
-            <label>Active</label>
-            <input type="text" inputmode="decimal" id="editActive" onkeyup="formatInput(this)" oninput="recalcEdit()">
-          </div>
-          <div class="form-group">
-            <label>End</label>
-            <input type="text" inputmode="decimal" id="editEnd" onkeyup="formatInput(this)" oninput="recalcEdit()">
-          </div>
-          <div class="form-group">
-            <label>Remit</label>
-            <input type="text" inputmode="decimal" id="editRemit" onkeyup="formatInput(this)" oninput="recalcEdit()">
-          </div>
-          <div class="form-group">
-            <label>Salary</label>
-            <input type="text" inputmode="decimal" id="editSalary" onkeyup="formatInput(this)" oninput="recalcEdit()">
-          </div>
-          <div class="form-group">
-            <label>Bank Fee</label>
-            <input type="text" inputmode="decimal" id="editFee" onkeyup="formatInput(this)">
-          </div>
-          <div class="form-group">
-            <label>CFR</label>
-            <input type="text" id="editCFR" readonly>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-danger" onclick="deleteEntry()">Delete</button>
-          <button type="submit" class="btn btn-primary">Update</button>
-        </div>
-      </form>
     </div>
   </div>
+  <div class="header-right">
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="date" id="date">Loading...</div>
+  </div>
+</header>
 
-  <script src="app.js"></script>
+<!-- Tabs -->
+<nav class="tabs">
+  <button class="tab active" data-tab="entry">✏️ Entry</button>
+  <button class="tab" data-tab="report">📊 Reports</button>
+  <button class="tab" data-tab="settings">⚙️ Settings</button>
+</nav>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Entry Tab -->
+  <section class="tab-panel active" id="tab-entry">
+    <!-- Next Entry Hint -->
+    <div class="hint" id="nextHint">→ Next: <strong>Loading...</strong></div>
+
+    <form id="entryForm">
+      <!-- Basic Info -->
+      <div class="card">
+        <div class="card-head">Basic Info</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="entryDate" required>
+          </div>
+          <div class="field">
+            <label>Day</label>
+            <input type="text" id="entryDay" readonly>
+          </div>
+          <div class="field">
+            <label>Shift <span class="req">*</span></label>
+            <select id="entryShift" required>
+              <option value="">Select...</option>
+              <option value="4:00AM - 12:00PM">4AM - 12PM</option>
+              <option value="12:00PM - 8:00PM">12PM - 8PM</option>
+              <option value="8:00PM - 4:00AM">8PM - 4AM</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Loader <span class="req">*</span></label>
+            <input type="text" id="entryLoader" placeholder="Name" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat cyan"><span>CFR</span><strong id="statCFR">₱0</strong></div>
+        <div class="stat green"><span>Remit</span><strong id="statRemit">₱0</strong></div>
+        <div class="stat yellow"><span>Unremit</span><strong id="statUnremit">₱0</strong></div>
+      </div>
+
+      <!-- Active Chips -->
+      <div class="card">
+        <div class="card-head">Active Chips <span class="total" id="activeTotal">₱0</span></div>
+        <div class="rows" id="activeList"></div>
+        <button type="button" class="btn-add" onclick="addRow('active')">+ Add</button>
+      </div>
+
+      <!-- End Chips -->
+      <div class="card">
+        <div class="card-head">End Chips <span class="total" id="endTotal">₱0</span></div>
+        <div class="rows" id="endList">
+          <div class="row">
+            <input type="text" inputmode="decimal" placeholder="Amount" class="amt" oninput="calc()">
+            <input type="text" value="End Chips" class="desc">
+            <button type="button" class="btn-x" onclick="removeRow(this)">×</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add" onclick="addRow('end')">+ Add</button>
+      </div>
+
+      <!-- Remittances -->
+      <div class="card">
+        <div class="card-head">Remittances <span class="total" id="remitTotal">₱0</span></div>
+        <div class="rows" id="remitList">
+          <div class="row">
+            <input type="text" inputmode="decimal" placeholder="Amount" class="amt" oninput="calc()">
+            <input type="text" value="Remittance" class="desc">
+            <button type="button" class="btn-x" onclick="removeRow(this)">×</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add" onclick="addRow('remit')">+ Add</button>
+      </div>
+
+      <!-- Details -->
+      <div class="card">
+        <div class="card-head">Details</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Bank Fee</label>
+            <input type="text" inputmode="decimal" id="bankFee" value="15" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Salary</label>
+            <input type="text" inputmode="decimal" id="salary" value="0" oninput="calc()">
+          </div>
+          <div class="field full">
+            <label>Remarks</label>
+            <input type="text" id="remarks" value="DONE">
+          </div>
+        </div>
+        <!-- Calc Summary -->
+        <div class="calc-box">
+          <div class="calc-row"><span>CFR (Active - End)</span><span id="calcCFR">₱0</span></div>
+          <div class="calc-row"><span>Total Remit + Salary</span><span id="calcRemit">₱0</span></div>
+          <div class="calc-row big"><span>Unremitted</span><span id="calcUnremit">₱0</span></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button type="submit" class="btn primary" id="submitBtn">💾 Save Entry</button>
+        <button type="button" class="btn secondary" onclick="clearForm()">Clear</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Report Tab -->
+  <section class="tab-panel" id="tab-report">
+    <div class="card">
+      <div class="card-head">
+        <span>Reports</span>
+        <button class="btn small" id="refreshBtn" onclick="loadData()">🔄 Refresh</button>
+      </div>
+      <div class="filters">
+        <select id="filterLoader" onchange="filterData()"><option value="">All Loaders</option></select>
+        <input type="date" id="filterStart" onchange="filterData()">
+        <input type="date" id="filterEnd" onchange="filterData()">
+        <button class="btn small" onclick="clearFilter()">✕</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Shift</th>
+              <th>Loader</th>
+              <th>Active</th>
+              <th>End</th>
+              <th>CFR</th>
+              <th>Remit</th>
+              <th>Unremit</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="reportBody">
+            <tr><td colspan="9" class="empty">No data</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Settings Tab -->
+  <section class="tab-panel" id="tab-settings">
+    <div class="card">
+      <div class="card-head">CFR Google Sheets <span class="ver">v5.9.0</span></div>
+      <div class="field">
+        <label>Script URL</label>
+        <input type="url" id="scriptUrl" placeholder="https://script.google.com/...">
+      </div>
+      <div class="actions">
+        <button class="btn primary" onclick="saveUrl()">Save</button>
+        <button class="btn secondary" onclick="testConn()">Test</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">COH Tracker <span class="badge green">AUTO-SYNC</span></div>
+      <p class="desc">Entries auto-sync to Cash on Hand as Fund In</p>
+      <div class="field">
+        <label>COH Script URL</label>
+        <input type="url" id="cohUrl" placeholder="https://script.google.com/...">
+      </div>
+      <div class="coh-status" id="cohStatus">○ Not configured</div>
+      <div class="actions">
+        <button class="btn green" onclick="saveCohUrl()">Save</button>
+        <button class="btn secondary" onclick="testCoh()">Test</button>
+      </div>
+      <div class="divider"></div>
+      <div class="setting-row">
+        <div>
+          <strong>Sync All to COH</strong>
+          <span class="desc" id="cohSyncCount">Sync missing entries</span>
+        </div>
+        <button class="btn warning" id="syncAllBtn" onclick="syncAllToCOH()">Sync All</button>
+      </div>
+      <div class="progress" id="syncProgress">
+        <span id="syncText">Syncing...</span>
+        <div class="progress-bar"><div class="progress-fill" id="syncFill"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">Offline Data</div>
+      <div class="setting-row">
+        <div>
+          <strong>Pending Entries</strong>
+          <span class="desc" id="pendingCount">0 waiting</span>
+        </div>
+        <button class="btn warning" onclick="syncPending()">Sync Now</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">App</div>
+      <div class="setting-row">
+        <div><strong>Hard Refresh</strong><span class="desc">Clear cache</span></div>
+        <button class="btn green" onclick="hardRefresh()">Refresh</button>
+      </div>
+      <div class="setting-row">
+        <div><strong>Clear All Data</strong><span class="desc">Remove everything</span></div>
+        <button class="btn danger" onclick="clearAllData()">Clear</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Toast Container -->
+<div class="toasts" id="toasts"></div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span>✏️ Edit Entry</span>
+      <button class="btn-x" onclick="closeEdit()">×</button>
+    </div>
+    <form id="editForm" onsubmit="saveEdit(event)">
+      <div class="grid-2">
+        <div class="field"><label>Date</label><input type="date" id="editDate"></div>
+        <div class="field"><label>Shift</label>
+          <select id="editShift">
+            <option value="4:00AM - 12:00PM">4AM-12PM</option>
+            <option value="12:00PM - 8:00PM">12PM-8PM</option>
+            <option value="8:00PM - 4:00AM">8PM-4AM</option>
+          </select>
+        </div>
+        <div class="field full"><label>Loader</label><input type="text" id="editLoader"></div>
+        <div class="field"><label>Active</label><input type="text" inputmode="decimal" id="editActive" oninput="recalcEdit()"></div>
+        <div class="field"><label>End</label><input type="text" inputmode="decimal" id="editEnd" oninput="recalcEdit()"></div>
+        <div class="field"><label>CFR</label><input type="text" id="editCFR" readonly class="readonly"></div>
+        <div class="field"><label>Remit</label><input type="text" inputmode="decimal" id="editRemit" oninput="recalcEdit()"></div>
+        <div class="field"><label>Fee</label><input type="text" inputmode="decimal" id="editFee"></div>
+        <div class="field"><label>Salary</label><input type="text" inputmode="decimal" id="editSalary" oninput="recalcEdit()"></div>
+        <div class="field"><label>Unremit</label><input type="text" id="editUnremit" readonly class="readonly"></div>
+        <div class="field full"><label>Remarks</label><input type="text" id="editRemarks"></div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary">💾 Save</button>
+        <button type="button" class="btn danger" onclick="deleteEntry()">🗑️ Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal" id="deleteModal">
+  <div class="modal-box small">
+    <div class="modal-head"><span>⚠️ Delete Entry?</span></div>
+    <p>This cannot be undone.</p>
+    <div class="actions">
+      <button class="btn danger" onclick="confirmDelete()">Delete</button>
+      <button class="btn secondary" onclick="closeDelete()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
