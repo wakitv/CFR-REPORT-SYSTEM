@@ -1,5 +1,5 @@
 /**
- * WackyBuds CFR v5.9.2
+ * WackyBuds CFR v5.9.3
  * Based on Original System - All Logic Preserved
  */
 
@@ -159,13 +159,21 @@ function updatePendUI() {
   $('pendingCount').textContent = p.length + ' entries waiting to sync';
 }
 
-// ===== TOGGLE ENTRY FORM (NEW) =====
+// ===== TOGGLE ENTRY FORM =====
 function toggleEntry() {
   const card = document.querySelector('.entry-card');
-  const arrow = $('toggleArrow');
+  const arrow = document.getElementById('toggleArrow');
+  if (!card || !arrow) return;
+  
   entryOpen = !entryOpen;
-  card.classList.toggle('open', entryOpen);
-  arrow.classList.toggle('up', entryOpen);
+  
+  if (entryOpen) {
+    card.classList.add('open');
+    arrow.classList.add('up');
+  } else {
+    card.classList.remove('open');
+    arrow.classList.remove('up');
+  }
 }
 
 // ===== STATUS (from old system) =====
@@ -393,16 +401,22 @@ async function syncPending() {
   toast(ok === pend.length ? 'All entries synced!' : ok + '/' + pend.length + ' synced', ok === pend.length ? 'success' : 'warning');
 }
 
-// ===== TABS (moved to init) =====
+// ===== TABS =====
 function initTabs() {
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.onclick = () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      // Remove active from all tabs
+      tabs.forEach(t => t.classList.remove('active'));
+      // Remove active from all content
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      tab.classList.add('active');
-      const content = $(tab.dataset.tab);
+      // Add active to clicked tab
+      this.classList.add('active');
+      // Add active to corresponding content
+      const tabId = this.getAttribute('data-tab');
+      const content = document.getElementById(tabId);
       if (content) content.classList.add('active');
-    };
+    });
   });
 }
 
@@ -1110,14 +1124,17 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCohStatus();
   
   // Entry toggle click handler
-  const entryToggle = $('entryToggle');
-  if (entryToggle) entryToggle.addEventListener('click', toggleEntry);
+  const entryToggle = document.getElementById('entryToggle');
+  if (entryToggle) {
+    entryToggle.addEventListener('click', toggleEntry);
+  }
   
   // Open entry form by default
   const entryCard = document.querySelector('.entry-card');
+  const toggleArrow = document.getElementById('toggleArrow');
   if (entryCard) entryCard.classList.add('open');
-  const toggleArrow = $('toggleArrow');
   if (toggleArrow) toggleArrow.classList.add('up');
+  entryOpen = true;
   
   // Modal close on outside click
   const editModal = $('editModal');
