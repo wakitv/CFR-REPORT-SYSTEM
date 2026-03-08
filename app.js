@@ -1,6 +1,6 @@
 /**
- * WackyBuds CFR v5.9.0
- * Compact Edition
+ * WackyBuds CFR v5.9.1
+ * Fixes: Invalid date, auto-sync COH, entry inside reports
  */
 
 // ===== Config =====
@@ -10,7 +10,7 @@ const CFG = {
   tz: 'Asia/Manila'
 };
 
-const STR = { pend: 'cfr_pend_v5', sent: 'cfr_sent_v5', cache: 'cfr_cache_v5' };
+const STR = { pend: 'cfr_pend_v5', sent: 'cfr_sent_v5', cache: 'cfr_cache_v5', cohSent: 'cfr_coh_sent' };
 
 // Shift order for sorting (business day)
 const SHIFT_ORD = { '4:00AM - 12:00PM': 1, '8:00PM - 4:00AM': 2, '12:00PM - 8:00PM': 3 };
@@ -30,7 +30,8 @@ let lastEnd = parseFloat(localStorage.getItem('cfr_last_end')) || 0;
 let editRow = null;
 let online = navigator.onLine;
 let submitting = false;
-let cohKeys = new Set();
+let cohExistingKeys = new Set();
+let entryOpen = true;
 
 // ===== Helpers =====
 const $ = id => document.getElementById(id);
@@ -40,10 +41,59 @@ const fC = v => '₱' + fmtNum(v);
 const fV = v => (!v && v !== 0) ? '' : fmtNum(v);
 const genId = () => Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 
-const fTime = () => new Date().toLocaleTimeString('en-US', { timeZone: CFG.tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-const fDateFull = () => new Date().toLocaleDateString('en-US', { timeZone: CFG.tz, weekday: 'long', month: 'short', day: 'numeric' });
-const fDateShort = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-';
-const getDayName = d => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(d + 'T12:00:00').getDay()];
+// Fixed date formatting - handle invalid dates
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  try {
+    // Handle both YYYY-MM-DD and other formats
+    const d = new Date(dateStr + 'T12:00:00');
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return '-';
+  }
+}
+
+function formatDateFull(dateStr) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr + 'T12:00:00');
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch {
+    return '-';
+  }
+}
+
+function getDayName(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr + 'T12:00:00');
+    if (isNaN(d.getTime())) return '';
+    return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.getDay()];
+  } catch {
+    return '';
+  }
+}
+
+function getShortDay(dateStr) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr + 'T12:00:00');
+    if (isNaN(d.getTime())) return '-';
+    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
+  } catch {
+    return '-';
+  }
+}
+
+function getTodayDate() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 // Storage
 const getPend = () => { try { return JSON.parse(localStorage.getItem(STR.pend)) || []; } catch { return []; } };
@@ -56,6 +106,12 @@ const getCache = () => { try { return JSON.parse(localStorage.getItem(STR.cache)
 const saveCache = a => localStorage.setItem(STR.cache, JSON.stringify(a));
 const setLastEnd = v => { lastEnd = pN(v); localStorage.setItem('cfr_last_end', lastEnd); };
 
+// COH sent tracking
+const getCohSent = () => { try { return JSON.parse(localStorage.getItem(STR.cohSent)) || []; } catch { return []; } };
+const saveCohSent = a => localStorage.setItem(STR.cohSent, JSON.stringify(a.slice(-500)));
+const wasCohSent = id => getCohSent().includes(id);
+const markCohSent = id => { const a = getCohSent(); if (!a.includes(id)) { a.push(id); saveCohSent(a); } };
+
 // Toast
 function toast(msg, type = 'success') {
   const c = $('toasts');
@@ -63,18 +119,16 @@ function toast(msg, type = 'success') {
   t.className = 'toast ' + type;
   t.innerHTML = '<span class="toast-icon">' + (type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✕') + '</span><span>' + msg + '</span>';
   c.appendChild(t);
-  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
 }
 
-// ===== Clock =====
-function updateClock() {
-  $('clock').textContent = fTime();
-  $('date').textContent = fDateFull();
-}
-
-function updateDay() {
-  const v = $('entryDate').value;
-  $('entryDay').value = v ? getDayName(v) : '';
+// ===== Toggle Entry Form =====
+function toggleEntry() {
+  const card = document.querySelector('.entry-card');
+  const icon = $('toggleIcon');
+  entryOpen = !entryOpen;
+  card.classList.toggle('open', entryOpen);
+  icon.classList.toggle('up', entryOpen);
 }
 
 // ===== Status =====
@@ -96,7 +150,6 @@ function updatePendUI() {
   badge.classList.toggle('show', p.length > 0);
   $('pendingCount').textContent = p.length + ' waiting';
   
-  // Update dot
   const dot = $('statusDot');
   if (online && p.length > 0) {
     dot.className = 'dot pend';
@@ -117,26 +170,35 @@ document.querySelectorAll('.tab').forEach(tab => {
   };
 });
 
+// ===== Day Update =====
+function updateDay() {
+  const v = $('entryDate').value;
+  $('entryDay').value = getDayName(v);
+}
+
 // ===== Next Entry =====
 function getNext() {
-  const sorted = [...allData].sort((a, b) =>
+  const sorted = [...allData].filter(e => e.date).sort((a, b) =>
     new Date(b.date) - new Date(a.date) || (SHIFT_ORD[a.shift] || 0) - (SHIFT_ORD[b.shift] || 0)
   );
   
   if (sorted.length === 0) {
-    return { date: new Date().toISOString().split('T')[0], shift: SHIFT_CYC[0] };
+    return { date: getTodayDate(), shift: SHIFT_CYC[0] };
   }
   
   const last = sorted[0];
   const idx = SHIFT_CYC.indexOf(last.shift);
   
-  if (idx === -1) return { date: new Date().toISOString().split('T')[0], shift: SHIFT_CYC[0] };
+  if (idx === -1) return { date: getTodayDate(), shift: SHIFT_CYC[0] };
   
   // If last shift is 8PM-4AM (index 2), next day
   if (idx === 2) {
     const d = new Date(last.date + 'T12:00:00');
     d.setDate(d.getDate() + 1);
-    return { date: d.toISOString().split('T')[0], shift: SHIFT_CYC[0] };
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return { date: `${y}-${m}-${day}`, shift: SHIFT_CYC[0] };
   }
   
   return { date: last.date, shift: SHIFT_CYC[idx + 1] };
@@ -147,7 +209,9 @@ function setNext() {
   $('entryDate').value = n.date;
   $('entryShift').value = n.shift;
   updateDay();
-  $('nextHint').innerHTML = '→ Next: <strong>' + fDateShort(n.date) + ' • ' + n.shift.replace(':00', '').replace(' - ', '-') + '</strong>';
+  
+  const shortShift = n.shift.replace(':00', '').replace(' - ', '-');
+  $('nextHint').textContent = 'Next: ' + formatDate(n.date) + ' • ' + shortShift;
 }
 
 // ===== Auto-fill Starting =====
@@ -265,7 +329,7 @@ function clearForm() {
 }
 
 // ===== Submit =====
-$('entryForm').onsubmit = e => {
+$('theForm').onsubmit = async e => {
   e.preventDefault();
   
   if (!validate()) {
@@ -327,9 +391,14 @@ $('entryForm').onsubmit = e => {
   btn.disabled = false;
   submitting = false;
   
-  // Send to server
+  // Send to server AND auto-sync to COH
   if (online && CFG.url) {
-    setTimeout(() => sendToServer(entry), 100);
+    const sent = await sendToServer(entry);
+    
+    // Auto-sync to COH if CFR was sent successfully
+    if (sent && CFG.cohUrl) {
+      await sendToCOH(entry, true);
+    }
   }
   
   updatePendUI();
@@ -352,15 +421,13 @@ async function sendToServer(entry) {
     });
     
     if (res.ok) {
-      markSent(entry.uniqueId);
-      savePend(getPend().filter(e => e.uniqueId !== entry.uniqueId));
-      updatePendUI();
-      
-      // COH sync
-      if (CFG.cohUrl) {
-        setTimeout(() => sendToCOH(entry, true), 500);
+      const json = await res.json();
+      if (json.success) {
+        markSent(entry.uniqueId);
+        savePend(getPend().filter(e => e.uniqueId !== entry.uniqueId));
+        updatePendUI();
+        return true;
       }
-      return true;
     }
   } catch (err) {
     console.log('Send error:', err);
@@ -379,7 +446,13 @@ async function syncPending() {
   let ok = 0;
   
   for (const e of pend) {
-    if (await sendToServer(e)) ok++;
+    if (await sendToServer(e)) {
+      ok++;
+      // Also sync to COH
+      if (CFG.cohUrl && !wasCohSent(e.uniqueId)) {
+        await sendToCOH(e, false);
+      }
+    }
   }
   
   toast(ok === pend.length ? 'All synced!' : ok + '/' + pend.length + ' synced', ok === pend.length ? 'success' : 'warning');
@@ -397,10 +470,10 @@ async function fetchCohData() {
     if (res.ok) {
       const json = await res.json();
       if (json.success && json.records) {
-        cohKeys.clear();
+        cohExistingKeys.clear();
         json.records.forEach(r => {
           if (r.category === 'Remittance') {
-            cohKeys.add(`${r.date}|${r.shift}|${r.remarks}`);
+            cohExistingKeys.add(`${r.date}|${r.shift}|${r.remarks}`);
           }
         });
       }
@@ -410,7 +483,16 @@ async function fetchCohData() {
 
 async function sendToCOH(entry, showToast = false) {
   if (!CFG.cohUrl || !online) return false;
-  if (cohKeys.has(getCohKey(entry))) {
+  
+  // Check if already sent via local tracking
+  if (wasCohSent(entry.uniqueId)) {
+    if (showToast) toast('Already synced to COH');
+    return true;
+  }
+  
+  // Check if exists in COH
+  if (cohExistingKeys.has(getCohKey(entry))) {
+    markCohSent(entry.uniqueId);
     if (showToast) toast('Already in COH');
     return true;
   }
@@ -425,7 +507,7 @@ async function sendToCOH(entry, showToast = false) {
       remarks: entry.dutyName,
       amount: entry.cfr,
       fee: entry.bankFee,
-      rowId: 'CFR-' + entry.date + '-' + entry.dutyName
+      rowId: 'CFR-' + entry.uniqueId
     };
     
     const res = await fetch(CFG.cohUrl, {
@@ -437,7 +519,8 @@ async function sendToCOH(entry, showToast = false) {
     if (res.ok) {
       const json = await res.json();
       if (json.success) {
-        cohKeys.add(getCohKey(entry));
+        cohExistingKeys.add(getCohKey(entry));
+        markCohSent(entry.uniqueId);
         if (showToast) toast('Synced to COH!');
         return true;
       }
@@ -459,35 +542,39 @@ async function syncAllToCOH() {
   const progressBar = $('syncFill');
   
   progress.classList.add('show');
-  progressText.textContent = 'Fetching COH data...';
+  progressText.textContent = 'Checking COH...';
   progressBar.style.width = '0%';
   
+  // Fetch existing COH data first
   await fetchCohData();
   
+  // Get entries that haven't been sent to COH
   const entries = getCache().filter(e => e.date && e.cfr);
-  const toSync = entries.filter(e => !cohKeys.has(getCohKey(e)));
+  const toSync = entries.filter(e => !wasCohSent(e.uniqueId) && !cohExistingKeys.has(getCohKey(e)));
   
   if (toSync.length === 0) {
-    toast('All entries synced!');
+    toast('All entries already in COH!');
     btn.disabled = false;
-    btn.textContent = 'Sync All';
+    btn.textContent = 'Sync Missing';
     progress.classList.remove('show');
-    $('cohSyncCount').textContent = entries.length + ' entries synced ✓';
+    $('cohSyncCount').textContent = 'All ' + entries.length + ' synced ✓';
     return;
   }
+  
+  progressText.textContent = `Found ${toSync.length} new entries...`;
   
   let synced = 0;
   for (let i = 0; i < toSync.length; i++) {
     progressText.textContent = `Syncing ${i + 1} of ${toSync.length}...`;
     progressBar.style.width = ((i + 1) / toSync.length * 100) + '%';
     if (await sendToCOH(toSync[i], false)) synced++;
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 250));
   }
   
   btn.disabled = false;
-  btn.textContent = 'Sync All';
+  btn.textContent = 'Sync Missing';
   progress.classList.remove('show');
-  $('cohSyncCount').textContent = synced + ' entries synced';
+  $('cohSyncCount').textContent = synced + ' new entries synced';
   toast(`Synced ${synced} of ${toSync.length}`, synced === toSync.length ? 'success' : 'warning');
 }
 
@@ -499,7 +586,7 @@ function loadLocal() {
   filterData();
   updateLoaderFilter();
   
-  const sorted = [...allData].filter(e => !e.pending).sort((a, b) =>
+  const sorted = [...allData].filter(e => !e.pending && e.date).sort((a, b) =>
     new Date(b.date) - new Date(a.date) || (SHIFT_ORD[a.shift] || 0) - (SHIFT_ORD[b.shift] || 0)
   );
   
@@ -546,7 +633,7 @@ async function loadDataSilent() {
       filterData();
       updateLoaderFilter();
       
-      const sorted = [...allData].filter(e => !e.pending).sort((a, b) =>
+      const sorted = [...allData].filter(e => !e.pending && e.date).sort((a, b) =>
         new Date(b.date) - new Date(a.date) || (SHIFT_ORD[a.shift] || 0) - (SHIFT_ORD[b.shift] || 0)
       );
       
@@ -600,7 +687,7 @@ async function loadData() {
       filterData();
       updateLoaderFilter();
       
-      const sorted = [...allData].filter(e => !e.pending).sort((a, b) =>
+      const sorted = [...allData].filter(e => !e.pending && e.date).sort((a, b) =>
         new Date(b.date) - new Date(a.date) || (SHIFT_ORD[a.shift] || 0) - (SHIFT_ORD[b.shift] || 0)
       );
       
@@ -622,14 +709,14 @@ async function loadData() {
   }
   
   btn.disabled = false;
-  btn.innerHTML = '🔄 Refresh';
+  btn.innerHTML = '🔄';
 }
 
 // ===== Filter =====
 function updateLoaderFilter() {
   const sel = $('filterLoader');
   const loaders = [...new Set(allData.map(e => e.dutyName).filter(Boolean))].sort();
-  sel.innerHTML = '<option value="">All Loaders</option>' + loaders.map(l => `<option value="${l}">${l}</option>`).join('');
+  sel.innerHTML = '<option value="">All</option>' + loaders.map(l => `<option value="${l}">${l}</option>`).join('');
 }
 
 function filterData() {
@@ -643,7 +730,7 @@ function filterData() {
   if (start) d = d.filter(e => e.date >= start);
   if (end) d = d.filter(e => e.date <= end);
   
-  d.sort((a, b) => new Date(b.date) - new Date(a.date) || (SHIFT_ORD[a.shift] || 0) - (SHIFT_ORD[b.shift] || 0));
+  d.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0) || (SHIFT_ORD[a.shift] || 0) - (SHIFT_ORD[b.shift] || 0));
   
   filtered = d;
   renderTable();
@@ -660,24 +747,31 @@ function renderTable() {
   const tbody = $('reportBody');
   
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty">No data</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="14" class="empty">No data</td></tr>';
     return;
   }
   
   let html = '';
   filtered.forEach(e => {
     const pend = e.pending && !wasSent(e.uniqueId);
+    const shortShift = (e.shift || '').replace(':00', '').replace(' - ', '-');
+    
     html += `
       <tr class="${pend ? 'pending' : ''}">
-        <td>${fDateShort(e.date)}</td>
-        <td>${(e.shift || '').replace(':00', '').replace(' - ', '-')}</td>
+        <td>${formatDate(e.date)}</td>
+        <td>${getShortDay(e.date)}</td>
+        <td>${shortShift}</td>
         <td>${e.dutyName || '-'}</td>
         <td>${fC(e.activeChipsTotal)}</td>
         <td>${fC(e.endChipsTotal)}</td>
         <td style="color:var(--cyan)">${fC(e.cfr)}</td>
+        <td>${fC(e.remittanceTotal)}</td>
+        <td>${fC(e.salary)}</td>
         <td style="color:var(--green)">${fC(e.totalRemittances)}</td>
         <td style="color:${pN(e.unremitted) < 0 ? 'var(--red)' : 'var(--yellow)'}">${fC(e.unremitted)}</td>
-        <td>${!pend && e.rowIndex ? `<button class="btn small secondary" onclick="openEdit(${e.rowIndex})">Edit</button>` : (pend ? '<span style="color:var(--orange)">●</span>' : '')}</td>
+        <td>${fC(e.bankFee)}</td>
+        <td>${(e.remarks || '-').substring(0, 10)}</td>
+        <td>${!pend && e.rowIndex ? `<button class="btn small secondary" onclick="openEdit(${e.rowIndex})">✎</button>` : (pend ? '●' : '')}</td>
       </tr>
     `;
   });
@@ -691,15 +785,15 @@ function openEdit(rowIndex) {
   const entry = allData.find(e => e.rowIndex === rowIndex);
   if (!entry) { toast('Not found', 'error'); return; }
   
-  $('editDate').value = entry.date;
+  $('editDate').value = entry.date || '';
   $('editShift').value = entry.shift || '';
   $('editLoader').value = entry.dutyName || '';
   $('editActive').value = fV(entry.activeChipsTotal);
   $('editEnd').value = fV(entry.endChipsTotal);
   $('editCFR').value = fV(entry.cfr);
   $('editRemit').value = fV(entry.remittanceTotal);
-  $('editFee').value = fV(entry.bankFee);
   $('editSalary').value = fV(entry.salary);
+  $('editFee').value = fV(entry.bankFee);
   $('editUnremit').value = fV(entry.unremitted);
   $('editRemarks').value = entry.remarks || '';
   
@@ -872,10 +966,6 @@ function clearAllData() {
 
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', () => {
-  // Clock
-  updateClock();
-  setInterval(updateClock, 1000);
-  
   // Online/Offline
   window.addEventListener('online', () => { online = true; updateStatus(); loadDataSilent(); });
   window.addEventListener('offline', () => { online = false; updateStatus(); });
@@ -889,11 +979,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Date change
   $('entryDate').addEventListener('change', updateDay);
   
+  // Open entry form by default
+  document.querySelector('.entry-card').classList.add('open');
+  $('toggleIcon').classList.add('up');
+  
   // Load data
   loadLocal();
   
   if (CFG.url && online) {
     setTimeout(() => loadDataSilent(), 300);
+  }
+  
+  // Fetch COH data for sync check
+  if (CFG.cohUrl && online) {
+    setTimeout(() => fetchCohData(), 500);
   }
 });
 
