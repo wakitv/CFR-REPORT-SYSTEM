@@ -4,7 +4,7 @@ const FILES = ['./', './index.html', './styles.css', './app.js', './manifest.jso
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(cache => cache.addAll(FILES))
+      .then(c => c.addAll(FILES))
       .then(() => self.skipWaiting())
   );
 });
@@ -21,22 +21,19 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   
   const url = new URL(e.request.url);
-  
-  // Don't cache API calls
   if (url.hostname.includes('script.google.com')) return;
   
   e.respondWith(
     caches.match(e.request)
       .then(cached => {
         if (cached) return cached;
-        
         return fetch(e.request)
-          .then(response => {
-            if (response.ok) {
-              const clone = response.clone();
-              caches.open(CACHE).then(cache => cache.put(e.request, clone));
+          .then(res => {
+            if (res.ok) {
+              const clone = res.clone();
+              caches.open(CACHE).then(c => c.put(e.request, clone));
             }
-            return response;
+            return res;
           })
           .catch(() => caches.match('./index.html'));
       })
