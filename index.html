@@ -20,166 +20,195 @@
       <div class="logo">WB</div>
       <div class="header-info">
         <h1>WackyBuds CFR</h1>
-        <span class="status" id="status">● Online</span>
+        <div class="status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Ready</span>
+          <span class="badge" id="pendingBadge" style="display:none">0</span>
+        </div>
       </div>
     </div>
     <div class="header-right">
-      <div class="clock" id="clock">00:00:00</div>
+      <div class="clock" id="clock">--:--:--</div>
       <div class="date" id="date">Loading...</div>
     </div>
   </header>
 
   <!-- Navigation -->
   <nav class="nav">
-    <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
-    <button class="nav-btn" data-tab="entry">New Entry</button>
-    <button class="nav-btn" data-tab="records">Records</button>
-    <button class="nav-btn" data-tab="settings">Settings</button>
+    <button class="nav-btn active" data-tab="entry">✏️ New Entry</button>
+    <button class="nav-btn" data-tab="records">📊 Records</button>
+    <button class="nav-btn" data-tab="settings">⚙️ Settings</button>
   </nav>
 
   <!-- Main Content -->
   <main class="main">
 
-    <!-- Dashboard Tab -->
-    <section class="tab-content active" id="tab-dashboard">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Today's CFR</div>
-          <div class="stat-value" id="todayCfr">₱0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Today's COH</div>
-          <div class="stat-value" id="todayCoh">₱0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Total Entries</div>
-          <div class="stat-value" id="totalEntries">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Pending Sync</div>
-          <div class="stat-value" id="pendingSync">0</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2>Recent Entries</h2>
-          <button class="btn btn-sm" onclick="loadData()">Refresh</button>
-        </div>
-        <div class="table-wrap">
-          <table class="table" id="recentTable">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Shift</th>
-                <th>Loader</th>
-                <th>CFR</th>
-                <th>COH</th>
-              </tr>
-            </thead>
-            <tbody id="recentBody">
-              <tr><td colspan="5" class="empty">No entries yet</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
     <!-- Entry Tab -->
-    <section class="tab-content" id="tab-entry">
-      <div class="card">
-        <div class="card-header">
-          <h2>New CFR Entry</h2>
-        </div>
-        <form id="entryForm" class="form">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Date</label>
-              <input type="date" id="entryDate" required>
-            </div>
-            <div class="form-group">
-              <label>Shift</label>
-              <select id="entryShift" required>
-                <option value="4:00AM - 12:00PM">4:00AM - 12:00PM (Morning)</option>
-                <option value="12:00PM - 8:00PM" selected>12:00PM - 8:00PM (Afternoon)</option>
-                <option value="8:00PM - 4:00AM">8:00PM - 4:00AM (Graveyard)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Loader Name</label>
-            <input type="text" id="entryLoader" placeholder="Enter loader name" required>
-          </div>
-
-          <div class="form-section">
-            <h3>Active Chips</h3>
-            <div id="activeChipsContainer">
-              <div class="chip-row">
-                <input type="number" placeholder="Amount" class="chip-amount">
-                <input type="text" placeholder="Remarks" class="chip-remarks" value="Starting (Prev End)">
-                <button type="button" class="btn-icon" onclick="removeChipRow(this)">×</button>
-              </div>
-            </div>
-            <button type="button" class="btn btn-sm" onclick="addChipRow('activeChipsContainer')">+ Add Row</button>
-          </div>
-
-          <div class="form-section">
-            <h3>End Chips</h3>
-            <div id="endChipsContainer">
-              <div class="chip-row">
-                <input type="number" placeholder="Amount" class="chip-amount">
-                <input type="text" placeholder="Remarks" class="chip-remarks" value="End Chips">
-                <button type="button" class="btn-icon" onclick="removeChipRow(this)">×</button>
-              </div>
-            </div>
-            <button type="button" class="btn btn-sm" onclick="addChipRow('endChipsContainer')">+ Add Row</button>
-          </div>
-
-          <div class="form-section">
-            <h3>Remittance</h3>
-            <div id="remitContainer">
-              <div class="chip-row">
-                <input type="number" placeholder="Amount" class="chip-amount">
-                <input type="text" placeholder="Remarks" class="chip-remarks" value="Remittance">
-                <button type="button" class="btn-icon" onclick="removeChipRow(this)">×</button>
-              </div>
-            </div>
-            <button type="button" class="btn btn-sm" onclick="addChipRow('remitContainer')">+ Add Row</button>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Salary</label>
-              <input type="number" id="entrySalary" placeholder="0" value="0">
-            </div>
-            <div class="form-group">
-              <label>Bank Fee</label>
-              <input type="number" id="entryBankFee" placeholder="15" value="15">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Remarks</label>
-            <input type="text" id="entryRemarks" placeholder="Optional remarks" value="DONE">
-          </div>
-
-          <div class="summary-box" id="summaryBox">
-            <div class="summary-row"><span>Active Chips:</span><span id="sumActive">₱0</span></div>
-            <div class="summary-row"><span>End Chips:</span><span id="sumEnd">₱0</span></div>
-            <div class="summary-row highlight"><span>CFR:</span><span id="sumCfr">₱0</span></div>
-            <div class="summary-row"><span>Remittance:</span><span id="sumRemit">₱0</span></div>
-            <div class="summary-row"><span>Salary:</span><span id="sumSalary">₱0</span></div>
-            <div class="summary-row"><span>Total Remit:</span><span id="sumTotal">₱0</span></div>
-            <div class="summary-row"><span>Unremitted:</span><span id="sumUnremit">₱0</span></div>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
-            <button type="submit" class="btn btn-primary">Save Entry</button>
-          </div>
-        </form>
+    <section class="tab-content active" id="tab-entry">
+      <!-- Next Entry Hint -->
+      <div class="next-entry" id="nextEntryHint">
+        <span class="next-icon">→</span>
+        <span>Next Entry: <strong>Loading...</strong></span>
       </div>
+
+      <form id="entryForm">
+        <!-- Basic Info -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Basic Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="required">Date</label>
+                <input type="date" id="entryDate" required>
+              </div>
+              <div class="form-group">
+                <label>Day</label>
+                <input type="text" id="entryDay" readonly>
+              </div>
+              <div class="form-group">
+                <label class="required">Shift</label>
+                <select id="entryShift" required>
+                  <option value="">Select shift...</option>
+                  <option value="4:00AM - 12:00PM">4:00AM - 12:00PM</option>
+                  <option value="12:00PM - 8:00PM">12:00PM - 8:00PM</option>
+                  <option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="required">Loader Name</label>
+                <input type="text" id="entryLoader" placeholder="Enter loader name" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="stats-row">
+          <div class="stat cyan">
+            <div class="stat-label">CFR</div>
+            <div class="stat-value" id="statCFR">₱0</div>
+          </div>
+          <div class="stat green">
+            <div class="stat-label">Remittance</div>
+            <div class="stat-value" id="statRemit">₱0</div>
+          </div>
+          <div class="stat yellow">
+            <div class="stat-label">Unremitted</div>
+            <div class="stat-value" id="statUnremit">₱0</div>
+          </div>
+        </div>
+
+        <!-- Active Chips -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Active Chips</h2>
+            <span class="card-total" id="activeTotal">₱0</span>
+          </div>
+          <div class="card-body">
+            <div class="chip-list" id="activeList"></div>
+            <button type="button" class="btn-add" onclick="addRow('active')">+ Add Active Chips</button>
+          </div>
+        </div>
+
+        <!-- End Chips -->
+        <div class="card">
+          <div class="card-header">
+            <h2>End Chips</h2>
+            <span class="card-total" id="endTotal">₱0</span>
+          </div>
+          <div class="card-body">
+            <div class="chip-list" id="endList">
+              <div class="chip-row">
+                <input type="text" inputmode="decimal" placeholder="Amount" class="chip-input amt" onkeyup="formatInput(this)" oninput="calc()">
+                <input type="text" class="chip-input" value="End Chips">
+                <button type="button" class="btn-remove" onclick="removeRow(this)">×</button>
+              </div>
+            </div>
+            <button type="button" class="btn-add" onclick="addRow('end')">+ Add End Chips</button>
+          </div>
+        </div>
+
+        <!-- Remittances -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Remittances</h2>
+            <span class="card-total" id="remitTotal">₱0</span>
+          </div>
+          <div class="card-body">
+            <div class="chip-list" id="remitList">
+              <div class="chip-row">
+                <input type="text" inputmode="decimal" placeholder="Amount" class="chip-input amt" onkeyup="formatInput(this)" oninput="calc()">
+                <input type="text" class="chip-input" value="Remittance">
+                <button type="button" class="btn-remove" onclick="removeRow(this)">×</button>
+              </div>
+            </div>
+            <button type="button" class="btn-add" onclick="addRow('remit')">+ Add Remittance</button>
+          </div>
+        </div>
+
+        <!-- Additional Details -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Additional Details</h2>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Bank Fee</label>
+                <input type="text" inputmode="decimal" id="bankFee" value="15" onkeyup="formatInput(this)" oninput="calc()">
+              </div>
+              <div class="form-group">
+                <label>Salary</label>
+                <input type="text" inputmode="decimal" id="salary" value="0" onkeyup="formatInput(this)" oninput="calc()">
+              </div>
+              <div class="form-group full">
+                <label>Remarks</label>
+                <input type="text" id="remarks" value="DONE" placeholder="Enter remarks">
+              </div>
+            </div>
+
+            <!-- Calculation Summary -->
+            <div class="calc-box">
+              <div class="calc-row">
+                <span>Active Chips</span>
+                <span id="calcActive">₱0</span>
+              </div>
+              <div class="calc-row">
+                <span>End Chips</span>
+                <span id="calcEnd">₱0</span>
+              </div>
+              <div class="calc-row highlight">
+                <span>CFR (Active - End)</span>
+                <span id="calcCFR">₱0</span>
+              </div>
+              <div class="calc-row">
+                <span>Total Remittance</span>
+                <span id="calcRemit">₱0</span>
+              </div>
+              <div class="calc-row">
+                <span>Salary</span>
+                <span id="calcSalary">₱0</span>
+              </div>
+              <div class="calc-row">
+                <span>Total (Remit + Salary)</span>
+                <span id="calcTotal">₱0</span>
+              </div>
+              <div class="calc-row">
+                <span>Unremitted</span>
+                <span id="calcUnremit">₱0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">💾 Save Entry</button>
+        </div>
+      </form>
     </section>
 
     <!-- Records Tab -->
@@ -187,17 +216,20 @@
       <div class="card">
         <div class="card-header">
           <h2>All Records</h2>
+          <button class="btn btn-sm" id="refreshBtn" onclick="loadData()">🔄 Refresh</button>
+        </div>
+        <div class="card-body">
           <div class="filter-row">
             <select id="filterLoader">
               <option value="">All Loaders</option>
             </select>
-            <input type="date" id="filterStart" placeholder="Start Date">
-            <input type="date" id="filterEnd" placeholder="End Date">
+            <input type="date" id="filterStart">
+            <input type="date" id="filterEnd">
             <button class="btn btn-sm" onclick="filterData()">Filter</button>
           </div>
         </div>
         <div class="table-wrap">
-          <table class="table" id="recordsTable">
+          <table class="table">
             <thead>
               <tr>
                 <th>Date</th>
@@ -208,7 +240,7 @@
                 <th>End</th>
                 <th>CFR</th>
                 <th>COH</th>
-                <th>Actions</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="recordsBody">
@@ -226,7 +258,7 @@
           <h2>Settings</h2>
           <span class="version">v5.9.0</span>
         </div>
-        <div class="form">
+        <div class="card-body">
           <div class="form-group">
             <label>Script URL (CFR)</label>
             <input type="url" id="scriptUrl" placeholder="https://script.google.com/...">
@@ -234,6 +266,7 @@
           <div class="form-group">
             <label>COH Script URL</label>
             <input type="url" id="cohUrl" placeholder="https://script.google.com/...">
+            <div class="coh-status" id="cohStatus">COH: Not configured</div>
           </div>
           <div class="form-actions">
             <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
@@ -246,16 +279,18 @@
         <div class="card-header">
           <h2>Data Management</h2>
         </div>
-        <div class="form-actions">
-          <button class="btn btn-secondary" onclick="syncPending()">Sync Pending (<span id="pendingCount">0</span>)</button>
-          <button class="btn btn-danger" onclick="clearCache()">Clear Cache</button>
+        <div class="card-body">
+          <div class="form-actions">
+            <button class="btn btn-secondary" onclick="syncPending()">Sync Pending (<span id="pendingCount">0</span>)</button>
+            <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+          </div>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Toast Notification -->
+  <!-- Toast -->
   <div class="toast" id="toast"></div>
 
   <!-- Edit Modal -->
@@ -263,11 +298,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <h3>Edit Entry</h3>
-        <button class="btn-icon" onclick="closeModal()">×</button>
+        <button class="btn-close" onclick="closeModal()">×</button>
       </div>
-      <form id="editForm" class="form">
+      <form id="editForm">
         <input type="hidden" id="editRowIndex">
-        <div class="form-row">
+        <div class="form-grid">
           <div class="form-group">
             <label>Date</label>
             <input type="date" id="editDate" required>
@@ -280,29 +315,33 @@
               <option value="8:00PM - 4:00AM">8:00PM - 4:00AM</option>
             </select>
           </div>
-        </div>
-        <div class="form-group">
-          <label>Loader</label>
-          <input type="text" id="editLoader" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Active Chips</label>
-            <input type="number" id="editActive" required>
+          <div class="form-group full">
+            <label>Loader</label>
+            <input type="text" id="editLoader" required>
           </div>
           <div class="form-group">
-            <label>End Chips</label>
-            <input type="number" id="editEnd" required>
+            <label>Active</label>
+            <input type="text" inputmode="decimal" id="editActive" onkeyup="formatInput(this)" oninput="recalcEdit()">
           </div>
-        </div>
-        <div class="form-row">
           <div class="form-group">
-            <label>Remittance</label>
-            <input type="number" id="editRemit" required>
+            <label>End</label>
+            <input type="text" inputmode="decimal" id="editEnd" onkeyup="formatInput(this)" oninput="recalcEdit()">
+          </div>
+          <div class="form-group">
+            <label>Remit</label>
+            <input type="text" inputmode="decimal" id="editRemit" onkeyup="formatInput(this)" oninput="recalcEdit()">
           </div>
           <div class="form-group">
             <label>Salary</label>
-            <input type="number" id="editSalary">
+            <input type="text" inputmode="decimal" id="editSalary" onkeyup="formatInput(this)" oninput="recalcEdit()">
+          </div>
+          <div class="form-group">
+            <label>Bank Fee</label>
+            <input type="text" inputmode="decimal" id="editFee" onkeyup="formatInput(this)">
+          </div>
+          <div class="form-group">
+            <label>CFR</label>
+            <input type="text" id="editCFR" readonly>
           </div>
         </div>
         <div class="form-actions">
@@ -314,10 +353,5 @@
   </div>
 
   <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
-  </script>
 </body>
 </html>
