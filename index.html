@@ -252,8 +252,8 @@ tr.pending{background:rgba(251,191,36,.05);border-left:3px solid var(--orange)}
 </head>
 <body>
 <div class="offline-banner" id="offlineBanner">⚡ Offline Mode — Data will sync automatically when connected</div>
-<div class="loading" id="loading"><div class="loading-logo">WB</div><div class="loading-text">Loading...</div></div>
-<div id="app" style="display:none">
+<div class="loading" id="loading" style="display:none"><div class="loading-logo">WB</div><div class="loading-text">Loading...</div></div>
+<div id="app" style="display:block">
 <header class="header">
 <div class="header-content">
 <div class="logo">
@@ -348,7 +348,7 @@ tr.pending{background:rgba(251,191,36,.05);border-left:3px solid var(--orange)}
 </div>
 <div id="settings" class="tab-content">
 <div class="card">
-<div class="card-head"><div class="card-title">Settings</div><span class="version-tag">v5.8.0</span></div>
+<div class="card-head"><div class="card-title">Settings</div><span class="version-tag">v5.8.1</span></div>
 <div class="settings-group">
 <div class="settings-title">🔗 CFR Google Sheets</div>
 <div class="form-group"><label class="form-label">Script URL</label><input type="url" class="form-input" id="scriptUrl" placeholder="https://script.google.com/..."></div>
@@ -486,7 +486,7 @@ async function testCoh(){const url=$('cohUrl').value.trim()||CFG.cohUrl;if(!url)
 function hardRefresh(){if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(reg=>reg.unregister()));caches.keys().then(names=>names.forEach(n=>caches.delete(n)));toast('Refreshing app...');setTimeout(()=>location.reload(true),500);}
 function clearAllData(){if(!confirm('⚠️ Clear ALL local data?\n\nThis will remove all cached entries and settings. This action cannot be undone.'))return;localStorage.clear();toast('All data cleared');setTimeout(()=>location.reload(),500);}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-document.addEventListener('DOMContentLoaded',()=>{updateClock();setInterval(updateClock,1000);window.addEventListener('online',()=>{online=true;updateStatus();loadDataSilent();});window.addEventListener('offline',()=>{online=false;updateStatus();});updateStatus();if(CFG.url)$('scriptUrl').value=CFG.url;if(CFG.cohUrl)$('cohUrl').value=CFG.cohUrl;updateCohStatus();loadLocal();setTimeout(()=>{$('loading').style.display='none';$('app').style.display='block';if(CFG.url&&online)setTimeout(()=>loadDataSilent(),300);},300);});
+document.addEventListener('DOMContentLoaded',()=>{updateClock();setInterval(updateClock,1000);window.addEventListener('online',()=>{online=true;updateStatus();loadDataSilent();});window.addEventListener('offline',()=>{online=false;updateStatus();});updateStatus();if(CFG.url)$('scriptUrl').value=CFG.url;if(CFG.cohUrl)$('cohUrl').value=CFG.cohUrl;updateCohStatus();loadLocal();if(CFG.url&&online)setTimeout(()=>loadDataSilent(),300);});
 </script>
 </body>
 </html>
