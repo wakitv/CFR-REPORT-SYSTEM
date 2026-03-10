@@ -1,6 +1,7 @@
 /**
- * WackyBuds CFR v5.9.5
+ * WackyBuds CFR v5.9.10
  * Based on Original System - All Logic Preserved
+ * NO DAY COLUMN IN TABLE
  */
 
 // ===== CONFIG (from old system) =====
@@ -579,6 +580,16 @@ function validate() {
   return ok;
 }
 
+// ===== CHECK DUPLICATE =====
+function isDuplicateEntry(date, shift, loader) {
+  const loaderUpper = (loader || '').toUpperCase();
+  return allData.some(e => 
+    e.date === date && 
+    e.shift === shift && 
+    (e.dutyName || '').toUpperCase() === loaderUpper
+  );
+}
+
 // ===== FORM SUBMIT (moved to init) =====
 function initFormHandler() {
   const form = $('entryForm');
@@ -595,6 +606,29 @@ function initFormHandler() {
     const btn = $('submitBtn');
     if (btn.disabled || submitting) return;
     
+    // Get form values
+    const date = $('entryDate').value;
+    const shift = $('entryShift').value;
+    const loader = $('dutyName').value.trim();
+    
+    // Check for duplicate entry
+    if (isDuplicateEntry(date, shift, loader)) {
+      const shortShift = shift.replace(':00', '').replace(' - ', '-');
+      const confirmDupe = confirm(
+        '⚠️ Duplicate Entry Detected!\n\n' +
+        'An entry already exists for:\n' +
+        '• Date: ' + date + '\n' +
+        '• Shift: ' + shortShift + '\n' +
+        '• Loader: ' + loader.toUpperCase() + '\n\n' +
+        'Do you want to save anyway?'
+      );
+      
+      if (!confirmDupe) {
+        toast('Entry cancelled - duplicate detected', 'warning');
+        return;
+      }
+    }
+    
     submitting = true;
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner"></div> Saving...';
@@ -605,10 +639,10 @@ function initFormHandler() {
     const entry = {
       action: 'addEntry',
       uniqueId: genId(),
-      date: $('entryDate').value,
+      date: date,
       day: $('entryDay').value,
-      shift: $('entryShift').value,
-      dutyName: $('dutyName').value.trim().toUpperCase(),
+      shift: shift,
+      dutyName: loader.toUpperCase(),
       activeChips: getDetails('activeList'),
       activeChipsTotal: activeTotal,
       endChips: getDetails('endList'),
@@ -703,7 +737,12 @@ function loadLocal() {
     return;
   }
   
-  const pend = getPend().filter(e => !wasSent(e.uniqueId));
+  // Get cache entry uniqueIds for deduplication
+  const cacheIds = new Set(cache.map(e => e.uniqueId).filter(Boolean));
+  
+  // Only show pending entries NOT in cache yet AND not marked as sent
+  const pend = getPend().filter(e => !wasSent(e.uniqueId) && !cacheIds.has(e.uniqueId));
+  
   allData = [...pend.map(p => ({ ...p, pending: true })), ...cache];
   filterData();
   updateLoaderFilter();
@@ -750,7 +789,18 @@ async function loadDataSilent() {
       
       saveCache(entries);
       
-      const pend = getPend().filter(e => !wasSent(e.uniqueId));
+      // Get server entry uniqueIds for deduplication
+      const serverIds = new Set(entries.map(e => e.uniqueId).filter(Boolean));
+      
+      // Only show pending entries NOT in server data yet AND not marked as sent
+      const pend = getPend().filter(e => !wasSent(e.uniqueId) && !serverIds.has(e.uniqueId));
+      
+      // Clean up pending queue - remove entries now in server
+      const cleanPend = getPend().filter(e => !serverIds.has(e.uniqueId));
+      if (cleanPend.length !== getPend().length) {
+        savePend(cleanPend);
+      }
+      
       allData = [...pend.map(p => ({ ...p, pending: true })), ...entries];
       filterData();
       updateLoaderFilter();
@@ -814,7 +864,18 @@ async function loadData() {
       
       saveCache(entries);
       
-      const pend = getPend().filter(e => !wasSent(e.uniqueId));
+      // Get server entry uniqueIds for deduplication
+      const serverIds = new Set(entries.map(e => e.uniqueId).filter(Boolean));
+      
+      // Only show pending entries NOT in server data yet AND not marked as sent
+      const pend = getPend().filter(e => !wasSent(e.uniqueId) && !serverIds.has(e.uniqueId));
+      
+      // Clean up pending queue - remove entries now in server
+      const cleanPend = getPend().filter(e => !serverIds.has(e.uniqueId));
+      if (cleanPend.length !== getPend().length) {
+        savePend(cleanPend);
+      }
+      
       allData = [...pend.map(p => ({ ...p, pending: true })), ...entries];
       filterData();
       updateLoaderFilter();
