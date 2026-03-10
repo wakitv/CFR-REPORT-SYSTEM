@@ -1,4 +1,4 @@
-const CACHE = 'wackybuds-cfr-v5.9.5';
+const CACHE = 'wackybuds-cfr-v5.9.10';
 const FILES = ['./', './index.html', './styles.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', e => {
